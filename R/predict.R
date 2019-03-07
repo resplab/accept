@@ -2,7 +2,7 @@ gamma	               <- 0.9694
 b0                   <-	0.05689
 b_male               <-	-0.08636
 b_age10	             <- -0.02341
-b_nowsmk             <-	-0.2002
+b_smoker             <-	-0.2002
 b_oxygen             <-	0.03565
 b_fev1               <-	-0.206
 b_sgrq10             <-	0.1056
@@ -17,7 +17,7 @@ b_BMI10              <-	-0.1107
 c0                  <-   -3.4448
 c_male              <- 0.5553
 c_age10             <- 0.06462
-c_nowsmk            <- 0.4077
+c_smoker            <- 0.4077
 c_oxygen            <- 0.5163
 c_fev1              <- -0.5279
 c_sgrq10            <- 0.2058
@@ -45,15 +45,23 @@ covMat <- matrix(
 #' @export
 predictACCEPT <- function (patientData, random_sampling_N = 1000){
 
+  predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
+  predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
+  predicted_severe_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
+
+
+  predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
+  predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
+
   conditionalZ <- densityLastYrExac(patientData)
 
   for (i in 1:(nrow(patientData)))
 
   {
     log_alpha <-   b0 +
-      b_male * patientData[i, "gender"] +
+      b_male * patientData[i, "male"] +
       b_age10 * patientData[i, "age10"] +
-      b_nowsmk * patientData[i, "nowsmk"] +
+      b_smoker * patientData[i, "smoker"] +
       b_oxygen * patientData[i, "oxygen"] +
       b_fev1 * patientData[i, "FEV1"] +
       b_sgrq10 * patientData[i, "sgrq10"] +
@@ -64,18 +72,18 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
       b_ICS * patientData[i, "ICS"] +
       b_BMI10 * patientData[i, "BMI10"]
 
+    ID <- as.character(patientData[i, "ID"])
     z <- sample_n(conditionalZ[[ID]], random_sampling_N, replace = TRUE, weight = weight)
 
 
     alpha <- exp (as.numeric(log_alpha) + z[, "z1"])
     lambda <- alpha ^ gamma
     predicted_exac_rate[, i] <- lambda #debug. Check with Mohsen. Implement gamma.
-    predicted_exac_probability[, i] <- 1 - exp(-lambda*(as.numeric(patientData[i, "follow_up"])^gamma))
+    predicted_exac_probability[, i] <- 1 - exp(-lambda)
     predicted_exac_count[, i] <-  as.numeric(lapply(lambda, rpois, n=1))
 
 
     patientData [i, "predicted_exac_rate"] <- mean(predicted_exac_rate[,i])
-    patientData [i, "predicted_exac_rate_under_2"] <- FALSE
     patientData [i, "predicted_exac_probability"] <- mean(predicted_exac_probability[,i])
     patientData [i, "predicted_exac_count"] <- mean(predicted_exac_count[,i])
     patientData [i, "predicted_count_low"]  <- quantile(predicted_exac_count[,i], 0.025)
@@ -84,9 +92,9 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
 
     #severity
     c_lin <-   c0 +
-      c_male * patientData[i, "gender"] +
+      c_male * patientData[i, "male"] +
       c_age10 * patientData[i, "age10"] +
-      c_nowsmk * patientData[i, "nowsmk"] +
+      c_smoker * patientData[i, "smoker"] +
       c_oxygen * patientData[i, "oxygen"] +
       c_fev1 * patientData[i, "FEV1"] +
       c_sgrq10 * patientData[i, "sgrq10"] +

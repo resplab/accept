@@ -5,9 +5,9 @@ densityLastYrExac <- function (patientData, random_sampling_N = 1000, lastYrExac
 
   {
     log_alpha <-   b0 +
-      b_male * patientData[i, "gender"] +
+      b_male * patientData[i, "male"] +
       b_age10 * patientData[i, "age10"] +
-      b_nowsmk * patientData[i, "nowsmk"] +
+      b_smoker * patientData[i, "smoker"] +
       b_oxygen * patientData[i, "oxygen"] +
       b_fev1 * patientData[i, "FEV1"] +
       b_sgrq10 * patientData[i, "sgrq10"] +
@@ -20,9 +20,9 @@ densityLastYrExac <- function (patientData, random_sampling_N = 1000, lastYrExac
 
 
     c_lin <-   c0 +
-      c_male * patientData[i, "gender"] +
+      c_male * patientData[i, "male"] +
       c_age10 * patientData[i, "age10"] +
-      c_nowsmk * patientData[i, "nowsmk"] +
+      c_smoker * patientData[i, "smoker"] +
       c_oxygen * patientData[i, "oxygen"] +
       c_fev1 * patientData[i, "FEV1"] +
       c_sgrq10 * patientData[i, "sgrq10"] +
