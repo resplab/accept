@@ -1,0 +1,9 @@
+Package: accept
+Title: The ACute COPD Exacerbation Prediction Tool (ACCEPT)
+Version: 0.0.0.9000
+Authors@R: person("Amin", "Adibi", email = "adibi@alumni.ubc.ca", role = c("aut", "cre"))
+Description: This package allows clinicians to predict the rate and severity of exacerbations for COPD patients.
+Depends: R (>= 3.5.2)
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
