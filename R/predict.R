@@ -38,8 +38,14 @@ covMat <- matrix(
   ncol = 2
 )
 
+#' Initializes a model. Allocates memory to the C engine.
+#' @param patientData patient data matrix. Can have one or many patients in it
+#' @param random_sampling_N number of random sampling. Default is 1000.
+#' @return patientData with prediction
+#' @export
+predictACCEPT <- function (patientData, random_sampling_N = 1000){
 
-predictACCEPT <- function (patientData, conditionalZ, random_sampling_N = 1000){
+  conditionalZ <- densityLastYrExac(patientData)
 
   for (i in 1:(nrow(patientData)))
 
@@ -102,7 +108,7 @@ predictACCEPT <- function (patientData, conditionalZ, random_sampling_N = 1000){
 
   }
 
-
+  return(patientData)
 
 }
 
