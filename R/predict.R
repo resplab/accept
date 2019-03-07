@@ -78,16 +78,17 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
 
     alpha <- exp (as.numeric(log_alpha) + z[, "z1"])
     lambda <- alpha ^ gamma
-    predicted_exac_rate[, i] <- lambda #debug. Check with Mohsen. Implement gamma.
+    predicted_exac_rate[, i] <- lambda
     predicted_exac_probability[, i] <- 1 - exp(-lambda)
     predicted_exac_count[, i] <-  as.numeric(lapply(lambda, rpois, n=1))
 
 
-    patientData [i, "predicted_exac_rate"] <- mean(predicted_exac_rate[,i])
     patientData [i, "predicted_exac_probability"] <- mean(predicted_exac_probability[,i])
-    patientData [i, "predicted_exac_count"] <- mean(predicted_exac_count[,i])
-    patientData [i, "predicted_count_low"]  <- quantile(predicted_exac_count[,i], 0.025)
-    patientData [i, "predicted_count_high"] <- quantile(predicted_exac_count[, i], 0.975)
+    patientData [i, "predicted_exac_rate"] <- mean(predicted_exac_rate[,i])
+
+    # patientData [i, "predicted_exac_count"] <- mean(predicted_exac_count[,i])
+    # patientData [i, "predicted_exac_count_low"]  <- quantile(predicted_exac_count[,i], 0.025)
+    # patientData [i, "predicted_exac_count_high"] <- quantile(predicted_exac_count[, i], 0.975)
 
 
     #severity
@@ -110,9 +111,10 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
     patientData [i, "predicted_severe_exac_probability"] <- mean(predicted_severe_exac_probability[,i])
     patientData [i, "predicted_severe_exac_rate"] <- patientData [i, "predicted_exac_rate"] * patientData [i, "predicted_severe_exac_probability"]
 
-    predicted_severe_exac_count[, i] <-  as.numeric(lapply(patientData [i, "predicted_severe_exac_rate"], rpois, n=1))
-    patientData [i, "predicted_severe_exac_count"] <- mean(predicted_severe_exac_count[,i])
-
+    # predicted_severe_exac_count[, i] <-  as.numeric(lapply(patientData [i, "predicted_severe_exac_rate"], rpois, n=1))
+    # patientData [i, "predicted_severe_exac_count"] <- mean(predicted_severe_exac_count[,i])
+    # patientData [i, "predicted_severe_exac_count_low"]  <- quantile(predicted_severe_exac_count[,i], 0.025)
+    # patientData [i, "predicted_severe_exac_count_high"] <- quantile(predicted_severe_exac_count[, i], 0.975)
 
   }
 
