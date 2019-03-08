@@ -51,6 +51,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
 
 
   predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
+  predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
 
   conditionalZ <- densityLastYrExac(patientData)
@@ -85,6 +86,9 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
 
     patientData [i, "predicted_exac_probability"] <- mean(predicted_exac_probability[,i])
     patientData [i, "predicted_exac_rate"] <- mean(predicted_exac_rate[,i])
+    patientData [i, "predicted_exac_rate_low"]  <- quantile(predicted_exac_rate[,i], 0.025)
+    patientData [i, "predicted_exac_rate_high"]  <- quantile(predicted_exac_rate[,i], 0.975)
+
 
     # patientData [i, "predicted_exac_count"] <- mean(predicted_exac_count[,i])
     # patientData [i, "predicted_exac_count_low"]  <- quantile(predicted_exac_count[,i], 0.025)
@@ -108,8 +112,12 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
 
     OR <- exp (as.numeric(c_lin) + z[, "z2"])
     predicted_severe_exac_probability[, i] <- (OR/(1+OR))
+    predicted_severe_exac_rate[, i] <- predicted_exac_rate[, i] * predicted_severe_exac_probability[, i]
     patientData [i, "predicted_severe_exac_probability"] <- mean(predicted_severe_exac_probability[,i])
-    patientData [i, "predicted_severe_exac_rate"] <- patientData [i, "predicted_exac_rate"] * patientData [i, "predicted_severe_exac_probability"]
+    #patientData [i, "predicted_severe_exac_rate"] <- patientData [i, "predicted_exac_rate"] * patientData [i, "predicted_severe_exac_probability"]
+    patientData [i, "predicted_severe_exac_rate"] <- mean (predicted_severe_exac_rate[, i])
+    patientData [i, "predicted_severe_exac_rate_low"]  <- quantile(predicted_severe_exac_rate[,i], 0.025)
+    patientData [i, "predicted_severe_exac_rate_high"]  <- quantile(predicted_severe_exac_rate[,i], 0.975)
 
     # predicted_severe_exac_count[, i] <-  as.numeric(lapply(patientData [i, "predicted_severe_exac_rate"], rpois, n=1))
     # patientData [i, "predicted_severe_exac_count"] <- mean(predicted_severe_exac_count[,i])
