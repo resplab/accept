@@ -2,3 +2,6 @@
 
 export(predictACCEPT)
 importFrom(dplyr,sample_n)
+importFrom(stats,dpois)
+importFrom(stats,quantile)
+importFrom(stats,rpois)

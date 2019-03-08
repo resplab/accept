@@ -6,32 +6,32 @@ densityLastYrExac <- function (patientData, random_sampling_N = 1000, lastYrExac
   {
     log_alpha <-   b0 +
       b_male * patientData[i, "male"] +
-      b_age10 * patientData[i, "age10"] +
+      b_age * patientData[i, "age"] +
       b_smoker * patientData[i, "smoker"] +
       b_oxygen * patientData[i, "oxygen"] +
       b_fev1 * patientData[i, "FEV1"] +
-      b_sgrq10 * patientData[i, "sgrq10"] +
+      b_SGRQ * patientData[i, "SGRQ"] +
       b_cardiovascular * patientData[i, "statin"] +
       b_azithromycin * patientData[i, "azithromycin"] +
       b_LAMA * patientData[i, "LAMA"] +
       b_LABA * patientData[i, "LABA"] +
       b_ICS * patientData[i, "ICS"] +
-      b_BMI10 * patientData[i, "BMI10"]
+      b_BMI * patientData[i, "BMI"]
 
 
     c_lin <-   c0 +
       c_male * patientData[i, "male"] +
-      c_age10 * patientData[i, "age10"] +
+      c_age * patientData[i, "age"] +
       c_smoker * patientData[i, "smoker"] +
       c_oxygen * patientData[i, "oxygen"] +
       c_fev1 * patientData[i, "FEV1"] +
-      c_sgrq10 * patientData[i, "sgrq10"] +
+      c_SGRQ * patientData[i, "SGRQ"] +
       c_cardiovascular * patientData[i, "statin"] +
       c_azithromycin * patientData[i, "azithromycin"] +
       c_LAMA * patientData[i, "LAMA"] +
       c_LABA * patientData[i, "LABA"] +
       c_ICS * patientData[i, "ICS"] +
-      c_BMI10 * patientData[i, "BMI10"]
+      c_BMI * patientData[i, "BMI"]
 
     conditionalZ <- matrix(0, nrow = random_sampling_N, ncol = 3)
     colnames(conditionalZ) <- c("weight", "z1", "z2")

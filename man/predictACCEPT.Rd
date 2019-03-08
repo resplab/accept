@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predictACCEPT}
 \alias{predictACCEPT}
-\title{Initializes a model. Allocates memory to the C engine.}
+\title{Predicts COPD exacerbations within the next year}
 \usage{
 predictACCEPT(patientData, random_sampling_N = 1000)
 }
@@ -15,5 +15,8 @@ predictACCEPT(patientData, random_sampling_N = 1000)
 patientData with prediction
 }
 \description{
-Initializes a model. Allocates memory to the C engine.
+Predicts COPD exacerbations within the next year
+}
+\examples{
+results <- predictACCEPT(samplePatients)
 }

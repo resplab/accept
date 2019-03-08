@@ -1,2 +1,30 @@
 #' @importFrom dplyr sample_n
+#' @importFrom stats dpois quantile rpois
+NULL
+
+#' Sample Patient Characteristics Inputs
+#'
+#' A dataset containing sample patient characteristics to run the prediction model
+#'  variables are as follows:
+#'
+#' \itemize{
+#'   \item ID. A unique character string identifying a patients
+#'   \item male. whether the patient is male (0,1)
+#'   \item age. the age of the patient (40--90)
+#'   \item smoker. whether the patient is currently a smoker (0,1)
+#'   \item oxygen. whether the patient has had supplemental oxygen therapy within the past year (0,1)
+#'   \item FEV1. forced expiratroy volume in 1 second in L (0--5)
+#'   \item BMI. body mass index (10--60)
+#'   \item SGRQ. St. George’s Respiratory Questionnaire score (0--100)
+#'   \item statin. whether the patient is taking statins due to cardiovascular conditions (0,1)
+#'   \item LAMA. whether the patient is on long acting muscarinic antagonist (0,1)
+#'   \item LABA. whether the patient is on long acting beta agonist (0,1)
+#'   \item ICS. whether the patient is on inhaled corticosteroids (0,1)
+#'   \item azithromycin. whether the patient is oreceiving long-term azithromycin therapy (0,1)
+#' }
+#'
+#' @docType data
+#' @keywords datasets
+#' @name samplePatients
+#' @format A data frame with 2 rows and 15 variables
 NULL
