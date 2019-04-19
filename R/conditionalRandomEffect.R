@@ -7,30 +7,38 @@ densityLastYrExac <- function (patientData, random_sampling_N = 1000, lastYrExac
     log_alpha <-   b0 +
       b_male * patientData[i, "male"] +
       b_age * patientData[i, "age"] +
-      b_smoker * patientData[i, "smoker"] +
+      b_nowsmk * patientData[i, "smoker"] +
       b_oxygen * patientData[i, "oxygen"] +
       b_fev1 * patientData[i, "FEV1"] +
       b_SGRQ * patientData[i, "SGRQ"] +
       b_cardiovascular * patientData[i, "statin"] +
-      b_azithromycin * patientData[i, "azithromycin"] +
+      b_randomized_azithromycin * patientData[i, "randomized_azithromycin"] +
       b_LAMA * patientData[i, "LAMA"] +
       b_LABA * patientData[i, "LABA"] +
       b_ICS * patientData[i, "ICS"] +
+      b_randomized_LAMA * patientData[i, "randomized_LAMA"] +
+      b_randomized_LABA * patientData[i, "randomized_LABA"] +
+      b_randomized_ICS * patientData[i, "randomized_ICS"] +
+      b_randomized_statin * patientData[i, "randomized_statin"] +
       b_BMI * patientData[i, "BMI"]
 
 
     c_lin <-   c0 +
       c_male * patientData[i, "male"] +
       c_age * patientData[i, "age"] +
-      c_smoker * patientData[i, "smoker"] +
+      c_nowsmk * patientData[i, "smoker"] +
       c_oxygen * patientData[i, "oxygen"] +
       c_fev1 * patientData[i, "FEV1"] +
       c_SGRQ * patientData[i, "SGRQ"] +
       c_cardiovascular * patientData[i, "statin"] +
-      c_azithromycin * patientData[i, "azithromycin"] +
+      c_randomized_azithromycin * patientData[i, "randomized_azithromycin"] +
       c_LAMA * patientData[i, "LAMA"] +
       c_LABA * patientData[i, "LABA"] +
       c_ICS * patientData[i, "ICS"] +
+      c_randomized_LAMA * patientData[i, "randomized_LAMA"] +
+      c_randomized_LABA * patientData[i, "randomized_LABA"] +
+      c_randomized_ICS * patientData[i, "randomized_ICS"] +
+      c_randomized_statin * patientData[i, "randomized_statin"] +
       c_BMI * patientData[i, "BMI"]
 
     conditionalZ <- matrix(0, nrow = random_sampling_N, ncol = 3)

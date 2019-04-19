@@ -1,36 +1,53 @@
-gamma	               <- 0.9694
-b0                   <-	0.05689
-b_male               <-	-0.08636
-b_age  	             <- -0.02341/10
-b_smoker             <-	-0.2002
-b_oxygen             <-	0.03565
-b_fev1               <-	-0.206
-b_SGRQ               <-	0.1056/10
-b_cardiovascular     <-	0.1135
-b_azithromycin       <-	-0.1637
-b_LAMA               <-	0.1546
-b_LABA               <-	0.09876
-b_ICS                <-	0.1486
-b_BMI                <-	-0.1107/10
+
+gamma	                    <-   0.9696
+b0	                      <-   0.0528
+b_male	                  <-   -0.09181
+b_age10	                  <-   -0.03442
+b_nowsmk	                <-   -0.1945
+b_oxygen	                <-   0.08129
+b_fev1	                  <-   -0.1693
+b_sgrq10	                <-   0.104
+b_cardiovascular	        <-   0.08814
+b_randomized_azithromycin <- 	 -0.164
+b_LAMA	                  <-   0.1415
+b_LABA	                  <-   0.1204
+b_ICS	                    <-   0.2177
+b_randomized_LAMA	        <-   0.1589
+b_randomized_LABA	        <-   0.1514
+b_randomized_ICS	        <-   -0.2912
+b_randomized_statin	      <-  -0.05562
+b_BMI10                   <- 	-0.1201
 
 
-c0                  <-   -3.4448
-c_male              <- 0.5553
-c_age               <- 0.06462/10
-c_smoker            <- 0.4077
-c_oxygen            <- 0.5163
-c_fev1              <- -0.5279
-c_SGRQ              <- 0.2058/10
-c_cardiovascular    <- 0.3316
-c_azithromycin      <- -0.08741
-c_LAMA              <- -0.2168
-c_LABA              <- -0.03896
-c_ICS               <- 0.1933
-c_BMI               <- -0.09053/10
+c0	                      <-  -3.6145
+c_male	                  <-  0.5516
+c_age10	                  <-  0.06352
+c_nowsmk                  <-  0.4086
+c_oxygen                  <-  0.5254
+c_fev1	                  <-  -0.502
+c_sgrq10                  <-  0.2016
+c_cardiovascular	        <-  0.3246
+c_randomized_azithromycin <- 	-0.1178
+c_LAMA	                  <-  -0.17
+c_LABA            	      <-  0.01644
+c_ICS	                    <-  0.386
+c_randomized_LAMA	        <-  0.1081
+c_randomized_LABA	        <-  -0.3354
+c_randomized_ICS	        <-  -0.05231
+c_randomized_statin	      <-  0.1106
+c_BMI10           	      <-  -0.09662
 
-v1  <-  0.6162
-v2  <- 2.4016
-cov <- 0.1558
+b_age <- b_age10/10
+b_SGRQ <- b_sgrq10/10
+b_BMI <- b_BMI10/10
+
+c_age <- c_age10/10
+c_SGRQ <- c_sgrq10/10
+c_BMI <- c_BMI10/10
+
+v1 	<- 0.5971
+v2	<- 2.3525
+cov	<- 0.1365
 
 covMat <- matrix(
   c(v1, cov, cov, v2),
@@ -62,15 +79,19 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
     log_alpha <-   b0 +
       b_male * patientData[i, "male"] +
       b_age * patientData[i, "age"] +
-      b_smoker * patientData[i, "smoker"] +
+      b_nowsmk * patientData[i, "smoker"] +
       b_oxygen * patientData[i, "oxygen"] +
       b_fev1 * patientData[i, "FEV1"] +
       b_SGRQ * patientData[i, "SGRQ"] +
       b_cardiovascular * patientData[i, "statin"] +
-      b_azithromycin * patientData[i, "azithromycin"] +
+      b_randomized_azithromycin * patientData[i, "randomized_azithromycin"] +
       b_LAMA * patientData[i, "LAMA"] +
       b_LABA * patientData[i, "LABA"] +
       b_ICS * patientData[i, "ICS"] +
+      b_randomized_LAMA * patientData[i, "randomized_LAMA"] +
+      b_randomized_LABA * patientData[i, "randomized_LABA"] +
+      b_randomized_ICS * patientData[i, "randomized_ICS"] +
+      b_randomized_statin * patientData[i, "randomized_statin"] +
       b_BMI * patientData[i, "BMI"]
 
     ID <- as.character(patientData[i, "ID"])
@@ -102,15 +123,19 @@ predictACCEPT <- function (patientData, random_sampling_N = 1000){
     c_lin <-   c0 +
       c_male * patientData[i, "male"] +
       c_age * patientData[i, "age"] +
-      c_smoker * patientData[i, "smoker"] +
+      c_nowsmk * patientData[i, "smoker"] +
       c_oxygen * patientData[i, "oxygen"] +
       c_fev1 * patientData[i, "FEV1"] +
       c_SGRQ * patientData[i, "SGRQ"] +
       c_cardiovascular * patientData[i, "statin"] +
-      c_azithromycin * patientData[i, "azithromycin"] +
+      c_randomized_azithromycin * patientData[i, "randomized_azithromycin"] +
       c_LAMA * patientData[i, "LAMA"] +
       c_LABA * patientData[i, "LABA"] +
       c_ICS * patientData[i, "ICS"] +
+      c_randomized_LAMA * patientData[i, "randomized_LAMA"] +
+      c_randomized_LABA * patientData[i, "randomized_LABA"] +
+      c_randomized_ICS * patientData[i, "randomized_ICS"] +
+      c_randomized_statin * patientData[i, "randomized_statin"] +
       c_BMI * patientData[i, "BMI"]
 
     OR <- exp (as.numeric(c_lin) + z[, "z2"])
