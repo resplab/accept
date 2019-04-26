@@ -4,7 +4,7 @@
 \name{samplePatients}
 \alias{samplePatients}
 \title{Sample Patient Characteristics Inputs}
-\format{A data frame with 2 rows and 15 variables}
+\format{A data frame with 2 rows and 19 variables}
 \description{
 A dataset containing sample patient characteristics to run the prediction model
  variables are as follows:
@@ -23,7 +23,10 @@ A dataset containing sample patient characteristics to run the prediction model
   \item LAMA. whether the patient is on long acting muscarinic antagonist (0,1)
   \item LABA. whether the patient is on long acting beta agonist (0,1)
   \item ICS. whether the patient is on inhaled corticosteroids (0,1)
-  \item azithromycin. whether the patient is oreceiving long-term azithromycin therapy (0,1)
+  \item randomizedLAMA. whether the patient was randomized to receivelong acting muscarinic antagonist. Should be 0 for prediction.(0,1)
+  \item randomizedLABA. whether the patient was randomized to receive on long acting beta agonist. Should be 0 for prediction (0,1)
+  \item randomizedICS. whether the patient was randomized to receive on inhaled corticosteroids. Should be 0 for prediction (0,1)
+  \item randomizedAzithromycin. whether the patient was was randomized to receive long-term azithromycin therapy. Should be 0 for prediction (0,1)
 }
 }
 \keyword{datasets}
