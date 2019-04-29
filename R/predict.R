@@ -55,6 +55,30 @@ covMat <- matrix(
   ncol = 2
 )
 
+
+
+#' Calls the predict function under two scenarios of azithromycin treatment and no azithromycin treatment
+#' @param patientData patient data matrix. Can have one or many patients in it
+#' @param random_sampling_N number of random sampling. Default is 1000.
+#' @return patientData with prediction
+#' @examples
+#' results <- predictACCEPT(samplePatients)
+#' @export
+predictACCEPT <- function (patientData, random_sampling_N = 1e4){
+
+  # no treatment
+  patientData <- patientData %>% mutate (randomized_azithromycin = 0)
+  noAzithroResults <- predictACCEPT(patientData, random_sampling_N)
+
+  # with daily azithromycin
+  patientData <- patientData %>% mutate (randomized_azithromycin = 1)
+  azithroResults <- predictACCEPT(patientData, random_sampling_N)
+
+  result <- rbind(noAzithroResults, azithroResults)
+  return(results)
+}
+
+
 #' Predicts COPD exacerbations within the next year
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
@@ -62,7 +86,7 @@ covMat <- matrix(
 #' @examples
 #' results <- predictACCEPT(samplePatients)
 #' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1000){
+estimateACCEPT <- function (patientData, random_sampling_N = 1e4){
 
   predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
