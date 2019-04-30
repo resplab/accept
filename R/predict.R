@@ -68,14 +68,14 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e4){
 
   # no treatment
   patientData <- patientData %>% mutate (randomized_azithromycin = 0)
-  noAzithroResults <- predictACCEPT(patientData, random_sampling_N)
+  noAzithroResults <- estimateACCEPT(patientData, random_sampling_N)
 
   # with daily azithromycin
   patientData <- patientData %>% mutate (randomized_azithromycin = 1)
-  azithroResults <- predictACCEPT(patientData, random_sampling_N)
+  azithroResults <- estimateACCEPT(patientData, random_sampling_N)
 
   result <- rbind(noAzithroResults, azithroResults)
-  return(results)
+  return(result)
 }
 
 

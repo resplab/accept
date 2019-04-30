@@ -1,4 +1,4 @@
-#' @importFrom dplyr sample_n
+#' @import dplyr
 #' @importFrom stats dpois quantile rpois
 NULL
 

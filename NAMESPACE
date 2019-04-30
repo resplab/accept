@@ -2,7 +2,7 @@
 
 export(estimateACCEPT)
 export(predictACCEPT)
-importFrom(dplyr,sample_n)
+import(dplyr)
 importFrom(stats,dpois)
 importFrom(stats,quantile)
 importFrom(stats,rpois)
