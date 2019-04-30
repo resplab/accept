@@ -1,4 +1,4 @@
-densityLastYrExac <- function (patientData, random_sampling_N = 1000, lastYrExacCol = "LastYrExacCount", lastYrSevExacCol = "LastYrSevExacCount") {
+densityLastYrExac <- function (patientData, random_sampling_N = 2e4, lastYrExacCol = "LastYrExacCount", lastYrSevExacCol = "LastYrSevExacCount") {
 
   conditionalRandEffect <- list()
   for (i in 1:(nrow(patientData)))
