@@ -143,12 +143,12 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e4){
     azithro_predicted_exac_count[, i] <-  as.numeric(lapply(azithro_lambda, rpois, n=1))
 
 
-    patientData [i, "azithro_predicted_exac_probability"] <-        mean(azithro_predicted_exac_probability[,i])
-    patientData [i, "azithro_predicted_exac_probability_lower"]  <- quantile(azithro_predicted_exac_probability[,i], 0.025)
-    patientData [i, "azithro_predicted_exac_probability_upper"]  <- quantile(azithro_predicted_exac_probability[,i], 0.975)
-    patientData [i, "azithro_predicted_exac_rate"] <-               mean    (azithro_predicted_exac_rate[,i])
-    patientData [i, "azithro_predicted_exac_rate_lower"]  <-        quantile(azithro_predicted_exac_rate[,i], 0.025)
-    patientData [i, "azithro_predicted_exac_rate_upper"]  <-        quantile(azithro_predicted_exac_rate[,i], 0.975)
+    patientData [i, "azithromycin_predicted_exac_probability"] <-        mean(azithro_predicted_exac_probability[,i])
+    patientData [i, "azithromycin_predicted_exac_probability_lower"]  <- quantile(azithro_predicted_exac_probability[,i], 0.025)
+    patientData [i, "azithromycin_predicted_exac_probability_upper"]  <- quantile(azithro_predicted_exac_probability[,i], 0.975)
+    patientData [i, "azithromycin_predicted_exac_rate"] <-               mean    (azithro_predicted_exac_rate[,i])
+    patientData [i, "azithromycin_predicted_exac_rate_lower"]  <-        quantile(azithro_predicted_exac_rate[,i], 0.025)
+    patientData [i, "azithromycin_predicted_exac_rate_upper"]  <-        quantile(azithro_predicted_exac_rate[,i], 0.975)
 
     #severity
     c_lin <-   c0 +
@@ -182,12 +182,12 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e4){
     azithro_predicted_severe_exac_probability[, i] <- (azithro_OR/(1+azithro_OR))
     azithro_predicted_severe_exac_rate[, i] <- azithro_predicted_exac_rate[, i] * azithro_predicted_severe_exac_probability[, i]
 
-    patientData [i, "azithro_predicted_severe_exac_probability"]        <- mean    (azithro_predicted_severe_exac_probability[,i])
-    patientData [i, "azithro_predicted_severe_exac_probability_lower"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.025)
-    patientData [i, "azithro_predicted_severe_exac_probability_upper"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.975)
-    patientData [i, "azithro_predicted_severe_exac_rate"]               <- mean    (azithro_predicted_severe_exac_rate[, i])
-    patientData [i, "azithro_predicted_severe_exac_rate_lower"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.025)
-    patientData [i, "azithro_predicted_severe_exac_rate_upper"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.975)
+    patientData [i, "azithromycin_predicted_severe_exac_probability"]        <- mean    (azithro_predicted_severe_exac_probability[,i])
+    patientData [i, "azithromycin_predicted_severe_exac_probability_lower"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.025)
+    patientData [i, "azithromycin_predicted_severe_exac_probability_upper"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.975)
+    patientData [i, "azithromycin_predicted_severe_exac_rate"]               <- mean    (azithro_predicted_severe_exac_rate[, i])
+    patientData [i, "azithromycin_predicted_severe_exac_rate_lower"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.025)
+    patientData [i, "azithromycin_predicted_severe_exac_rate_upper"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.975)
   }
 
   return(patientData)
