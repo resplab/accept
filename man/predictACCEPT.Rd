@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predictACCEPT}
 \alias{predictACCEPT}
-\title{Calls the predict function under two scenarios of azithromycin treatment and no azithromycin treatment}
+\title{Predicts COPD exacerbations within the next year}
 \usage{
 predictACCEPT(patientData, random_sampling_N = 10000)
 }
@@ -15,7 +15,7 @@ predictACCEPT(patientData, random_sampling_N = 10000)
 patientData with prediction
 }
 \description{
-Calls the predict function under two scenarios of azithromycin treatment and no azithromycin treatment
+Predicts COPD exacerbations within the next year
 }
 \examples{
 results <- predictACCEPT(samplePatients)
