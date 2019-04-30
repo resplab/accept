@@ -72,9 +72,11 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e4){
 
   # with daily azithromycin
   patientData <- patientData %>% mutate (randomized_azithromycin = 1)
-  azithroResults <- estimateACCEPT(patientData, random_sampling_N)
+  azithroResults <- estimateACCEPT(patientData, random_sampling_N) %>% select (ID, starts_with("predict")) %>% rename_at (vars(starts_with("predict")),
+                                                                                  funs(str_replace(., "predict", "azithromycin_predict")))
 
-  result <- rbind(noAzithroResults, azithroResults)
+
+  result <- left_join(noAzithroResults, azithroResults, by ='ID')
   return(result)
 }
 

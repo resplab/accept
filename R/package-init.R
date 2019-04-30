@@ -1,5 +1,6 @@
 #' @import dplyr
 #' @importFrom stats dpois quantile rpois
+#' @importFrom stringr str_replace
 NULL
 
 #' Sample Patient Characteristics Inputs
