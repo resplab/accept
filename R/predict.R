@@ -56,29 +56,21 @@ covMat <- matrix(
 )
 
 
-
-#' Calls the predict function under two scenarios of azithromycin treatment and no azithromycin treatment
-#' @param patientData patient data matrix. Can have one or many patients in it
-#' @param random_sampling_N number of random sampling. Default is 1000.
-#' @return patientData with prediction
-#' @examples
-#' results <- predictACCEPT(samplePatients)
-#' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e4){
-
-  # no treatment
-  patientData <- patientData %>% mutate (randomized_azithromycin = 0)
-  noAzithroResults <- estimateACCEPT(patientData, random_sampling_N)
-
-  # with daily azithromycin
-  patientData <- patientData %>% mutate (randomized_azithromycin = 1)
-  azithroResults <- estimateACCEPT(patientData, random_sampling_N) %>% select (ID, starts_with("predict")) %>% rename_at (vars(starts_with("predict")),
-                                                                                  funs(str_replace(., "predict", "azithromycin_predict")))
-
-
-  result <- left_join(noAzithroResults, azithroResults, by ='ID')
-  return(result)
-}
+# predictACCEPT <- function (patientData, random_sampling_N = 1e4){
+#
+#   # no treatment
+#   patientData <- patientData %>% mutate (randomized_azithromycin = 0)
+#   noAzithroResults <- estimateACCEPT(patientData, random_sampling_N)
+#
+#   # with daily azithromycin
+#   patientData <- patientData %>% mutate (randomized_azithromycin = 1)
+#   azithroResults <- estimateACCEPT(patientData, random_sampling_N) %>% select (ID, starts_with("predict")) %>% rename_at (vars(starts_with("predict")),
+#                                                                                   funs(str_replace(., "predict", "azithromycin_predict")))
+#
+#
+#   result <- left_join(noAzithroResults, azithroResults, by ='ID')
+#   return(result)
+# }
 
 
 #' Predicts COPD exacerbations within the next year
@@ -88,7 +80,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e4){
 #' @examples
 #' results <- predictACCEPT(samplePatients)
 #' @export
-estimateACCEPT <- function (patientData, random_sampling_N = 1e4){
+predictACCEPT <- function (patientData, random_sampling_N = 1e4){
 
   predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
@@ -96,6 +88,13 @@ estimateACCEPT <- function (patientData, random_sampling_N = 1e4){
   predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
+
+  azithro_predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
+  azithro_predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
+  azithro_predicted_severe_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
+  azithro_predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
+  azithro_predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
+  azithro_predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
 
   conditionalZ <- densityLastYrExac(patientData)
 
@@ -110,20 +109,17 @@ estimateACCEPT <- function (patientData, random_sampling_N = 1e4){
       b_fev1 * patientData[i, "FEV1"] +
       b_SGRQ * patientData[i, "SGRQ"] +
       b_cardiovascular * patientData[i, "statin"] +
-      b_randomized_azithromycin * patientData[i, "randomized_azithromycin"] +
       b_LAMA * patientData[i, "LAMA"] +
       b_LABA * patientData[i, "LABA"] +
       b_ICS * patientData[i, "ICS"] +
-      b_randomized_LAMA * patientData[i, "randomized_LAMA"] +
-      b_randomized_LABA * patientData[i, "randomized_LABA"] +
-      b_randomized_ICS * patientData[i, "randomized_ICS"] +
-      b_randomized_statin * patientData[i, "randomized_statin"] +
       b_BMI * patientData[i, "BMI"]
+
+    azithro_log_alpha <- log_alpha + b_randomized_azithromycin
 
     ID <- as.character(patientData[i, "ID"])
     z <- sample_n(conditionalZ[[ID]], random_sampling_N, replace = TRUE, weight = weight)
 
-
+    # no treatment scenario results
     alpha <- exp (as.numeric(log_alpha) + z[, "z1"])
     lambda <- alpha ^ gamma
     predicted_exac_rate[, i] <- lambda
@@ -139,11 +135,20 @@ estimateACCEPT <- function (patientData, random_sampling_N = 1e4){
     patientData [i, "predicted_exac_rate_lower"]  <- quantile(predicted_exac_rate[,i], 0.025)
     patientData [i, "predicted_exac_rate_upper"]  <- quantile(predicted_exac_rate[,i], 0.975)
 
+    # azithromycin scenario results
+    azithro_alpha <- exp (as.numeric(azithro_log_alpha) + z[, "z1"])
+    azithro_lambda <- azithro_alpha ^ gamma
+    azithro_predicted_exac_rate[, i] <- azithro_lambda
+    azithro_predicted_exac_probability[, i] <- 1 - exp(-azithro_lambda)
+    azithro_predicted_exac_count[, i] <-  as.numeric(lapply(azithro_lambda, rpois, n=1))
 
-    # patientData [i, "predicted_exac_count"] <- mean(predicted_exac_count[,i])
-    # patientData [i, "predicted_exac_count_lower"]  <- quantile(predicted_exac_count[,i], 0.025)
-    # patientData [i, "predicted_exac_count_upper"] <- quantile(predicted_exac_count[, i], 0.975)
 
+    patientData [i, "azithromycin_predicted_exac_probability"] <-        mean(azithro_predicted_exac_probability[,i])
+    patientData [i, "azithromycin_predicted_exac_probability_lower"]  <- quantile(azithro_predicted_exac_probability[,i], 0.025)
+    patientData [i, "azithromycin_predicted_exac_probability_upper"]  <- quantile(azithro_predicted_exac_probability[,i], 0.975)
+    patientData [i, "azithromycin_predicted_exac_rate"] <-               mean    (azithro_predicted_exac_rate[,i])
+    patientData [i, "azithromycin_predicted_exac_rate_lower"]  <-        quantile(azithro_predicted_exac_rate[,i], 0.025)
+    patientData [i, "azithromycin_predicted_exac_rate_upper"]  <-        quantile(azithro_predicted_exac_rate[,i], 0.975)
 
     #severity
     c_lin <-   c0 +
@@ -154,32 +159,35 @@ estimateACCEPT <- function (patientData, random_sampling_N = 1e4){
       c_fev1 * patientData[i, "FEV1"] +
       c_SGRQ * patientData[i, "SGRQ"] +
       c_cardiovascular * patientData[i, "statin"] +
-      c_randomized_azithromycin * patientData[i, "randomized_azithromycin"] +
       c_LAMA * patientData[i, "LAMA"] +
       c_LABA * patientData[i, "LABA"] +
       c_ICS * patientData[i, "ICS"] +
-      c_randomized_LAMA * patientData[i, "randomized_LAMA"] +
-      c_randomized_LABA * patientData[i, "randomized_LABA"] +
-      c_randomized_ICS * patientData[i, "randomized_ICS"] +
-      c_randomized_statin * patientData[i, "randomized_statin"] +
       c_BMI * patientData[i, "BMI"]
 
+    azithro_c_lin <- c_lin + c_randomized_azithromycin
+
+    # no treatment
     OR <- exp (as.numeric(c_lin) + z[, "z2"])
     predicted_severe_exac_probability[, i] <- (OR/(1+OR))
     predicted_severe_exac_rate[, i] <- predicted_exac_rate[, i] * predicted_severe_exac_probability[, i]
     patientData [i, "predicted_severe_exac_probability"] <- mean(predicted_severe_exac_probability[,i])
     patientData [i, "predicted_severe_exac_probability_lower"]  <- quantile(predicted_severe_exac_probability[,i], 0.025)
     patientData [i, "predicted_severe_exac_probability_upper"]  <- quantile(predicted_severe_exac_probability[,i], 0.975)
-    #patientData [i, "predicted_severe_exac_rate"] <- patientData [i, "predicted_exac_rate"] * patientData [i, "predicted_severe_exac_probability"]
     patientData [i, "predicted_severe_exac_rate"] <- mean (predicted_severe_exac_rate[, i])
     patientData [i, "predicted_severe_exac_rate_lower"]  <- quantile(predicted_severe_exac_rate[,i], 0.025)
     patientData [i, "predicted_severe_exac_rate_upper"]  <- quantile(predicted_severe_exac_rate[,i], 0.975)
 
-    # predicted_severe_exac_count[, i] <-  as.numeric(lapply(patientData [i, "predicted_severe_exac_rate"], rpois, n=1))
-    # patientData [i, "predicted_severe_exac_count"] <- mean(predicted_severe_exac_count[,i])
-    # patientData [i, "predicted_severe_exac_count_lower"]  <- quantile(predicted_severe_exac_count[,i], 0.025)
-    # patientData [i, "predicted_severe_exac_count_upper"] <- quantile(predicted_severe_exac_count[, i], 0.975)
+    # azithromycin treatment
+    azithro_OR <- exp (as.numeric(azithro_c_lin) + z[, "z2"])
+    azithro_predicted_severe_exac_probability[, i] <- (azithro_OR/(1+azithro_OR))
+    azithro_predicted_severe_exac_rate[, i] <- azithro_predicted_exac_rate[, i] * azithro_predicted_severe_exac_probability[, i]
 
+    patientData [i, "azithromycin_predicted_severe_exac_probability"]        <- mean    (azithro_predicted_severe_exac_probability[,i])
+    patientData [i, "azithromycin_predicted_severe_exac_probability_lower"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.025)
+    patientData [i, "azithromycin_predicted_severe_exac_probability_upper"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.975)
+    patientData [i, "azithromycin_predicted_severe_exac_rate"]               <- mean    (azithro_predicted_severe_exac_rate[, i])
+    patientData [i, "azithromycin_predicted_severe_exac_rate_lower"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.025)
+    patientData [i, "azithromycin_predicted_severe_exac_rate_upper"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.975)
   }
 
   return(patientData)
