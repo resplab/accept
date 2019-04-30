@@ -80,7 +80,7 @@ covMat <- matrix(
 #' @examples
 #' results <- predictACCEPT(samplePatients)
 #' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e4){
+predictACCEPT <- function (patientData, random_sampling_N = 1e4, random_distribution_iteration = 2e4){
 
   predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
@@ -96,7 +96,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e4){
   azithro_predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
 
-  conditionalZ <- densityLastYrExac(patientData)
+  conditionalZ <- densityLastYrExac(patientData, random_distribution_iteration = random_distribution_iteration)
 
   for (i in 1:(nrow(patientData)))
 

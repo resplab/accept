@@ -1,4 +1,4 @@
-densityLastYrExac <- function (patientData, random_sampling_N = 2e4, lastYrExacCol = "LastYrExacCount", lastYrSevExacCol = "LastYrSevExacCount") {
+densityLastYrExac <- function (patientData, random_distribution_iteration = 2e4, lastYrExacCol = "LastYrExacCount", lastYrSevExacCol = "LastYrSevExacCount") {
 
   conditionalRandEffect <- list()
   for (i in 1:(nrow(patientData)))
@@ -41,11 +41,11 @@ densityLastYrExac <- function (patientData, random_sampling_N = 2e4, lastYrExacC
       c_randomized_statin * patientData[i, "randomized_statin"] +
       c_BMI * patientData[i, "BMI"]
 
-    conditionalZ <- matrix(0, nrow = random_sampling_N, ncol = 3)
+    conditionalZ <- matrix(0, nrow = random_distribution_iteration, ncol = 3)
     colnames(conditionalZ) <- c("weight", "z1", "z2")
 
 
-    for (j in 1:random_sampling_N){
+    for (j in 1:random_distribution_iteration){
 
       z <- MASS::mvrnorm(1, c(0, 0), covMat)
       z1 <- z[1]
