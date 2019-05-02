@@ -83,14 +83,14 @@ covMat <- matrix(
 predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribution_iteration = 2e4, calculate_CIs = TRUE){
 
   predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
-  predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
+  #predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_severe_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
 
   azithro_predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
-  azithro_predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
+  azithro_#predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_severe_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
@@ -124,7 +124,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
     lambda <- alpha ^ gamma
     predicted_exac_rate[, i] <- lambda
     predicted_exac_probability[, i] <- 1 - exp(-lambda)
-    predicted_exac_count[, i] <-  as.numeric(lapply(lambda, rpois, n=1))
+    #predicted_exac_count[, i] <-  as.numeric(lapply(lambda, rpois, n=1))
 
 
     patientData [i, "predicted_exac_probability"] <- mean(predicted_exac_probability[,i])
@@ -135,7 +135,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
     azithro_lambda <- azithro_alpha ^ gamma
     azithro_predicted_exac_rate[, i] <- azithro_lambda
     azithro_predicted_exac_probability[, i] <- 1 - exp(-azithro_lambda)
-    azithro_predicted_exac_count[, i] <-  as.numeric(lapply(azithro_lambda, rpois, n=1))
+    azithro_#predicted_exac_count[, i] <-  as.numeric(lapply(azithro_lambda, rpois, n=1))
 
     patientData [i, "azithromycin_predicted_exac_probability"] <-        mean(azithro_predicted_exac_probability[,i])
     patientData [i, "azithromycin_predicted_exac_rate"] <-               mean    (azithro_predicted_exac_rate[,i])
