@@ -135,7 +135,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
     azithro_lambda <- azithro_alpha ^ gamma
     azithro_predicted_exac_rate[, i] <- azithro_lambda
     azithro_predicted_exac_probability[, i] <- 1 - exp(-azithro_lambda)
-    azithro_#predicted_exac_count[, i] <-  as.numeric(lapply(azithro_lambda, rpois, n=1))
+    #azithro_predicted_exac_count[, i] <-  as.numeric(lapply(azithro_lambda, rpois, n=1))
 
     patientData [i, "azithromycin_predicted_exac_probability"] <-        mean(azithro_predicted_exac_probability[,i])
     patientData [i, "azithromycin_predicted_exac_rate"] <-               mean    (azithro_predicted_exac_rate[,i])
