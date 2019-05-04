@@ -90,7 +90,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
   predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
 
   azithro_predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
-  azithro_#predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
+  #azithro_predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_severe_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
