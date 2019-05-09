@@ -1,6 +1,6 @@
 Package: accept
 Title: The ACute COPD Exacerbation Prediction Tool (ACCEPT)
-Version: 0.5.999
+Version: 0.4.4
 Authors@R: c(
     person("Amin", "Adibi", email = "adibi@alumni.ubc.ca", role = c("aut", "cph")),
     person("Mohsen", "Sadatsafavi", email = "mohsen.sadatsafavi@ubc.ca", role = c("aut", "cre")))
