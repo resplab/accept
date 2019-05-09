@@ -264,7 +264,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
 #' Predicts probability of observing a certain number of exacerbations
 #' @param patientData patient results matrix, produced by predictAccept.
 #' @param n how many exacerbations to consider
-#' @return a matrix of with the number of exacerbations as rows and number of severe exacerbations as columns
+#' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 #' @examples
 #' results <- predictACCEPT(samplePatients)
 #' predictCountProb (results)

@@ -12,7 +12,7 @@ predictCountProb(patientResults, n = 10)
 \item{patientData}{patient results matrix, produced by predictAccept.}
 }
 \value{
-a matrix of with the number of exacerbations as rows and number of severe exacerbations as columns
+a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 }
 \description{
 Predicts probability of observing a certain number of exacerbations
