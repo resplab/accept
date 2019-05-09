@@ -4,12 +4,15 @@
 \alias{predictACCEPT}
 \title{Predicts COPD exacerbations within the next year}
 \usage{
-predictACCEPT(patientData, random_sampling_N = 10000)
+predictACCEPT(patientData, random_sampling_N = 1000,
+  random_distribution_iteration = 20000, calculate_CIs = TRUE)
 }
 \arguments{
 \item{patientData}{patient data matrix. Can have one or many patients in it}
 
 \item{random_sampling_N}{number of random sampling. Default is 1000.}
+
+\item{calculate_CIs}{whether to calculate confidence interval of the mean}
 }
 \value{
 patientData with prediction

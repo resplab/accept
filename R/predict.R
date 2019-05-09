@@ -273,14 +273,16 @@ predictCountProb <- function (patientResults, n = 10){
  results <- matrix (0, nrow = n, ncol = n)
   colnames(results) <- 0:(n-1)
   rownames(results) <- 0:(n-1)
-
+  # i is all exacs, j of them severe
  for (i in 1:n) {
    for (j in 1:n) {
-     results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) * dpois(j-1, patientResults$predicted_severe_exac_rate) #TO VERIFY
-   }
+      if (i>=j) {
+       results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) *
+                         factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
+                         patientResults$predicted_severe_exac_probability ^ (j-1) *
+                         (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
+       }}
  }
-
  return(results)
-
 }
 
