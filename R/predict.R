@@ -76,6 +76,7 @@ covMat <- matrix(
 #' Predicts COPD exacerbations within the next year
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
+#' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @return patientData with prediction
 #' @examples
 #' results <- predictACCEPT(samplePatients)
@@ -256,6 +257,30 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
   }
 
   return(patientData)
+
+}
+
+
+#' Predicts probability of observing a certain number of exacerbations
+#' @param patientData patient results matrix, produced by predictAccept.
+#' @param n how many exacerbations to consider
+#' @return a matrix of with the number of exacerbations as rows and number of severe exacerbations as columns
+#' @examples
+#' results <- predictACCEPT(samplePatients)
+#' predictCountProb (results)
+#' @export
+predictCountProb <- function (patientResults, n = 10){
+ results <- matrix (0, nrow = n, ncol = n)
+  colnames(results) <- 0:(n-1)
+  rownames(results) <- 0:(n-1)
+
+ for (i in 1:n) {
+   for (j in 1:n) {
+     results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) * dpois(j-1, patientResults$predicted_severe_exac_rate) #TO VERIFY
+   }
+ }
+
+ return(results)
 
 }
 
