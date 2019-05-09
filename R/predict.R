@@ -269,7 +269,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
 #' results <- predictACCEPT(samplePatients)
 #' predictCountProb (results)
 #' @export
-predictCountProb <- function (patientResults, n = 10){
+predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
  results <- matrix (0, nrow = n, ncol = n)
   colnames(results) <- 0:(n-1)
   rownames(results) <- 0:(n-1)
@@ -283,6 +283,16 @@ predictCountProb <- function (patientResults, n = 10){
                          (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
        }}
  }
+ if (shortened) {
+   shortResults <- results
+   shortResults[,4] <- rowSums(longResults[, 4:10])
+   shortResults[4,] <- colSums(longResults[4:10, ])
+   shortResults <- shortResults[1:4, 1:4]
+   colnames(shortResults) <- c("none severe", "1 severe", "2 severe", "3 or more severe")
+   rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
+
+   results <- shortResults
+
+ }
  return(results)
 }
-
