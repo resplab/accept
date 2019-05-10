@@ -285,13 +285,25 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
  }
  if (shortened) {
    shortResults <- results
-   shortResults[,4] <- rowSums(longResults[, 4:10])
-   shortResults[4,] <- colSums(longResults[4:10, ])
+   shortResults[,4] <- rowSums(results[, 4:10])
+   shortResults[4,] <- colSums(results[4:10, ])
    shortResults <- shortResults[1:4, 1:4]
    colnames(shortResults) <- c("none severe", "1 severe", "2 severe", "3 or more severe")
    rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
 
    results <- shortResults
+
+   heatPlotly <- t(results)
+
+   plot_ly(x = c("none", "one", "two", "3 or more"),
+           y = c("none", "one", "two", "3 or more"),
+              z = heatPlotly, type = "heatmap", colors = colorRamp(c("steelblue4", "tomato")))  %>%
+     layout(
+       title = "Predicted Probability of Experiencing Certain Number of Exacerbations",
+         yaxis = list(title = "Number of Severe Exacerbations"),
+         xaxis = list(title = "Number of All Exacerbations")
+       )
+
 
  }
  return(results)
