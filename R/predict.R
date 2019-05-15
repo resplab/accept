@@ -8,7 +8,7 @@ b_oxygen	                <-   0.08129
 b_fev1	                  <-   -0.1693
 b_sgrq10	                <-   0.104
 b_cardiovascular	        <-   0.08814
-b_randomized_azithromycin <- 	 -0.164
+#b_randomized_azithromycin <- 	 -0.164
 b_LAMA	                  <-   0.1415
 b_LABA	                  <-   0.1204
 b_ICS	                    <-   0.2177
@@ -27,7 +27,7 @@ c_oxygen                  <-  0.5254
 c_fev1	                  <-  -0.502
 c_sgrq10                  <-  0.2016
 c_cardiovascular	        <-  0.3246
-c_randomized_azithromycin <- 	-0.1178
+#c_randomized_azithromycin <- 	-0.1178
 c_LAMA	                  <-  -0.17
 c_LABA            	      <-  0.01644
 c_ICS	                    <-  0.386
@@ -54,6 +54,10 @@ covMat <- matrix(
   nrow = 2,
   ncol = 2
 )
+
+# More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
+b_randomized_azithromycin <- 	 log(1/1.30)
+c_randomized_azithromycin <- 	log(0.93)
 
 
 # predictACCEPT <- function (patientData, random_sampling_N = 1e4){
