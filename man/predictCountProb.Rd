@@ -4,7 +4,7 @@
 \alias{predictCountProb}
 \title{Predicts probability of observing a certain number of exacerbations}
 \usage{
-predictCountProb(patientResults, n = 10)
+predictCountProb(patientResults, n = 10, shortened = TRUE)
 }
 \arguments{
 \item{n}{how many exacerbations to consider}

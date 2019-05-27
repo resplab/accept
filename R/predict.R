@@ -1,53 +1,55 @@
+gamma	                    <- 0.9687
+b0	                      <- -0.00964
+b_male	                  <- -0.157
+b_age10	                  <- -0.01885
+b_nowsmk	                <- -0.2009
+b_oxygen	                <- 0.08781
+b_fev1pp100	              <- -0.4419
+b_sgrq10                  <- 0.103
+b_cardiovascular	        <- 0.09837
+b_randomized_azithromycin <- -0.1687
+b_LAMA	                  <- 0.1485
+b_LABA	                  <- 0.1216
+b_ICS	                    <- 0.2232
+b_randomized_LAMA	        <- 0.172
+b_randomized_LABA	        <- 0.1398
+b_randomized_ICS	        <- -0.2452
+b_randomized_statin	      <- -0.05617
+b_BMI10                   <- -0.1272
 
-gamma	                    <-   0.9696
-b0	                      <-   0.0528
-b_male	                  <-   -0.09181
-b_age10	                  <-   -0.03442
-b_nowsmk	                <-   -0.1945
-b_oxygen	                <-   0.08129
-b_fev1	                  <-   -0.1693
-b_sgrq10	                <-   0.104
-b_cardiovascular	        <-   0.08814
-#b_randomized_azithromycin <- 	 -0.164
-b_LAMA	                  <-   0.1415
-b_LABA	                  <-   0.1204
-b_ICS	                    <-   0.2177
-b_randomized_LAMA	        <-   0.1589
-b_randomized_LABA	        <-   0.1514
-b_randomized_ICS	        <-   -0.2912
-b_randomized_statin	      <-  -0.05562
-b_BMI10                   <- 	-0.1201
 
 
-c0	                      <-  -3.6145
-c_male	                  <-  0.5516
-c_age10	                  <-  0.06352
-c_nowsmk                  <-  0.4086
-c_oxygen                  <-  0.5254
-c_fev1	                  <-  -0.502
-c_sgrq10                  <-  0.2016
-c_cardiovascular	        <-  0.3246
-#c_randomized_azithromycin <- 	-0.1178
-c_LAMA	                  <-  -0.17
-c_LABA            	      <-  0.01644
-c_ICS	                    <-  0.386
-c_randomized_LAMA	        <-  0.1081
-c_randomized_LABA	        <-  -0.3354
-c_randomized_ICS	        <-  -0.05231
-c_randomized_statin	      <-  0.1106
-c_BMI10           	      <-  -0.09662
+c0	                      <- -3.973
+c_male	                  <- 0.3889
+c_age10	                  <- 0.1123
+c_nowsmk                  <- 0.4025
+c_oxygen                  <- 0.5558
+c_fev1pp100	              <- -1.1552
+c_sgrq10                  <- 0.205
+c_cardiovascular	        <- 0.3255
+c_randomized_azithromycin <- -0.1103
+c_LAMA	                  <- -0.1385
+c_LABA            	      <- 0.01246
+c_ICS	                    <- 0.3879
+c_randomized_LAMA	        <- 0.1074
+c_randomized_LABA	        <- -0.2253
+c_randomized_ICS	        <- -0.1211
+c_randomized_statin	      <- 0.109
+c_BMI10           	      <- -0.106
 
 b_age <- b_age10/10
 b_SGRQ <- b_sgrq10/10
 b_BMI <- b_BMI10/10
+b_fev1 <- b_fev1pp100/100
 
 c_age <- c_age10/10
 c_SGRQ <- c_sgrq10/10
 c_BMI <- c_BMI10/10
+c_fev1 <- c_fev1pp100/100
 
-v1 	<- 0.5971
-v2	<- 2.3525
-cov	<- 0.1365
+v1 	<- 0.5968
+v2	<- 2.3847
+cov	<- 0.147
 
 covMat <- matrix(
   c(v1, cov, cov, v2),
