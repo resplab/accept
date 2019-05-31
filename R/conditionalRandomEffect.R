@@ -2,7 +2,6 @@ densityLastYrExac <- function (patientData, random_distribution_iteration = 2e4,
 
   conditionalRandEffect <- list()
   for (i in 1:(nrow(patientData)))
-
   {
     log_alpha <-   b0 +
       b_male * patientData[i, "male"] +
@@ -21,7 +20,6 @@ densityLastYrExac <- function (patientData, random_distribution_iteration = 2e4,
       b_randomized_ICS * patientData[i, "randomized_ICS"] +
       b_randomized_statin * patientData[i, "randomized_statin"] +
       b_BMI * patientData[i, "BMI"]
-
 
     c_lin <-   c0 +
       c_male * patientData[i, "male"] +
@@ -44,7 +42,6 @@ densityLastYrExac <- function (patientData, random_distribution_iteration = 2e4,
     conditionalZ <- matrix(0, nrow = random_distribution_iteration, ncol = 3)
     colnames(conditionalZ) <- c("weight", "z1", "z2")
 
-
     for (j in 1:random_distribution_iteration){
 
       z <- MASS::mvrnorm(1, c(0, 0), covMat)
@@ -57,7 +54,6 @@ densityLastYrExac <- function (patientData, random_distribution_iteration = 2e4,
       obsLastYrExacCount <- as.numeric(patientData[i, lastYrExacCol])
       lastYrExacProb <-  dpois(obsLastYrExacCount, lambda)
 
-
       OR <- exp (as.numeric(c_lin) + z2)
       pSevere <- (OR/(1+OR))
       rateSevere <- as.numeric(pSevere * lambda)
@@ -68,14 +64,10 @@ densityLastYrExac <- function (patientData, random_distribution_iteration = 2e4,
       conditionalZ[j, "z1"] <- z1
       conditionalZ[j, "z2"] <- z2
       conditionalZ[j, "weight"] <- lastYrExacProb*lastYrSevExacProb
-
     }
     ID <- as.character(patientData[i, "ID"])
-
     conditionalRandEffect[[ID]] <- as.data.frame(conditionalZ)
-
   }
 
   return(conditionalRandEffect)
-
 }
