@@ -5,15 +5,6 @@ Please refer to the published paper for more information:
 
 Amin Adibi, Don D Sin, Abdollah Safari, Kate M Johnson, Shawn Aaron, J Mark FitzGerald, Mohsen Sadatsafavi (2019). Development and External Validation of the Acute COPD Exacerbation Prediction Tool (ACCEPT). bioRxiv 651901; doi: [https://doi.org/10.1101/651901](https://doi.org/10.1101/651901)
 
-
-## Overview
-epicR provides an interface to to interact with the Evaluation Platform in COPD (EPIC), a discrete-event-simulation (DES) whole-disease model of Chronic Onstructive Pulmonary Disease.
-
-<p>
-    <img src=""/>
-</p>
-
-
 ## Installation
 
 1. Using either an R session in Terminal or in R Studio, install the package `devtools`:
