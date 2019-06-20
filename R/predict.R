@@ -83,6 +83,7 @@ c_randomized_azithromycin <- 	log(0.93)
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
 #' @param calculate_CIs whether to calculate confidence interval of the mean
+#' @param random_distribution_iteration TODO
 #' @return patientData with prediction
 #' @examples
 #' results <- predictACCEPT(samplePatients)
@@ -268,12 +269,14 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
 
 
 #' Predicts probability of observing a certain number of exacerbations
-#' @param patientData patient results matrix, produced by predictAccept.
+#' @param patientResults patient results matrix, produced by predictAccept.
 #' @param n how many exacerbations to consider
+#' @param shortened TODO
 #' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 #' @examples
-#' results <- predictACCEPT(samplePatients)
+#' results <- predictACCEPT(samplePatients[1,])
 #' predictCountProb (results)
+#' @import plotly
 #' @export
 predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
  results <- matrix (0, nrow = n, ncol = n)

@@ -7,9 +7,11 @@
 predictCountProb(patientResults, n = 10, shortened = TRUE)
 }
 \arguments{
+\item{patientResults}{patient results matrix, produced by predictAccept.}
+
 \item{n}{how many exacerbations to consider}
 
-\item{patientData}{patient results matrix, produced by predictAccept.}
+\item{shortened}{TODO}
 }
 \value{
 a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
@@ -18,6 +20,6 @@ a matrix of probabilities with the number of exacerbations as rows and number of
 Predicts probability of observing a certain number of exacerbations
 }
 \examples{
-results <- predictACCEPT(samplePatients)
+results <- predictACCEPT(samplePatients[1,])
 predictCountProb (results)
 }

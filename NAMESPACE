@@ -3,6 +3,8 @@
 export(predictACCEPT)
 export(predictCountProb)
 import(dplyr)
+import(plotly)
+importFrom(plotly,plot_ly)
 importFrom(stats,dpois)
 importFrom(stats,quantile)
 importFrom(stats,rpois)
