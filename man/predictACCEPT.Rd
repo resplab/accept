@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{predictACCEPT}
 \alias{predictACCEPT}
-\title{Predicts COPD exacerbations within the next year}
+\title{Predicts COPD exacerbation rate by severity level}
 \usage{
 predictACCEPT(patientData, random_sampling_N = 1000,
   random_distribution_iteration = 20000, calculate_CIs = TRUE)
@@ -12,8 +12,6 @@ predictACCEPT(patientData, random_sampling_N = 1000,
 
 \item{random_sampling_N}{number of random sampling. Default is 1000.}
 
-\item{random_distribution_iteration}{TODO}
-
 \item{calculate_CIs}{whether to calculate confidence interval of the mean}
 
 \item{randon_distribution_iteration}{default is 2 * 10^4}
@@ -22,7 +20,7 @@ predictACCEPT(patientData, random_sampling_N = 1000,
 patientData with prediction
 }
 \description{
-Predicts COPD exacerbations within the next year
+Predicts COPD exacerbation rate by severity level
 }
 \examples{
 results <- predictACCEPT(samplePatients)
