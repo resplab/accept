@@ -1,5 +1,6 @@
 #' @import dplyr
 #' @importFrom stats dpois quantile rpois
+#' @importFrom plotly plot_ly
 #' @importFrom stringr str_replace
 NULL
 

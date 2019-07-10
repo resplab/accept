@@ -79,15 +79,17 @@ c_randomized_azithromycin <- 	log(0.93)
 # }
 
 
-#' Predicts COPD exacerbations within the next year
+#' Predicts COPD exacerbation rate by severity level
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
+#' @param randon_distribution_iteration default is 2 * 10^4
 #' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @return patientData with prediction
 #' @examples
 #' results <- predictACCEPT(samplePatients)
 #' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribution_iteration = 2e4, calculate_CIs = TRUE){
+predictACCEPT <- function (patientData, random_sampling_N = 1e3,
+                           random_distribution_iteration = 2e4, calculate_CIs = TRUE){
 
   predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   #predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
@@ -267,18 +269,24 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
 }
 
 
-#' Predicts probability of observing a certain number of exacerbations
-#' @param patientData patient results matrix, produced by predictAccept.
-#' @param n how many exacerbations to consider
+#' Predicts probability of observing n exacerbations in the next year
+#' @param patientResults patient results vector, produced by predictAccept.
+#' @param n how many exacerbations
+#' @param shortened boolean: Shortened results groups into 0, 1, 2, and 3 or more exacerbations
 #' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 #' @examples
-#' results <- predictACCEPT(samplePatients)
+#' results <- predictACCEPT(samplePatients[1,])
 #' predictCountProb (results)
+#' @import plotly
 #' @export
 predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
- results <- matrix (0, nrow = n, ncol = n)
-  colnames(results) <- 0:(n-1)
-  rownames(results) <- 0:(n-1)
+  results <- matrix (0, nrow = n, ncol = n)
+  rowNames = 0:(n-1)
+  rowNames = paste0(rowNames, " exacerbation(s)")
+  colNames = 0:(n-1)
+  colNames = paste0(colNames, " severe")
+  colnames(results) = colNames
+  rownames(results) = rowNames
   # i is all exacs, j of them severe
  for (i in 1:n) {
    for (j in 1:n) {
@@ -298,19 +306,6 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
    rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
 
    results <- shortResults
-
-   heatPlotly <- t(results)
-
-   plot_ly(x = c("none", "one", "two", "3 or more"),
-           y = c("none", "one", "two", "3 or more"),
-              z = heatPlotly, type = "heatmap", colors = colorRamp(c("steelblue4", "tomato")))  %>%
-     layout(
-       title = "Predicted Probability of Experiencing Certain Number of Exacerbations",
-         yaxis = list(title = "Number of Severe Exacerbations"),
-         xaxis = list(title = "Number of All Exacerbations")
-       )
-
-
  }
  return(results)
 }
