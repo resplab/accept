@@ -79,16 +79,17 @@ c_randomized_azithromycin <- 	log(0.93)
 # }
 
 
-#' Predicts COPD exacerbations within the next year
+#' Predicts COPD exacerbation rate by severity level
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
-#' @param calculate_CIs whether to calculate confidence interval of the mean
+#' @param calculate_CIs boolean: whether to calculate confidence interval of the mean
 #' @param random_distribution_iteration TODO
 #' @return patientData with prediction
 #' @examples
 #' results <- predictACCEPT(samplePatients)
 #' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribution_iteration = 2e4, calculate_CIs = TRUE){
+predictACCEPT <- function (patientData, random_sampling_N = 1e3,
+                           random_distribution_iteration = 2e4, calculate_CIs = TRUE){
 
   predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   #predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
