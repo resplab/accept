@@ -15,6 +15,8 @@ predictACCEPT(patientData, random_sampling_N = 1000,
 \item{random_distribution_iteration}{TODO}
 
 \item{calculate_CIs}{whether to calculate confidence interval of the mean}
+
+\item{randon_distribution_iteration}{default is 2 * 10^4}
 }
 \value{
 patientData with prediction

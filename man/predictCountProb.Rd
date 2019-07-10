@@ -2,22 +2,22 @@
 % Please edit documentation in R/predict.R
 \name{predictCountProb}
 \alias{predictCountProb}
-\title{Predicts probability of observing a certain number of exacerbations}
+\title{Predicts probability of observing n exacerbations in the next year}
 \usage{
 predictCountProb(patientResults, n = 10, shortened = TRUE)
 }
 \arguments{
-\item{patientResults}{patient results matrix, produced by predictAccept.}
+\item{patientResults}{patient results vector, produced by predictAccept.}
 
-\item{n}{how many exacerbations to consider}
+\item{n}{how many exacerbations}
 
-\item{shortened}{TODO}
+\item{shortened}{boolean: Shortened results groups into 0, 1, 2, and 3 or more exacerbations}
 }
 \value{
 a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 }
 \description{
-Predicts probability of observing a certain number of exacerbations
+Predicts probability of observing n exacerbations in the next year
 }
 \examples{
 results <- predictACCEPT(samplePatients[1,])
