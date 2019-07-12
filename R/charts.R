@@ -16,7 +16,7 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
 
   plot_ly(x = colnames(heatPlotly),
           y = rownames(heatPlotly),
-          z = heatPlotly, type = "heatmap", colors = colorRamp(c("steelblue4", "tomato")))  %>%
+          z = heatPlotly, type = "heatmap")  %>%
     layout(
       title = "Predicted Probability of Experiencing Certain Number of Exacerbations",
       yaxis = list(title = "Number of Severe Exacerbations"),
@@ -44,10 +44,28 @@ plotExacerbations = function(patientResults, type="rate", interval = "CI",
     "predicted_severe_exac_")
   full_strings = paste0(base_strings, type)
   az_strings = paste0("azithromycin_", full_strings)
+  lower = "_lower_"
+  upper = "_upper_"
+  az_intervals = c(paste0(az_strings, lower, interval),
+                     paste0(az_strings, upper, interval))
+  no_t_intervals = c(paste0(full_strings, lower, interval),
+                             paste0(full_strings, upper, interval))
 
   x = c('Overall', 'Severe')
   y1 = c(patientResults[[full_strings[1]]], patientResults[[full_strings[2]]])
   y2 = c(patientResults[[az_strings[1]]], patientResults[[az_strings[2]]])
+  error_y1 = c(patientResults[[no_t_intervals[1]]],
+               patientResults[[no_t_intervals[3]]],
+               patientResults[[no_t_intervals[2]]],
+               patientResults[[no_t_intervals[4]]])
+  error_y2 = c(patientResults[[az_intervals[1]]],
+               patientResults[[az_intervals[3]]],
+               patientResults[[az_intervals[2]]],
+               patientResults[[az_intervals[4]]])
+  error_y1 = c(abs(error_y1[c(1,2)]-y1[1]),
+               abs(error_y1[c(3,4)]-y1[2]))
+  error_y2 = c(abs(error_y2[c(1,2)]-y2[1]),
+               abs(error_y2[c(3,4)]-y2[2]))
   data <- data.frame(x, y1, y2)
 
   #The default order will be alphabetized unless specified as below:
@@ -59,10 +77,28 @@ plotExacerbations = function(patientResults, type="rate", interval = "CI",
   }
   p <- plot_ly(data, x = ~x, y = ~y1, type = 'bar',
                name = 'No Treatment',
-               marker = list(color = colors[1])) %>%
+               marker = list(color = colors[1]),
+               error_y = list(
+                 type='data',
+                 symmetric=FALSE,
+                 color='#85144B',
+                 thickness=1.5,
+                 width=3,
+                 array= error_y1[c(2,4)],
+                 arrayminus = error_y1[c(1,3)]
+               )) %>%
     add_trace(y = ~y2,
               name = 'Azithromycin Treatment',
-              marker = list(color = colors[2])) %>%
+              marker = list(color = colors[2]),
+              error_y = list(
+                type='data',
+                color='#85144B',
+                thickness=1.5,
+                width=3,
+                symmetric=FALSE,
+                array= error_y2[c(2,4)],
+                arrayminus = error_y2[c(1,3)]
+              )) %>%
     layout(xaxis = list(title = "Exacerbation Type",
                         tickangle = -45),
            yaxis = list(title = yAxisTitle),

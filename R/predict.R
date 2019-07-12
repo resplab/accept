@@ -17,8 +17,6 @@ b_randomized_ICS	        <- -0.2452
 b_randomized_statin	      <- -0.05617
 b_BMI10                   <- -0.1272
 
-
-
 c0	                      <- -3.973
 c_male	                  <- 0.3889
 c_age10	                  <- 0.1123
