@@ -28,6 +28,9 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
 #' @param interval string: either "CI" or "PI"
 #' PI = Predicted Interval
 #' CI = Confidence Interval
+#' @param colors vector: a vector of colors to be used in the graph
+#' must be length 2
+#' can use hexadecimal, rgb, or R color codes
 #' @return a bar graph
 #' @examples
 #' results <- predictACCEPT(samplePatients[1,])

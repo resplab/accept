@@ -2,7 +2,7 @@
 % Please edit documentation in R/charts.R
 \name{plotExacerbations}
 \alias{plotExacerbations}
-\title{Creates bar graph}
+\title{Creates bar graph comparing no treatment with azithromycin treatment}
 \usage{
 plotExacerbations(patientResults, type = "rate", interval = "CI",
   colors = c("#007bff", "rgb(204,204,204)"))
@@ -10,13 +10,15 @@ plotExacerbations(patientResults, type = "rate", interval = "CI",
 \arguments{
 \item{patientResults}{patient results vector, produced by predictAccept.}
 
-\item{type}{string: either "rate" or "probability"}
+\item{type}{string: either "probability" or "rate"}
 
 \item{interval}{string: either "CI" or "PI"
-CI = confidence interval
-PI = predicted interval}
+PI = Predicted Interval
+CI = Confidence Interval}
 
-\item{colors}{vector: vector of color strings, rbg or hexadecimal, for colors on bar graph}
+\item{colors}{vector: a vector of colors to be used in the graph
+must be length 2
+can use hexadecimal, rgb, or R color codes}
 }
 \value{
 a bar graph

@@ -122,7 +122,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3,
       b_BMI * patientData[i, "BMI"]
 
     azithro_log_alpha <- log_alpha + b_randomized_azithromycin
-
+    weight = NULL
     ID <- as.character(patientData[i, "ID"])
     z <- sample_n(conditionalZ[[ID]], random_sampling_N, replace = TRUE, weight = weight)
 
