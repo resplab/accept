@@ -4,7 +4,7 @@
 \alias{plotHeatMap}
 \title{Creates heatmap of number of exacerbations}
 \usage{
-plotHeatMap(patientResults, n = 10)
+plotHeatMap(patientResults, n = 10, shortened = TRUE)
 }
 \arguments{
 \item{patientResults}{patient results vector, produced by predictAccept.}
@@ -14,7 +14,7 @@ plotHeatMap(patientResults, n = 10)
 \item{shortened}{boolean}
 }
 \value{
-a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
+a heatmap
 }
 \description{
 Creates heatmap of number of exacerbations

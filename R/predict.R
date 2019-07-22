@@ -82,7 +82,7 @@ c_randomized_azithromycin <- 	log(0.93)
 #' Predicts COPD exacerbations within the next year
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
-#' @param randon_distribution_iteration default is 2 * 10^4
+#' @param random_distribution_iteration default is 2 * 10^4
 #' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @return patientData with prediction
 #' @examples

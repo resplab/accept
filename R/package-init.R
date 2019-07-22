@@ -1,6 +1,10 @@
 #' @import dplyr
+#' @import plotly
+#' @import viridis
+#' @import extrafont
 #' @importFrom stats dpois quantile rpois
 #' @importFrom stringr str_replace
+#' @importFrom grDevices colorRamp
 NULL
 
 #' Sample Patient Characteristics Inputs
