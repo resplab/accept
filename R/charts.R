@@ -22,7 +22,6 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
       xaxis = list(title = "Number of All Exacerbations")
     )
 }
-<<<<<<< HEAD
 #' Creates bar graph comparing no treatment with azithromycin treatment
 #' @param patientResults patient results vector, produced by predictAccept.
 #' @param type string: either "probability" or "rate"
@@ -30,77 +29,10 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
 #' PI = Predicted Interval
 #' CI = Confidence Interval
 #' @return a bar graph
-=======
-
-#' Creates bar graph
-#' @param patientResults patient results vector, produced by predictAccept.
-#' @param type string: either "rate" or "probability"
-#' @param interval string: either "CI" or "PI"
-#' CI = confidence interval
-#' PI = predicted interval
-#' @param colors vector: vector of color strings, rbg or hexadecimal, for colors on bar graph
-#' @return a bar graph
-#' @import plotly
->>>>>>> 637f1cddf5094488f08464221258468484c89d9d
 #' @examples
 #' results <- predictACCEPT(samplePatients[1,])
 #' plotExacerbations(results)
 #' @export
-<<<<<<< HEAD
-
-plotExacerbations = function(patientResults, type = "probability", interval = "CI") {
-  themeColors = c("#330033", "#8cf2f2", "#c51672", "#007bff")
-  exacerbations = c("Overall", "Severe")
-  base_text = "predicted_exac_"
-  severe_text = "predicted_severe_exac_"
-  text_type = paste0(base_text, type)
-  text_severe_type = paste0(severe_text, type)
-  intervals = c(paste0(text_type, "_lower_", interval),
-                 paste0(text_type, "_upper_", interval))
-  azIntervals = paste0("azithromycin_", intervals)
-  az_text_type = paste0("azithromycin_", text_type)
-  az_text_severe_type = paste0("azithromycin", text_severe_type)
-  noTreatment = c(patientResults[[text_type]], patientResults[[text_severe_type]])
-  azithromycin = c(patientResults[[az_text_type]], patientResults[[az_text_severe_type]])
-  data <- data.frame(exacerbations, noTreatment, azithromycin)
-  title = paste0("Comparison of No Treatment vs Azithromycin")
-  if(type == "probability") {
-    yAxisTitle = "Probability of Exacerbation in Next Year"
-  } else if(type == "rate") {
-    yAxisTitle = "Predicted Exacerbation Rate (# exacerbations/year)"
-  }
-
-  p <- plot_ly(data, x = ~exacerbations, y = ~noTreatment, type = 'bar', name = 'No Treatment', marker = list(color = themeColors[2])) %>%
-    add_trace(y = ~azithromycin, name = 'Azithromycin Treatment', marker = list(color = themeColors[3])) %>%
-    layout(title = title,
-           titlefont = list(
-             size = 16,
-             color = 'white'),
-         xaxis = list(
-           title = "Exacerbation Type",
-           titlefont = list(
-             size = 16,
-             color = 'white'),
-           tickfont = list(
-             size = 14,
-             color = 'white')),
-         yaxis = list(
-           title = yAxisTitle,
-           titlefont = list(
-             size = 16,
-             color = 'white'),
-           tickfont = list(
-             size = 14,
-             color = 'white')),
-         legend = list(font=list(
-                         size=12,
-                         color='white'
-                       )),
-         barmode = 'group',
-         bargap = 0.15,
-          paper_bgcolor='#4C444B',
-                plot_bgcolor='#4C444B')
-=======
 plotExacerbations = function(patientResults, type="rate", interval = "CI",
                              colors = c("#007bff", 'rgb(204,204,204)')) {
 
@@ -168,6 +100,5 @@ plotExacerbations = function(patientResults, type="rate", interval = "CI",
            yaxis = list(title = yAxisTitle),
            margin = list(b = 100),
            barmode = 'group')
->>>>>>> 637f1cddf5094488f08464221258468484c89d9d
   p
 }
