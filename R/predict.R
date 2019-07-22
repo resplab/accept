@@ -17,8 +17,6 @@ b_randomized_ICS	        <- -0.2452
 b_randomized_statin	      <- -0.05617
 b_BMI10                   <- -0.1272
 
-
-
 c0	                      <- -3.973
 c_male	                  <- 0.3889
 c_age10	                  <- 0.1123
@@ -79,7 +77,7 @@ c_randomized_azithromycin <- 	log(0.93)
 # }
 
 
-#' Predicts COPD exacerbations within the next year
+#' Predicts COPD exacerbation rate by severity level
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
 #' @param random_distribution_iteration default is 2 * 10^4
@@ -88,7 +86,8 @@ c_randomized_azithromycin <- 	log(0.93)
 #' @examples
 #' results <- predictACCEPT(samplePatients)
 #' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribution_iteration = 2e4, calculate_CIs = TRUE){
+predictACCEPT <- function (patientData, random_sampling_N = 1e3,
+                           random_distribution_iteration = 2e4, calculate_CIs = TRUE){
 
   predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   #predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
@@ -276,6 +275,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3, random_distribu
 #' @examples
 #' results <- predictACCEPT(samplePatients[1,])
 #' predictCountProb (results)
+#' @import plotly
 #' @export
 predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
   results <- matrix (0, nrow = n, ncol = n)

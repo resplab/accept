@@ -2,25 +2,46 @@
 % Please edit documentation in R/charts.R
 \name{plotExacerbations}
 \alias{plotExacerbations}
+<<<<<<< HEAD
 \title{Creates bar graph comparing no treatment with azithromycin treatment}
 \usage{
 plotExacerbations(patientResults, type = "probability",
   interval = "CI")
+=======
+\title{Creates bar graph}
+\usage{
+plotExacerbations(patientResults, type = "rate", interval = "CI",
+  colors = c("#007bff", "rgb(204,204,204)"))
+>>>>>>> 637f1cddf5094488f08464221258468484c89d9d
 }
 \arguments{
 \item{patientResults}{patient results vector, produced by predictAccept.}
 
+<<<<<<< HEAD
 \item{type}{string: either "probability" or "rate"}
 
 \item{interval}{string: either "CI" or "PI"
 PI = Predicted Interval
 CI = Confidence Interval}
+=======
+\item{type}{string: either "rate" or "probability"}
+
+\item{interval}{string: either "CI" or "PI"
+CI = confidence interval
+PI = predicted interval}
+
+\item{colors}{vector: vector of color strings, rbg or hexadecimal, for colors on bar graph}
+>>>>>>> 637f1cddf5094488f08464221258468484c89d9d
 }
 \value{
 a bar graph
 }
 \description{
+<<<<<<< HEAD
 Creates bar graph comparing no treatment with azithromycin treatment
+=======
+Creates bar graph
+>>>>>>> 637f1cddf5094488f08464221258468484c89d9d
 }
 \examples{
 results <- predictACCEPT(samplePatients[1,])

@@ -6,7 +6,7 @@ Authors@R: c(
     person("Mohsen", "Sadatsafavi", email = "mohsen.sadatsafavi@ubc.ca", role = c("aut", "cre")),
     person("Ainsleigh", "Hill", email = "ainsleigh.hill@alumni.ubc.ca", role = c("aut")))
 Description: This package allows clinicians to predict the rate and severity of exacerbations for COPD patients.
-Depends: R (>= 3.5.0)
+Depends: R (>= 3.4.4)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

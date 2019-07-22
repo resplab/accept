@@ -7,8 +7,12 @@ export(predictCountProb)
 import(dplyr)
 import(extrafont)
 import(plotly)
+<<<<<<< HEAD
 import(viridis)
 importFrom(grDevices,colorRamp)
+=======
+importFrom(plotly,plot_ly)
+>>>>>>> 637f1cddf5094488f08464221258468484c89d9d
 importFrom(stats,dpois)
 importFrom(stats,quantile)
 importFrom(stats,rpois)

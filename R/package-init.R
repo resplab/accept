@@ -3,6 +3,7 @@
 #' @import viridis
 #' @import extrafont
 #' @importFrom stats dpois quantile rpois
+#' @importFrom plotly plot_ly
 #' @importFrom stringr str_replace
 #' @importFrom grDevices colorRamp
 NULL
