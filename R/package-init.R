@@ -19,7 +19,7 @@ NULL
 #'   \item age. the age of the patient (40--90)
 #'   \item smoker. whether the patient is currently a smoker (0,1)
 #'   \item oxygen. whether the patient has had supplemental oxygen therapy within the past year (0,1)
-#'   \item FEV1. forced expiratroy volume in 1 second in L (0--5)
+#'   \item FEV1. forced expiratory volume in 1 second in L (0--5)
 #'   \item BMI. body mass index (10--60)
 #'   \item SGRQ. St. George’s Respiratory Questionnaire score (0--100)
 #'   \item statin. whether the patient is taking statins due to cardiovascular conditions (0,1)
