@@ -37,20 +37,13 @@ The [PRISM platform](https://prism.resp.core.ubc.ca) allows users to access ACCE
 
 To get started, there is an R data frame with the package of sample patient data. I have printed columns 1-13 and 14-19 separately because there isn't enough space:
 
-```{r sample-patients, eval = TRUE, echo = TRUE}
+```
 library(accept)
-samplePatients = accept::samplePatients
-print(samplePatients[,1:13])
-print(samplePatients[,14:19])
+samplePatients <- accept::samplePatients
+
 ```
 
-```{r, eval=TRUE, echo=FALSE}
-library(htmltools)
-rawHTML <- paste(readLines("predictACCEPT-inputs.html"), collapse="\n")
-HTML(rawHTML)
-```
-
-### Exacerbation Rate {-}
+### Exacerbation Rate
 
 To get a prediction for exacerbation rate, you will need to pass in a patient vector:
 
@@ -59,13 +52,7 @@ results <- predictACCEPT(samplePatients[1,])
 print(t(results))
 ```
 
-The **predictACCEPT()** function returns a data frame with the original patient data, along with the predictions for different treatment options. Here is a summary of the results: 
-
-```{r, eval=TRUE, echo=FALSE}
-library(htmltools)
-rawHTML <- paste(readLines("predictACCEPT-outputs.html"), collapse="\n")
-HTML(rawHTML)
-```
+The **predictACCEPT()** function returns a data frame with the original patient data, along with the predictions for different treatment options. 
 
 To visualize the data, there is a graphing function called **plotExacerbations()**, which creates a Plotly bar graph. You have the option of selecting **probability** or **rate** for which prediction you want to see, and either **CI** or **PI** to select the confidence interval or prediction interval respectively.
 
@@ -81,7 +68,7 @@ plotExacerbations(results, type="probability", interval = "PI")
 plotExacerbations(results, type="rate", interval = "CI")
 ```
 
-### Probability of N Exacerbations (Poisson) {-}
+### Probability of N Exacerbations (Poisson)
 
 We can also calculate the predicted number of exacerbations in a year:
 
