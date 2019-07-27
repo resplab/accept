@@ -1,2 +1,3 @@
 ^accept\.Rproj$
 ^\.Rproj\.user$
+^\.travis\.yml$
