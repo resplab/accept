@@ -26,7 +26,7 @@ ACCEPT is also available as web app, accessible at [http://resp.core.ubc.ca/ipre
 
 # ACCEPT in R
 
-### Sample Data {-}
+### Sample Data
 
 To get started, there is an R data frame with the package of sample patient data. I have printed columns 1-13 and 14-19 separately because there isn't enough space:
 
