@@ -275,8 +275,10 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3,
 #' @param shortened boolean: Shortened results groups into 0, 1, 2, and 3 or more exacerbations
 #' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 #' @examples
+#' \dontrun{
 #' results <- predictACCEPT(samplePatients[1,])
 #' predictCountProb (results)
+#' }
 #' @import plotly
 #' @export
 predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
