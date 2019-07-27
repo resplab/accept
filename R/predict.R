@@ -84,7 +84,9 @@ c_randomized_azithromycin <- 	log(0.93)
 #' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @return patientData with prediction
 #' @examples
+#' \dontrun{
 #' results <- predictACCEPT(samplePatients)
+#' }
 #' @export
 predictACCEPT <- function (patientData, random_sampling_N = 1e3,
                            random_distribution_iteration = 2e4, calculate_CIs = TRUE){

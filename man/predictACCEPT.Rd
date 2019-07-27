@@ -23,5 +23,7 @@ patientData with prediction
 Predicts COPD exacerbation rate by severity level
 }
 \examples{
+\dontrun{
 results <- predictACCEPT(samplePatients)
+}
 }
