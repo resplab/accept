@@ -20,6 +20,8 @@ a heatmap
 Creates heatmap of number of exacerbations
 }
 \examples{
+\dontrun{
 results <- predictACCEPT(samplePatients[1,])
 plotHeatMap(results)
+}
 }

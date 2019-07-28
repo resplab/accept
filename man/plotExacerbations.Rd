@@ -27,6 +27,8 @@ a bar graph
 Creates bar graph comparing no treatment with azithromycin treatment
 }
 \examples{
+\dontrun{
 results <- predictACCEPT(samplePatients[1,])
 plotExacerbations(results)
+}
 }
