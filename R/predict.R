@@ -80,13 +80,11 @@ c_randomized_azithromycin <- 	log(0.93)
 #' Predicts COPD exacerbation rate by severity level
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
-#' @param random_distribution_iteration default is 2 * 10^4
+#' @param random_distribution_iteration default is 2*10^4
 #' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @return patientData with prediction
 #' @examples
-#' \dontrun{
-#' results <- predictACCEPT(samplePatients)
-#' }
+#' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
 #' @export
 predictACCEPT <- function (patientData, random_sampling_N = 1e3,
                            random_distribution_iteration = 2e4, calculate_CIs = TRUE){
@@ -275,10 +273,8 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3,
 #' @param shortened boolean: Shortened results groups into 0, 1, 2, and 3 or more exacerbations
 #' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 #' @examples
-#' \dontrun{
-#' results <- predictACCEPT(samplePatients[1,])
+#' results <- predictACCEPT(samplePatients[1,], random_distribution_iteration = 5000)
 #' predictCountProb (results)
-#' }
 #' @import plotly
 #' @export
 predictCountProb <- function (patientResults, n = 10, shortened = TRUE){

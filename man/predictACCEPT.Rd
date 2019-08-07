@@ -12,7 +12,7 @@ predictACCEPT(patientData, random_sampling_N = 1000,
 
 \item{random_sampling_N}{number of random sampling. Default is 1000.}
 
-\item{random_distribution_iteration}{default is 2 * 10^4}
+\item{random_distribution_iteration}{default is 2*10^4}
 
 \item{calculate_CIs}{whether to calculate confidence interval of the mean}
 }
@@ -23,7 +23,5 @@ patientData with prediction
 Predicts COPD exacerbation rate by severity level
 }
 \examples{
-\dontrun{
-results <- predictACCEPT(samplePatients)
-}
+results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
 }
