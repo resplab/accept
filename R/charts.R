@@ -4,10 +4,8 @@
 #' @param shortened boolean
 #' @return a heatmap
 #' @examples
-#' \dontrun{
-#' results <- predictACCEPT(samplePatients[1,])
+#' results <- predictACCEPT(samplePatients[1,], random_distribution_iteration = 5000)
 #' plotHeatMap(results)
-#' }
 #' @export
 
 plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
@@ -35,10 +33,8 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
 #' can use hexadecimal, rgb, or R color codes
 #' @return a bar graph
 #' @examples
-#' \dontrun{
-#' results <- predictACCEPT(samplePatients[1,])
+#' results <- predictACCEPT(samplePatients[1,], random_distribution_iteration = 5000)
 #' plotExacerbations(results)
-#' }
 #' @export
 plotExacerbations = function(patientResults, type="rate", interval = "CI",
                              colors = c("#007bff", 'rgb(204,204,204)')) {
