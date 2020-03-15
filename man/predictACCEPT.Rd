@@ -4,8 +4,12 @@
 \alias{predictACCEPT}
 \title{Predicts COPD exacerbation rate by severity level}
 \usage{
-predictACCEPT(patientData, random_sampling_N = 1000,
-  random_distribution_iteration = 20000, calculate_CIs = TRUE)
+predictACCEPT(
+  patientData,
+  random_sampling_N = 1000,
+  random_distribution_iteration = 20000,
+  calculate_CIs = TRUE
+)
 }
 \arguments{
 \item{patientData}{patient data matrix. Can have one or many patients in it}

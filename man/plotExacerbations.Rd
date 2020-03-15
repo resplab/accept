@@ -4,8 +4,12 @@
 \alias{plotExacerbations}
 \title{Creates bar graph comparing no treatment with azithromycin treatment}
 \usage{
-plotExacerbations(patientResults, type = "rate", interval = "CI",
-  colors = c("#007bff", "rgb(204,204,204)"))
+plotExacerbations(
+  patientResults,
+  type = "rate",
+  interval = "CI",
+  colors = c("#007bff", "rgb(204,204,204)")
+)
 }
 \arguments{
 \item{patientResults}{patient results vector, produced by predictAccept.}

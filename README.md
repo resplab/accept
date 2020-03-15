@@ -7,7 +7,7 @@ R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)
 
 Please refer to the published paper for more information: 
 
-Amin Adibi, Don D Sin, Abdollah Safari, Kate M Johnson, Shawn Aaron, J Mark FitzGerald, Mohsen Sadatsafavi (2019). Development and External Validation of the Acute COPD Exacerbation Prediction Tool (ACCEPT). bioRxiv 651901; doi: [https://doi.org/10.1101/651901](https://doi.org/10.1101/651901)
+Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
 
 ## Installation
 
@@ -17,8 +17,8 @@ The latest stable version can be downloaded from CRAN:
 Alternatively, you can download the latest development version from GitHub:
 
 ```
-install.packages("devtools")
-devtools::install_github("resplab/accept")
+install.packages("remotes")
+remotes::install_github("resplab/accept")
 ```
 
 # Web App for ACCEPT 
@@ -97,5 +97,5 @@ An interactive user manual that describes the study, the web app, the API, and t
 
 Please cite:
 
-The manuscript is currently under peer-review. A preprint is available on bioRxiv
-```Amin Adibi, Don D Sin, Abdollah Safari, Kate M Johnson, Shawn Aaron, J Mark FitzGerald, Mohsen Sadatsafavi (2019). Development and External Validation of the Acute COPD Exacerbation Prediction Tool (ACCEPT). bioRxiv 651901; doi:10.1101/651901```
+Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
+
