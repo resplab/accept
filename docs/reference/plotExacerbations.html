@@ -69,7 +69,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">accept</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.7.1</span>
       </span>
     </div>
 
@@ -112,8 +112,12 @@
     <p>Creates bar graph comparing no treatment with azithromycin treatment</p>
     </div>
 
-    <pre class="usage"><span class='fu'>plotExacerbations</span>(<span class='no'>patientResults</span>, <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"rate"</span>, <span class='kw'>interval</span> <span class='kw'>=</span> <span class='st'>"CI"</span>,
-  <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"#007bff"</span>, <span class='st'>"rgb(204,204,204)"</span>))</pre>
+    <pre class="usage"><span class='fu'>plotExacerbations</span>(
+  <span class='no'>patientResults</span>,
+  <span class='kw'>type</span> <span class='kw'>=</span> <span class='st'>"rate"</span>,
+  <span class='kw'>interval</span> <span class='kw'>=</span> <span class='st'>"CI"</span>,
+  <span class='kw'>colors</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"#007bff"</span>, <span class='st'>"rgb(204,204,204)"</span>)
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
