@@ -90,6 +90,19 @@ plotHeatMap(patientResults, shortened = FALSE)
 
 The [PRISM platform](http://prism.resp.core.ubc.ca) allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the [PRISM model repository](http://resp.core.ubc.ca/ipress/prism).
 
+#### Linux
+
+In Ubuntu, you can call the API with `curl`:
+
+```
+curl \
+-X POST \
+-H "x-prism-auth-user: aaHYJJb4hcrmBYY3" \
+-H "Content-Type: application/json" \
+-d '{"func":["prism_model_run"],"model_input":[{"ID": "10001","male": 1,"age": 57,"smoker": 0,"oxygen": 0,"statin": 0,"LAMA": 1,"LABA": 1,"ICS": 1,"FEV1": 51,"BMI": 18,"SGRQ": 63,"LastYrExacCount": 2,"LastYrSevExacCount": 1,"randomized_azithromycin": 0,"randomized_statin": 0,"randomized_LAMA": 0,"randomized_LABA": 0,"randomized_ICS": 0, "random_sampling_N" : 1000, "random_distribution_iteration" : 20000, "calculate_CIs" : "TRUE"}]}' \
+https://admin-prism-api.cp.prism-ubc.linaralabs.com/route/accept/run
+```
+
 ## User Manual
 
 An interactive user manual that describes the study, the web app, the API, and the R package is available [here](https://resplab.github.io/acceptManual/section-introduction.html).
