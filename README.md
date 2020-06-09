@@ -90,7 +90,20 @@ plotHeatMap(patientResults, shortened = FALSE)
 
 The [PRISM platform](http://prism.resp.core.ubc.ca) allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the [PRISM model repository](http://resp.core.ubc.ca/ipress/prism).
 
-#### Linux
+#### Python
+```
+import json
+import requests
+url = 'https://admin-prism-api.cp.prism-ubc.linaralabs.com/route/accept/run'
+headers = {'x-prism-auth-user': YOUR_API_KEY}
+model_run = requests.post(url, headers=headers,
+json = {"func":["prism_model_run"],"model_input":[{"ID": "10001","male": 1,"age": 57,"smoker": 0,"oxygen": 0,"statin": 0,"LAMA": 1,"LABA": 1,"ICS": 1,"FEV1": 51,"BMI": 18,"SGRQ": 63,"LastYrExacCount": 2,"LastYrSevExacCount": 1,"randomized_azithromycin": 0,"randomized_statin": 0,"randomized_LAMA": 0,"randomized_LABA": 0,"randomized_ICS": 0, "random_sampling_N" : 1000, "random_distribution_iteration" : 20000, "calculate_CIs" : "TRUE"}]})
+print(model_run)
+results = json.loads(model_run.text)
+print(results)
+```
+
+#### Linux Bash
 
 In Ubuntu, you can call the API with `curl`:
 
@@ -102,6 +115,7 @@ curl \
 -d '{"func":["prism_model_run"],"model_input":[{"ID": "10001","male": 1,"age": 57,"smoker": 0,"oxygen": 0,"statin": 0,"LAMA": 1,"LABA": 1,"ICS": 1,"FEV1": 51,"BMI": 18,"SGRQ": 63,"LastYrExacCount": 2,"LastYrSevExacCount": 1,"randomized_azithromycin": 0,"randomized_statin": 0,"randomized_LAMA": 0,"randomized_LABA": 0,"randomized_ICS": 0, "random_sampling_N" : 1000, "random_distribution_iteration" : 20000, "calculate_CIs" : "TRUE"}]}' \
 https://admin-prism-api.cp.prism-ubc.linaralabs.com/route/accept/run
 ```
+
 
 ## User Manual
 
