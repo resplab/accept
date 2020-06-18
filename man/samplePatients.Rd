@@ -4,7 +4,9 @@
 \name{samplePatients}
 \alias{samplePatients}
 \title{Sample Patient Characteristics Inputs}
-\format{A data frame with 2 rows and 19 variables}
+\format{
+A data frame with 2 rows and 19 variables
+}
 \description{
 A dataset containing sample patient characteristics to run the prediction model
  variables are as follows:

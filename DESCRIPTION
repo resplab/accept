@@ -1,6 +1,6 @@
 Package: accept
-Title: The Acute COPD Exacerbation Prediction Tool (ACCEPT)
-Version: 0.7.1
+Title: The Acute COPD Exacerbation Prediction Tool (ACCEPT) - With Custom Betas for Abi
+Version: 0.7.1.999
 Authors@R: c(
     person("Amin", "Adibi", email = "adibi@alumni.ubc.ca", role = c("aut", "cre")),
     person("Mohsen", "Sadatsafavi", email = "mohsen.sadatsafavi@ubc.ca", role = c("aut", "cph")),
@@ -18,4 +18,4 @@ Imports:
     extrafont,
     plotly,
     viridis
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
