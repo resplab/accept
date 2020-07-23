@@ -23,6 +23,8 @@
 #' @param random_distribution_iteration default is 2*10^4
 #' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @param betas betas provided by the user.
+#' @param KeepSGRQ default is TRUE. If set to false, the value of SGRQ beta will be forced to be 0. Can be used for models without SGRQ.
+#' @param KeepMeds default is TRUE. If set to false, beta values for LAMA, LABA, and ICS will be forced to be 0.Can be used for models without medications.
 #' @return patientData with prediction
 #' @examples
 #' betas <- list()

@@ -9,7 +9,9 @@ predictACCEPT(
   random_sampling_N = 1000,
   random_distribution_iteration = 20000,
   calculate_CIs = TRUE,
-  betas = NULL
+  betas = NULL,
+  KeepSGRQ = TRUE,
+  KeepMeds = TRUE
 )
 }
 \arguments{
@@ -22,6 +24,10 @@ predictACCEPT(
 \item{calculate_CIs}{whether to calculate confidence interval of the mean}
 
 \item{betas}{betas provided by the user.}
+
+\item{KeepSGRQ}{default is TRUE. If set to false, the value of SGRQ beta will be forced to be 0. Can be used for models without SGRQ.}
+
+\item{KeepMeds}{default is TRUE. If set to false, beta values for LAMA, LABA, and ICS will be forced to be 0.Can be used for models without medications.}
 }
 \value{
 patientData with prediction
