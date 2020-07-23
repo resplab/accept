@@ -77,7 +77,7 @@
 #' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000, betas=betas)
 #' @export
 predictACCEPT <- function (patientData, random_sampling_N = 1e3,
-                           random_distribution_iteration = 2e4, calculate_CIs = TRUE,  betas = NULL){
+                           random_distribution_iteration = 2e4, calculate_CIs = TRUE,  betas = NULL, KeepSGRQ = TRUE, KeepMeds = TRUE){
 
       gamma	                    <- betas$gamma
       b0	                      <- betas$b0
@@ -86,12 +86,12 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3,
       b_nowsmk	                <- betas$b_nowsmk
       b_oxygen	                <- betas$b_oxygen
       b_fev1pp100	              <- betas$b_fev1pp100
-      b_sgrq10                  <- betas$b_sgrq10
+      b_sgrq10                  <- KeepSGRQ*betas$b_sgrq10
       b_cardiovascular	        <- betas$b_cardiovascular
       b_randomized_azithromycin <- betas$b_randomized_azithromycin
-      b_LAMA	                  <- betas$b_LAMA
-      b_LABA	                  <- betas$b_LABA
-      b_ICS	                    <- betas$b_ICS
+      b_LAMA	                  <- KeepMeds*betas$b_LAMA
+      b_LABA	                  <- KeepMeds*betas$b_LABA
+      b_ICS	                    <- KeepMeds*betas$b_ICS
       b_randomized_LAMA	        <- betas$b_randomized_LAMA
       b_randomized_LABA	        <- betas$b_randomized_LABA
       b_randomized_ICS	        <- betas$b_randomized_ICS
@@ -103,12 +103,12 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3,
       c_nowsmk                  <- betas$c_nowsmk
       c_oxygen                  <- betas$c_oxygen
       c_fev1pp100	              <- betas$c_fev1pp100
-      c_sgrq10                  <- betas$c_sgrq10
+      c_sgrq10                  <- KeepSGRQ*betas$c_sgrq10
       c_cardiovascular	        <- betas$c_cardiovascular
       c_randomized_azithromycin <- betas$c_randomized_azithromycin
-      c_LAMA	                  <- betas$c_LAMA
-      c_LABA            	      <- betas$c_LABA
-      c_ICS	                    <- betas$c_ICS
+      c_LAMA	                  <- KeepMeds*betas$c_LAMA
+      c_LABA            	      <- KeepMeds*betas$c_LABA
+      c_ICS	                    <- KeepMeds*betas$c_ICS
       c_randomized_LAMA	        <- betas$c_randomized_LAMA
       c_randomized_LABA	        <- betas$c_randomized_LABA
       c_randomized_ICS	        <- betas$c_randomized_ICS
