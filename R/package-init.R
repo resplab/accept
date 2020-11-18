@@ -6,6 +6,7 @@
 #' @importFrom plotly plot_ly
 #' @importFrom stringr str_replace
 #' @importFrom grDevices colorRamp
+#' @importFrom mvtnorm dmvnorm
 NULL
 
 #' Sample Patient Characteristics Inputs

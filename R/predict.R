@@ -103,7 +103,33 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3,
   azithro_predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
   azithro_predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
 
-  conditionalZ <- densityLastYrExac(patientData, random_distribution_iteration = random_distribution_iteration)
+  patientData <- patientData %>% mutate (log_alpha = b0 +
+                                           b_male           * male   +
+                                           b_age            * age    +
+                                           b_nowsmk         * smoker +
+                                           b_oxygen         * oxygen +
+                                           b_fev1           * FEV1   +
+                                           b_SGRQ           * SGRQ   +
+                                           b_cardiovascular * statin +
+                                           b_LAMA           * LAMA   +
+                                           b_LABA           * LABA   +
+                                           b_ICS            * ICS    +
+                                           b_BMI            * BMI)       %>%
+                                 mutate (c_lin = c0 +
+                                           c_male           * male   +
+                                           c_age            * age    +
+                                           c_nowsmk         * smoker +
+                                           c_oxygen         * oxygen +
+                                           c_fev1           * FEV1   +
+                                           c_SGRQ           * SGRQ   +
+                                           c_cardiovascular * statin +
+                                           c_LAMA           * LAMA   +
+                                           c_LABA           * LABA   +
+                                           c_ICS            * ICS    +
+                                           c_BMI            * BMI)
+
+  #conditionalZ <- densityLastYrExac(patientData, random_distribution_iteration = random_distribution_iteration)
+
 
   for (i in 1:(nrow(patientData)))
 
