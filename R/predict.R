@@ -316,9 +316,10 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
    for (j in 1:n) {
       if (i>=j) {
        results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) *
-                         factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
-                         patientResults$predicted_severe_exac_probability ^ (j-1) *
-                         (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
+                         dbinom(x= j-1, size = (i-1), prob = patientResults$predicted_severe_exac_probability)
+                         # factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
+                         # patientResults$predicted_severe_exac_probability ^ (j-1) *
+                         # (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
        }}
  }
  if (shortened) {
