@@ -87,7 +87,8 @@ c_randomized_azithromycin <- 	 log(0.93)
 #' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
 #' @export
 predictACCEPT <- function (patientData, random_sampling_N = 1e2,
-                           random_distribution_iteration = 2e4, calculate_CIs = TRUE){
+                           random_distribution_iteration = 2e4, lastYrExacCol="LastYrExacCount",
+                           lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE){
 
 
   patientData <- patientData %>% mutate (log_alpha = b0 +
@@ -120,8 +121,6 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
   RE_seq_2 = seq(from = -2 * covMat[2, 2], to = 2 * covMat[2, 2], length.out = random_sampling_N)
   RE_W_mat <- outer(X = RE_seq_1, Y = RE_seq_2, FUN = Vectorize(function(x, y) mvtnorm::dmvnorm(c(x, y), sigma = covMat)))
 
-  hist(as.vector(RE_W_mat))
-
   Lambda  <- exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*% matrix(exp(RE_seq_1), nrow = 1)
   ProbSev <- exp(as.matrix(patientData[ , "c_lin"], ncol = 1)) %*% matrix(exp(RE_seq_2), nrow = 1)
   ProbSev <- ProbSev / (1 + ProbSev)
@@ -133,8 +132,6 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
     lapply(c(1 : nrow(patientData)), function(x) {
       t(apply(Lambda_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrSevExacCol]), lambda = y))) * RE_W_mat
     })
-
-  hist(as.vector(Posterior_Sev_W [[1]]))
 
   Posterior_non_Sev_W <-
     lapply(c(1 : nrow(patientData)), function(x) {
