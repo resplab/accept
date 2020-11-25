@@ -86,7 +86,7 @@ c_randomized_azithromycin <- 	 log(0.93)
 #' @examples
 #' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
 #' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e3,
+predictACCEPT <- function (patientData, random_sampling_N = 1e2,
                            random_distribution_iteration = 2e4, calculate_CIs = TRUE){
 
 
