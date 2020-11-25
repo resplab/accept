@@ -1,4 +1,6 @@
-[![Build Status](https://travis-ci.org/resplab/accept.svg?branch=master)](https://travis-ci.org/resplab/accept)
+<!-- badges: start -->
+[![R build status](https://github.com/resplab/accept/workflows/R-CMD-check/badge.svg)](https://github.com/resplab/accept/actions)
+<!-- badges: end -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/accept)](https://cran.r-project.org/package=accept)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/accept)](https://cran.r-project.org/package=accept)
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)

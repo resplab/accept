@@ -20,6 +20,6 @@ a matrix of probabilities with the number of exacerbations as rows and number of
 Predicts probability of observing n exacerbations in the next year
 }
 \examples{
-results <- predictACCEPT(samplePatients[1,], random_distribution_iteration = 5000)
+results <- predictACCEPT(samplePatients[1,])
 predictCountProb (results)
 }

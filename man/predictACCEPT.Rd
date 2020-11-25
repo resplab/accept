@@ -6,17 +6,21 @@
 \usage{
 predictACCEPT(
   patientData,
-  random_sampling_N = 1000,
-  random_distribution_iteration = 20000,
-  calculate_CIs = TRUE
+  random_sampling_N = 100,
+  lastYrExacCol = "LastYrExacCount",
+  lastYrSevExacCol = "LastYrSevExacCount",
+  calculate_CIs = FALSE,
+  ...
 )
 }
 \arguments{
 \item{patientData}{patient data matrix. Can have one or many patients in it}
 
-\item{random_sampling_N}{number of random sampling. Default is 1000.}
+\item{random_sampling_N}{number of random sampling. Default is 100.}
 
-\item{random_distribution_iteration}{default is 2*10^4}
+\item{lastYrExacCol}{the column specifying last year all exacerbation count}
+
+\item{lastYrSevExacCol}{the column specifying last year severe exacerbation count}
 
 \item{calculate_CIs}{whether to calculate confidence interval of the mean}
 }
@@ -27,5 +31,5 @@ patientData with prediction
 Predicts COPD exacerbation rate by severity level
 }
 \examples{
-results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
+results <- predictACCEPT(samplePatients)
 }

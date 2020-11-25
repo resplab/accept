@@ -1,65 +1,3 @@
-gamma	                    <- 0.9687
-b0	                      <- -0.00964
-b_male	                  <- -0.157
-b_age10	                  <- -0.01885
-b_nowsmk	                <- -0.2009
-b_oxygen	                <- 0.08781
-b_fev1pp100	              <- -0.4419
-b_sgrq10                  <- 0.103
-b_cardiovascular	        <- 0.09837
-b_randomized_azithromycin <- -0.1687
-b_LAMA	                  <- 0.1485
-b_LABA	                  <- 0.1216
-b_ICS	                    <- 0.2232
-b_randomized_LAMA	        <- 0.172
-b_randomized_LABA	        <- 0.1398
-b_randomized_ICS	        <- -0.2452
-b_randomized_statin	      <- -0.05617
-b_BMI10                   <- -0.1272
-
-c0	                      <- -3.973
-c_male	                  <- 0.3889
-c_age10	                  <- 0.1123
-c_nowsmk                  <- 0.4025
-c_oxygen                  <- 0.5558
-c_fev1pp100	              <- -1.1552
-c_sgrq10                  <- 0.205
-c_cardiovascular	        <- 0.3255
-c_randomized_azithromycin <- -0.1103
-c_LAMA	                  <- -0.1385
-c_LABA            	      <- 0.01246
-c_ICS	                    <- 0.3879
-c_randomized_LAMA	        <- 0.1074
-c_randomized_LABA	        <- -0.2253
-c_randomized_ICS	        <- -0.1211
-c_randomized_statin	      <- 0.109
-c_BMI10           	      <- -0.106
-
-b_age <- b_age10/10
-b_SGRQ <- b_sgrq10/10
-b_BMI <- b_BMI10/10
-b_fev1 <- b_fev1pp100/100
-
-c_age <- c_age10/10
-c_SGRQ <- c_sgrq10/10
-c_BMI <- c_BMI10/10
-c_fev1 <- c_fev1pp100/100
-
-v1 	<- 0.5968
-v2	<- 2.3847
-cov	<- 0.147
-
-covMat <- matrix(
-  c(v1, cov, cov, v2),
-  nrow = 2,
-  ncol = 2
-)
-
-# More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-b_randomized_azithromycin <- 	 log(1/1.30)
-c_randomized_azithromycin <- 	 log(0.93)
-
-
 # predictACCEPT <- function (patientData, random_sampling_N = 1e4){
 #
 #   # no treatment
@@ -79,17 +17,77 @@ c_randomized_azithromycin <- 	 log(0.93)
 
 #' Predicts COPD exacerbation rate by severity level
 #' @param patientData patient data matrix. Can have one or many patients in it
-#' @param random_sampling_N number of random sampling. Default is 1000.
-#' @param random_distribution_iteration default is 2*10^4
+#' @param random_sampling_N number of random sampling. Default is 100.
+#' @param lastYrExacCol the column specifying last year all exacerbation count
+#' @param lastYrSevExacCol the column specifying last year severe exacerbation count
 #' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @return patientData with prediction
 #' @examples
-#' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
+#' results <- predictACCEPT(samplePatients)
 #' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e2,
-                           random_distribution_iteration = 2e4, lastYrExacCol="LastYrExacCount",
-                           lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE){
+predictACCEPT <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
+                           lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE, ...){
 
+  gamma	                    <- 0.9687
+  b0	                      <- -0.00964
+  b_male	                  <- -0.157
+  b_age10	                  <- -0.01885
+  b_nowsmk	                <- -0.2009
+  b_oxygen	                <- 0.08781
+  b_fev1pp100	              <- -0.4419
+  b_sgrq10                  <- 0.103
+  b_cardiovascular	        <- 0.09837
+  b_randomized_azithromycin <- -0.1687
+  b_LAMA	                  <- 0.1485
+  b_LABA	                  <- 0.1216
+  b_ICS	                    <- 0.2232
+  b_randomized_LAMA	        <- 0.172
+  b_randomized_LABA	        <- 0.1398
+  b_randomized_ICS	        <- -0.2452
+  b_randomized_statin	      <- -0.05617
+  b_BMI10                   <- -0.1272
+
+  c0	                      <- -3.973
+  c_male	                  <- 0.3889
+  c_age10	                  <- 0.1123
+  c_nowsmk                  <- 0.4025
+  c_oxygen                  <- 0.5558
+  c_fev1pp100	              <- -1.1552
+  c_sgrq10                  <- 0.205
+  c_cardiovascular	        <- 0.3255
+  c_randomized_azithromycin <- -0.1103
+  c_LAMA	                  <- -0.1385
+  c_LABA            	      <- 0.01246
+  c_ICS	                    <- 0.3879
+  c_randomized_LAMA	        <- 0.1074
+  c_randomized_LABA	        <- -0.2253
+  c_randomized_ICS	        <- -0.1211
+  c_randomized_statin	      <- 0.109
+  c_BMI10           	      <- -0.106
+
+  b_age <- b_age10/10
+  b_SGRQ <- b_sgrq10/10
+  b_BMI <- b_BMI10/10
+  b_fev1 <- b_fev1pp100/100
+
+  c_age <- c_age10/10
+  c_SGRQ <- c_sgrq10/10
+  c_BMI <- c_BMI10/10
+  c_fev1 <- c_fev1pp100/100
+
+  v1 	<- 0.5968
+  v2	<- 2.3847
+  cov	<- 0.147
+
+  covMat <- matrix(
+    c(v1, cov, cov, v2),
+    nrow = 2,
+    ncol = 2
+  )
+
+  # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
+  b_randomized_azithromycin <- 	 log(1/1.30)
+  c_randomized_azithromycin <- 	 log(0.93)
 
   patientData <- patientData %>% mutate (log_alpha = b0 +
                                            b_male           * male   +
@@ -234,7 +232,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
 #' @param shortened boolean: Shortened results groups into 0, 1, 2, and 3 or more exacerbations
 #' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
 #' @examples
-#' results <- predictACCEPT(samplePatients[1,], random_distribution_iteration = 5000)
+#' results <- predictACCEPT(samplePatients[1,])
 #' predictCountProb (results)
 #' @import plotly
 #' @export
