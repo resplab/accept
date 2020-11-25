@@ -57,7 +57,7 @@ covMat <- matrix(
 
 # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
 b_randomized_azithromycin <- 	 log(1/1.30)
-c_randomized_azithromycin <- 	log(0.93)
+c_randomized_azithromycin <- 	 log(0.93)
 
 
 # predictACCEPT <- function (patientData, random_sampling_N = 1e4){
@@ -89,19 +89,6 @@ c_randomized_azithromycin <- 	log(0.93)
 predictACCEPT <- function (patientData, random_sampling_N = 1e3,
                            random_distribution_iteration = 2e4, calculate_CIs = TRUE){
 
-  predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
-  #predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
-  predicted_severe_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
-  predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
-  predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
-  predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
-
-  azithro_predicted_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
-  #azithro_predicted_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
-  azithro_predicted_severe_exac_count <- matrix(0, random_sampling_N, nrow(patientData))
-  azithro_predicted_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
-  azithro_predicted_severe_exac_rate <- matrix(0, random_sampling_N, nrow(patientData))
-  azithro_predicted_severe_exac_probability <- matrix(0, random_sampling_N, nrow(patientData))
 
   patientData <- patientData %>% mutate (log_alpha = b0 +
                                            b_male           * male   +
@@ -128,165 +115,116 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e3,
                                            c_ICS            * ICS    +
                                            c_BMI            * BMI)
 
-  #conditionalZ <- densityLastYrExac(patientData, random_distribution_iteration = random_distribution_iteration)
+
+  RE_seq_1 = seq(from = -2 * covMat[1, 1], to = 2 * covMat[1, 1], length.out = random_sampling_N)
+  RE_seq_2 = seq(from = -2 * covMat[2, 2], to = 2 * covMat[2, 2], length.out = random_sampling_N)
+  RE_W_mat <- outer(X = RE_seq_1, Y = RE_seq_2, FUN = Vectorize(function(x, y) mvtnorm::dmvnorm(c(x, y), sigma = covMat)))
+
+  hist(as.vector(RE_W_mat))
+
+  Lambda  <- exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*% matrix(exp(RE_seq_1), nrow = 1)
+  ProbSev <- exp(as.matrix(patientData[ , "c_lin"], ncol = 1)) %*% matrix(exp(RE_seq_2), nrow = 1)
+  ProbSev <- ProbSev / (1 + ProbSev)
+
+  Lambda_Sev <- lapply(c(1 : nrow(patientData)), function(x) matrix(Lambda[x, ], ncol = 1) %*% matrix(ProbSev[x, ], nrow = 1))
+  Lambda_non_Sev <- lapply(c(1 : nrow(patientData)), function(x) matrix(Lambda[x, ], ncol = 1) %*% matrix(1 - ProbSev[x, ], nrow = 1))
+
+  Posterior_Sev_W <-
+    lapply(c(1 : nrow(patientData)), function(x) {
+      t(apply(Lambda_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrSevExacCol]), lambda = y))) * RE_W_mat
+    })
+
+  hist(as.vector(Posterior_Sev_W [[1]]))
+
+  Posterior_non_Sev_W <-
+    lapply(c(1 : nrow(patientData)), function(x) {
+      t(apply(Lambda_non_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrExacCol] - patientData[x , lastYrSevExacCol]), lambda = y))) * RE_W_mat
+    })
+
+  Posterior_all_W <-
+    lapply(c(1 : nrow(patientData)), function(x) {
+      t(apply(Lambda_non_Sev[[x]]+Lambda_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrExacCol]), lambda = y))) * RE_W_mat
+    })
+
+  Rate_Sev_Adj <- sapply(c(1 : nrow(Data)), function(x) weighted.mean(x = Lambda_Sev[[x]], w = Posterior_Sev_W[[x]]))
+  Rate_Sev_Adj_lower_PI <- sapply(c(1 : nrow(Data)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_Sev[[x]]), weight = Posterior_Sev_W[[x]], q = 0.025))
+  Rate_Sev_Adj_upper_PI <- sapply(c(1 : nrow(Data)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_Sev[[x]]), weight = Posterior_Sev_W[[x]], q = 0.975))
 
 
-  for (i in 1:(nrow(patientData)))
-
-  {
-    log_alpha <-   b0 +
-      b_male * patientData[i, "male"] +
-      b_age * patientData[i, "age"] +
-      b_nowsmk * patientData[i, "smoker"] +
-      b_oxygen * patientData[i, "oxygen"] +
-      b_fev1 * patientData[i, "FEV1"] +
-      b_SGRQ * patientData[i, "SGRQ"] +
-      b_cardiovascular * patientData[i, "statin"] +
-      b_LAMA * patientData[i, "LAMA"] +
-      b_LABA * patientData[i, "LABA"] +
-      b_ICS * patientData[i, "ICS"] +
-      b_BMI * patientData[i, "BMI"]
-
-    azithro_log_alpha <- log_alpha + b_randomized_azithromycin
-    weight = NULL
-    ID <- as.character(patientData[i, "ID"])
-    z <- sample_n(conditionalZ[[ID]], random_sampling_N, replace = TRUE, weight = weight)
-
-    # no treatment scenario results
-    alpha <- exp (as.numeric(log_alpha) + z[, "z1"])
-    lambda <- alpha ^ gamma
-    predicted_exac_rate[, i] <- lambda
-    predicted_exac_probability[, i] <- 1 - exp(-lambda)
-    #predicted_exac_count[, i] <-  as.numeric(lapply(lambda, rpois, n=1))
+  Rate_non_Sev_Adj <- sapply(c(1 : nrow(Data)), function(x) weighted.mean(x = Lambda_non_Sev[[x]], w = Posterior_non_Sev_W[[x]]))
+  Rate_non_Sev_Adj_lower_PI <- sapply(c(1 : nrow(Data)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]), weight = Posterior_non_Sev_W[[x]], q = 0.025))
+  Rate_non_Sev_Adj_upper_PI <- sapply(c(1 : nrow(Data)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]), weight = Posterior_non_Sev_W[[x]], q = 0.975))
 
 
-    patientData [i, "predicted_exac_probability"] <- mean(predicted_exac_probability[,i])
-    patientData [i, "predicted_exac_rate"] <- mean(predicted_exac_rate[,i])
+  Rate_Sev_SD_Adj <- sqrt(Rate_Sev_Adj + Rate_Sev_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
+  Rate_non_Sev_SD_Adj <- sqrt(Rate_non_Sev_Adj + Rate_non_Sev_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
 
-    # azithromycin scenario results
-    azithro_alpha <- exp (as.numeric(azithro_log_alpha) + z[, "z1"])
-    azithro_lambda <- azithro_alpha ^ gamma
-    azithro_predicted_exac_rate[, i] <- azithro_lambda
-    azithro_predicted_exac_probability[, i] <- 1 - exp(-azithro_lambda)
-    #azithro_predicted_exac_count[, i] <-  as.numeric(lapply(azithro_lambda, rpois, n=1))
-
-    patientData [i, "azithromycin_predicted_exac_probability"] <-        mean(azithro_predicted_exac_probability[,i])
-    patientData [i, "azithromycin_predicted_exac_rate"] <-               mean    (azithro_predicted_exac_rate[,i])
-
-    #severity
-    c_lin <-   c0 +
-      c_male * patientData[i, "male"] +
-      c_age * patientData[i, "age"] +
-      c_nowsmk * patientData[i, "smoker"] +
-      c_oxygen * patientData[i, "oxygen"] +
-      c_fev1 * patientData[i, "FEV1"] +
-      c_SGRQ * patientData[i, "SGRQ"] +
-      c_cardiovascular * patientData[i, "statin"] +
-      c_LAMA * patientData[i, "LAMA"] +
-      c_LABA * patientData[i, "LABA"] +
-      c_ICS * patientData[i, "ICS"] +
-      c_BMI * patientData[i, "BMI"]
-
-    azithro_c_lin <- c_lin + c_randomized_azithromycin
-
-    # severe no treatment
-    OR <- exp (as.numeric(c_lin) + z[, "z2"])
-    predicted_severe_exac_probability[, i] <- (OR/(1+OR))
-    predicted_severe_exac_rate[, i] <- predicted_exac_rate[, i] * predicted_severe_exac_probability[, i]
-
-    patientData [i, "predicted_severe_exac_probability"] <- mean(predicted_severe_exac_probability[,i])
-    patientData [i, "predicted_severe_exac_rate"] <- mean (predicted_severe_exac_rate[, i])
-
-    # severe  azithromycin treatment
-    azithro_OR <- exp (as.numeric(azithro_c_lin) + z[, "z2"])
-    azithro_predicted_severe_exac_probability[, i] <- (azithro_OR/(1+azithro_OR))
-    azithro_predicted_severe_exac_rate[, i] <- azithro_predicted_exac_rate[, i] * azithro_predicted_severe_exac_probability[, i]
-
-    patientData [i, "azithromycin_predicted_severe_exac_probability"]        <- mean    (azithro_predicted_severe_exac_probability[,i])
-    patientData [i, "azithromycin_predicted_severe_exac_rate"]               <- mean    (azithro_predicted_severe_exac_rate[, i])
-
-    # bootstrapping for PI
-
-    patientData [i, "predicted_exac_probability_lower_PI"]                      <- quantile(predicted_exac_probability[,i], 0.025)
-    patientData [i, "predicted_exac_probability_upper_PI"]                      <- quantile(predicted_exac_probability[,i], 0.975)
-
-    patientData [i, "predicted_exac_rate_lower_PI"]                             <- quantile(predicted_exac_rate[,i], 0.025)
-    patientData [i, "predicted_exac_rate_upper_PI"]                             <- quantile(predicted_exac_rate[,i], 0.975)
-
-    patientData [i, "azithromycin_predicted_exac_probability_lower_PI"]         <- quantile(azithro_predicted_exac_probability[,i], 0.025)
-    patientData [i, "azithromycin_predicted_exac_probability_upper_PI"]         <- quantile(azithro_predicted_exac_probability[,i], 0.975)
-
-    patientData [i, "azithromycin_predicted_exac_rate_lower_PI"]                <- quantile(azithro_predicted_exac_rate[,i], 0.025)
-    patientData [i, "azithromycin_predicted_exac_rate_upper_PI"]                <- quantile(azithro_predicted_exac_rate[,i], 0.975)
-
-    patientData [i, "predicted_severe_exac_probability_lower_PI"]               <- quantile(predicted_severe_exac_probability[,i], 0.025)
-    patientData [i, "predicted_severe_exac_probability_upper_PI"]               <- quantile(predicted_severe_exac_probability[,i], 0.975)
-
-    patientData [i, "predicted_severe_exac_rate_lower_PI"]                      <- quantile(predicted_severe_exac_rate[,i], 0.025)
-    patientData [i, "predicted_severe_exac_rate_upper_PI"]                      <- quantile(predicted_severe_exac_rate[,i], 0.975)
-
-    patientData [i, "azithromycin_predicted_severe_exac_probability_lower_PI"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.025)
-    patientData [i, "azithromycin_predicted_severe_exac_probability_upper_PI"]  <- quantile(azithro_predicted_severe_exac_probability[,i], 0.975)
-
-    patientData [i, "azithromycin_predicted_severe_exac_rate_lower_PI"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.025)
-    patientData [i, "azithromycin_predicted_severe_exac_rate_upper_PI"]         <- quantile(azithro_predicted_severe_exac_rate[,i], 0.975)
+  Rate_Adj <- Rate_Sev_Adj + Rate_non_Sev_Adj
+  Rate_Adj_lower_PI <- sapply(c(1 : nrow(Data)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]+Lambda_Sev[[x]]), weight = Posterior_all_W[[x]], q = 0.025))
+  Rate_Adj_upper_PI <- sapply(c(1 : nrow(Data)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]+Lambda_Sev[[x]]), weight = Posterior_all_W[[x]], q = 0.975))
 
 
-    # bootstrapping for CI
-    if (calculate_CIs) {
-      bootProb <- numeric(random_sampling_N)
-      bootRate <- numeric(random_sampling_N)
+  Rate_SD_Adj <- sqrt(Rate_Adj + Rate_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
 
-      azithro_bootProb <- numeric(random_sampling_N)
-      azithro_bootRate <- numeric(random_sampling_N)
+  risk_at_least_one_exac <- 1 - exp(-Rate_Adj)
+  risk_at_least_one_exac_lower_PI <- 1 - exp(-Rate_Adj_lower_PI)
+  risk_at_least_one_exac_upper_PI <- 1 - exp(-Rate_Adj_upper_PI)
 
-      severe_bootProb <- numeric(random_sampling_N)
-      severe_bootRate <- numeric(random_sampling_N)
+  risk_at_least_one_Sev_exac <- 1 - exp(-Rate_Sev_Adj)
+  risk_at_least_one_Sev_exac_lower_PI <- 1 - exp(-Rate_Sev_Adj_lower_PI)
+  risk_at_least_one_Sev_exac_upper_PI <- 1 - exp(-Rate_Sev_Adj_upper_PI)
 
-      azithro_severe_bootProb <- numeric(random_sampling_N)
-      azithro_severe_bootRate <- numeric(random_sampling_N)
+  patientData <- patientData %>% mutate(predicted_exac_probability                 = risk_at_least_one_exac,
+                                        predicted_exac_probability_lower_PI        = risk_at_least_one_exac_lower_PI,
+                                        predicted_exac_probability_upper_PI        = risk_at_least_one_exac_upper_PI,
+                                        predicted_exac_probability_lower_CI        = risk_at_least_one_exac_lower_CI,
+                                        predicted_exac_probability_upper_CI        = risk_at_least_one_exac_upper_CI,
 
-      for (j in 1:random_sampling_N) {
+                                        predicted_exac_rate                        = Rate_Adj,
+                                        predicted_exac_rate_lower_PI               = Rate_Adj_lower_PI,
+                                        predicted_exac_rate_upper_PI               = Rate_Adj_upper_PI,
+                                        predicted_exac_rate_lower_CI               = Rate_Adj_lower_CI,
+                                        predicted_exac_rate_upper_CI               = Rate_Adj_upper_CI,
 
-        bootProb [j] <- mean(sample(predicted_exac_probability[,i], replace = TRUE))
-        bootRate [j] <- mean(sample(predicted_exac_rate[,i], replace = TRUE))
+                                        predicted_severe_exac_probability          = risk_at_least_one_Sev_exac,
+                                        predicted_severe_exac_probability_lower_PI = risk_at_least_one_Sev_exac_lower_PI,
+                                        predicted_severe_exac_probability_upper_PI = risk_at_least_one_Sev_exac_upper_PI,
+                                        predicted_severe_exac_probability_lower_CI = risk_at_least_one_Sev_exac_lower_CI,
+                                        predicted_severe_exac_probability_upper_CI = risk_at_least_one_Sev_exac_upper_CI,
 
-        azithro_bootProb [j] <- mean(sample(azithro_predicted_exac_probability[,i], replace = TRUE))
-        azithro_bootRate [j] <- mean(sample(azithro_predicted_exac_rate[,i], replace = TRUE))
+                                        predicted_severe_exac_rate                 = Rate_non_Sev_Adj,
+                                        predicted_severe_exac_rate_lower_PI        = Rate_non_Sev_Adj_lower_PI,
+                                        predicted_severe_exac_rate_upper_PI        = Rate_non_Sev_Adj_upper_PI,
+                                        predicted_severe_exac_rate_lower_CI        = Rate_non_Sev_Adj_lower_CI,
+                                        predicted_severe_exac_rate_upper_CI        = Rate_non_Sev_Adj_upper_CI,
 
-        severe_bootProb [j] <- mean(sample(predicted_severe_exac_probability[,i], replace = TRUE))
-        severe_bootRate [j] <- mean(sample(predicted_severe_exac_rate[,i], replace = TRUE))
+                                        azithromycin_predicted_exac_probability                 = azithromycin_risk_at_least_one_exac,
+                                        azithromycin_predicted_exac_probability_lower_PI        = azithromycin_risk_at_least_one_exac_lower_PI,
+                                        azithromycin_predicted_exac_probability_upper_PI        = azithromycin_risk_at_least_one_exac_upper_PI,
+                                        azithromycin_predicted_exac_probability_lower_CI        = azithromycin_risk_at_least_one_exac_lower_CI,
+                                        azithromycin_predicted_exac_probability_upper_CI        = azithromycin_risk_at_least_one_exac_upper_CI,
 
-        azithro_severe_bootProb [j] <- mean(sample(azithro_predicted_severe_exac_probability[,i], replace = TRUE))
-        azithro_severe_bootRate [j] <- mean(sample(azithro_predicted_severe_exac_rate[, i], replace = TRUE))
-      }
+                                        azithromycin_predicted_exac_rate                        = azithromycin_Rate_Adj,
+                                        azithromycin_predicted_exac_rate_lower_PI               = azithromycin_Rate_Adj_lower_PI,
+                                        azithromycin_predicted_exac_rate_upper_PI               = azithromycin_Rate_Adj_upper_PI,
+                                        azithromycin_predicted_exac_rate_lower_CI               = azithromycin_Rate_Adj_lower_CI,
+                                        azithromycin_predicted_exac_rate_upper_CI               = azithromycin_Rate_Adj_upper_CI,
 
-      patientData [i, "predicted_exac_probability_lower_CI"]                      <- quantile(bootProb, 0.025)
-      patientData [i, "predicted_exac_probability_upper_CI"]                      <- quantile(bootProb, 0.975)
+                                        azithromycin_predicted_severe_exac_probability          = azithromycin_risk_at_least_one_Sev_exac,
+                                        azithromycin_predicted_severe_exac_probability_lower_PI = azithromycin_risk_at_least_one_Sev_exac_lower_PI,
+                                        azithromycin_predicted_severe_exac_probability_upper_PI = azithromycin_risk_at_least_one_Sev_exac_upper_PI,
+                                        azithromycin_predicted_severe_exac_probability_lower_CI = azithromycin_risk_at_least_one_Sev_exac_lower_CI,
+                                        azithromycin_predicted_severe_exac_probability_upper_CI = azithromycin_risk_at_least_one_Sev_exac_upper_CI,
 
-      patientData [i, "predicted_exac_rate_lower_CI"]                             <- quantile(bootRate, 0.025)
-      patientData [i, "predicted_exac_rate_upper_CI"]                             <- quantile(bootRate, 0.975)
+                                        azithromycin_predicted_severe_exac_rate                 = azithromycin_Rate_non_Sev_Adj,
+                                        azithromycin_predicted_severe_exac_rate_lower_PI        = azithromycin_Rate_non_Sev_Adj_lower_PI,
+                                        azithromycin_predicted_severe_exac_rate_upper_PI        = azithromycin_Rate_non_Sev_Adj_upper_PI,
+                                        azithromycin_predicted_severe_exac_rate_lower_CI        = azithromycin_Rate_non_Sev_Adj_lower_CI,
+                                        azithromycin_predicted_severe_exac_rate_upper_CI        = azithromycin_Rate_non_Sev_Adj_upper_CI,
 
-      patientData [i, "azithromycin_predicted_exac_probability_lower_CI"]         <- quantile(azithro_bootProb, 0.025)
-      patientData [i, "azithromycin_predicted_exac_probability_upper_CI"]         <- quantile(azithro_bootProb, 0.975)
 
-      patientData [i, "azithromycin_predicted_exac_rate_lower_CI"]                <- quantile(azithro_bootRate, 0.025)
-      patientData [i, "azithromycin_predicted_exac_rate_upper_CI"]                <- quantile(azithro_bootRate, 0.975)
+  )
 
-      patientData [i, "predicted_severe_exac_probability_lower_CI"]               <- quantile(severe_bootProb, 0.025)
-      patientData [i, "predicted_severe_exac_probability_upper_CI"]               <- quantile(severe_bootProb, 0.975)
-
-      patientData [i, "predicted_severe_exac_rate_lower_CI"]                      <- quantile(severe_bootRate, 0.025)
-      patientData [i, "predicted_severe_exac_rate_upper_CI"]                      <- quantile(severe_bootRate, 0.975)
-
-      patientData [i, "azithromycin_predicted_severe_exac_probability_lower_CI"]  <- quantile(azithro_severe_bootProb, 0.025)
-      patientData [i, "azithromycin_predicted_severe_exac_probability_upper_CI"]  <- quantile(azithro_severe_bootProb, 0.975)
-
-      patientData [i, "azithromycin_predicted_severe_exac_rate_lower_CI"]         <- quantile(azithro_severe_bootRate, 0.025)
-      patientData [i, "azithromycin_predicted_severe_exac_rate_upper_CI"]         <- quantile(azithro_severe_bootRate, 0.975)
-    }
-
-  }
 
   return(patientData)
 

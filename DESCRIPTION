@@ -18,5 +18,6 @@ Imports:
     mvtnorm,
     extrafont,
     plotly,
-    viridis
-RoxygenNote: 7.0.2
+    viridis,
+    reldist
+RoxygenNote: 7.1.1
