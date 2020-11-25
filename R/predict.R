@@ -1,20 +1,3 @@
-# predictACCEPT <- function (patientData, random_sampling_N = 1e4){
-#
-#   # no treatment
-#   patientData <- patientData %>% mutate (randomized_azithromycin = 0)
-#   noAzithroResults <- estimateACCEPT(patientData, random_sampling_N)
-#
-#   # with daily azithromycin
-#   patientData <- patientData %>% mutate (randomized_azithromycin = 1)
-#   azithroResults <- estimateACCEPT(patientData, random_sampling_N) %>% select (ID, starts_with("predict")) %>% rename_at (vars(starts_with("predict")),
-#                                                                                   funs(str_replace(., "predict", "azithromycin_predict")))
-#
-#
-#   result <- left_join(noAzithroResults, azithroResults, by ='ID')
-#   return(result)
-# }
-
-
 #' Predicts COPD exacerbation rate by severity level
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 100.
