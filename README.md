@@ -14,7 +14,7 @@ Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. T
 
 The following animation explains the `accept` model in 90 seconds:
 
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/UuGLN128Z3Y" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/UuGLN128Z3Y/0.jpg)](https://www.youtube.com/watch?v=UuGLN128Z3Y)
 
 ## Installation
 
