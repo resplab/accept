@@ -12,6 +12,10 @@ Please refer to the published paper for more information:
 
 Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
 
+The following animation explains the `accept` model in 90 seconds:
+
+<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/UuGLN128Z3Y" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
 ## Installation
 
 The latest stable version can be downloaded from CRAN:  
@@ -45,11 +49,11 @@ samplePatients <- accept::samplePatients
 To get a prediction for exacerbation rate, you will need to pass in a patient vector:
 
 ```
-results <- predictACCEPT(samplePatients[1,])
+results <- accept(samplePatients[1,])
 print(t(results))
 ```
 
-The **predictACCEPT()** function returns a data frame with the original patient data, along with the predictions for different treatment options. 
+The **accept()** function returns a data frame with the original patient data, along with the predictions for different treatment options. 
 
 To visualize the data, there is a graphing function called **plotExacerbations()**, which creates a Plotly bar graph. You have the option of selecting **probability** or **rate** for which prediction you want to see, and either **CI** or **PI** to select the confidence interval or prediction interval respectively.
 
@@ -70,7 +74,7 @@ plotExacerbations(results, type="rate", interval = "CI")
 We can also calculate the predicted number of exacerbations in a year:
 
 ```
-patientResults = predictACCEPT(samplePatients[1,])
+patientResults = accept(samplePatients[1,])
 exacerbationsMatrix = predictCountProb(patientResults, n = 10, shortened = TRUE)
 print(exacerbationsMatrix)
 ```

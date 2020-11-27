@@ -7,12 +7,12 @@
 plotExacerbations(
   patientResults,
   type = "rate",
-  interval = "CI",
+  interval = "PI",
   colors = c("#007bff", "rgb(204,204,204)")
 )
 }
 \arguments{
-\item{patientResults}{patient results vector, produced by predictAccept.}
+\item{patientResults}{patient results vector, produced by accept.}
 
 \item{type}{string: either "probability" or "rate"}
 
@@ -31,6 +31,6 @@ a bar graph
 Creates bar graph comparing no treatment with azithromycin treatment
 }
 \examples{
-results <- predictACCEPT(samplePatients[1,])
+results <- accept(samplePatients[1,])
 plotExacerbations(results)
 }

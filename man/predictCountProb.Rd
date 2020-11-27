@@ -7,7 +7,7 @@
 predictCountProb(patientResults, n = 10, shortened = TRUE)
 }
 \arguments{
-\item{patientResults}{patient results vector, produced by predictAccept.}
+\item{patientResults}{patient results vector, produced by accept.}
 
 \item{n}{how many exacerbations}
 
@@ -20,6 +20,6 @@ a matrix of probabilities with the number of exacerbations as rows and number of
 Predicts probability of observing n exacerbations in the next year
 }
 \examples{
-results <- predictACCEPT(samplePatients[1,])
+results <- accept(samplePatients[1,])
 predictCountProb (results)
 }

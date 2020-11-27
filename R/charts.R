@@ -1,10 +1,10 @@
 #' Creates heatmap of number of exacerbations
-#' @param patientResults patient results vector, produced by predictAccept.
+#' @param patientResults patient results vector, produced by accept.
 #' @param n how many exacerbations to consider
 #' @param shortened boolean
 #' @return a heatmap
 #' @examples
-#' results <- predictACCEPT(samplePatients[1,])
+#' results <- accept(samplePatients[1,])
 #' plotHeatMap(results)
 #' @export
 
@@ -23,7 +23,7 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
     )
 }
 #' Creates bar graph comparing no treatment with azithromycin treatment
-#' @param patientResults patient results vector, produced by predictAccept.
+#' @param patientResults patient results vector, produced by accept.
 #' @param type string: either "probability" or "rate"
 #' @param interval string: either "CI" or "PI"
 #' PI = Predicted Interval
@@ -33,10 +33,10 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
 #' can use hexadecimal, rgb, or R color codes
 #' @return a bar graph
 #' @examples
-#' results <- predictACCEPT(samplePatients[1,])
+#' results <- accept(samplePatients[1,])
 #' plotExacerbations(results)
 #' @export
-plotExacerbations = function(patientResults, type="rate", interval = "CI",
+plotExacerbations = function(patientResults, type="rate", interval = "PI",
                              colors = c("#007bff", 'rgb(204,204,204)')) {
 
   base_strings = c("predicted_exac_",
