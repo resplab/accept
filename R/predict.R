@@ -1,64 +1,64 @@
 
-#' Predicts COPD exacerbation rate by severity level
-#' @param patientData patient data matrix. Can have one or many patients in it
-#' @param random_sampling_N number of random sampling. Default is 1000.
-#' @param random_distribution_iteration default is 2*10^4
-#' @param calculate_CIs whether to calculate confidence interval of the mean
-#' @param betas betas provided by the user.
-#' @param KeepSGRQ default is TRUE. If set to false, the value of SGRQ beta will be forced to be 0. Can be used for models without SGRQ.
-#' @param KeepMeds default is TRUE. If set to false, beta values for LAMA, LABA, and ICS will be forced to be 0.Can be used for models without medications.
-#' @return patientData with prediction
-#' @examples
-#' betas <- list()
-#' betas$gamma	                    <- 0.9687
-#' betas$b0	                      <- -0.00964
-#' betas$b_male	                  <- -0.157
-#' betas$b_age10	                  <- -0.01885
-#' betas$b_nowsmk	                <- -0.2009
-#' betas$b_oxygen	                <- 0.08781
-#' betas$b_fev1pp100	              <- -0.4419
-#' betas$b_sgrq10                  <- 0.103
-#' betas$b_cardiovascular	        <- 0.09837
-#' betas$b_randomized_azithromycin <- -0.1687
-#' betas$b_LAMA	                  <- 0.1485
-#' betas$b_LABA	                  <- 0.1216
-#' betas$b_ICS	                    <- 0.2232
-#' betas$b_randomized_LAMA	        <- 0.172
-#' betas$b_randomized_LABA	        <- 0.1398
-#' betas$b_randomized_ICS	        <- -0.2452
-#' betas$b_randomized_statin	      <- -0.05617
-#' betas$b_BMI10                   <- -0.1272
-#'
-#'
-#' betas$c0	                      <- -3.973
-#' betas$c_male	                  <- 0.3889
-#' betas$c_age10	                  <- 0.1123
-#' betas$c_nowsmk                  <- 0.4025
-#' betas$c_oxygen                  <- 0.5558
-#' betas$c_fev1pp100	              <- -1.1552
-#' betas$c_sgrq10                  <- 0.205
-#' betas$c_cardiovascular	        <- 0.3255
-#' betas$c_randomized_azithromycin <- -0.1103
-#' betas$c_LAMA	                  <- -0.1385
-#' betas$c_LABA            	      <- 0.01246
-#' betas$c_ICS	                    <- 0.3879
-#' betas$c_randomized_LAMA	        <- 0.1074
-#' betas$c_randomized_LABA	        <- -0.2253
-#' betas$c_randomized_ICS	        <- -0.1211
-#' betas$c_randomized_statin	      <- 0.109
-#' betas$c_BMI10           	      <- -0.106
-#'
-#'
-#' betas$v1 	<- 0.5968
-#' betas$v2	<- 2.3847
-#' betas$cov	<- 0.147
-#'
-#'
-#' # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-#' betas$b_randomized_azithromycin <- 	 log(1/1.30)
-#' betas$c_randomized_azithromycin <- 	log(0.93)
-#'
-#' results <- acceptEngine(samplePatients, betas=betas)
+# Predicts COPD exacerbation rate by severity level
+# @param patientData patient data matrix. Can have one or many patients in it
+# @param random_sampling_N number of random sampling. Default is 1000.
+# @param lastYrExacCol the column specifying last year all exacerbation count
+# @param lastYrSevExacCol the column specifying last year severe exacerbation count
+# @param calculate_CIs whether to calculate confidence interval of the mean
+# @param betas betas provided by the user.
+# @param KeepSGRQ default is TRUE. If set to false, the value of SGRQ beta will be forced to be 0. Can be used for models without SGRQ.
+# @param KeepMeds default is TRUE. If set to false, beta values for LAMA, LABA, and ICS will be forced to be 0.Can be used for models without medications.
+# @return patientData with prediction
+# @examples
+# betas <- list()
+# betas$gamma	                    <- 0.9687
+# betas$b0	                      <- -0.00964
+# betas$b_male	                  <- -0.157
+# betas$b_age10	                  <- -0.01885
+# betas$b_nowsmk	                <- -0.2009
+# betas$b_oxygen	                <- 0.08781
+# betas$b_fev1pp100	              <- -0.4419
+# betas$b_sgrq10                  <- 0.103
+# betas$b_cardiovascular	        <- 0.09837
+# betas$b_randomized_azithromycin <- -0.1687
+# betas$b_LAMA	                  <- 0.1485
+# betas$b_LABA	                  <- 0.1216
+# betas$b_ICS	                    <- 0.2232
+# betas$b_randomized_LAMA	        <- 0.172
+# betas$b_randomized_LABA	        <- 0.1398
+# betas$b_randomized_ICS	        <- -0.2452
+# betas$b_randomized_statin	      <- -0.05617
+# betas$b_BMI10                   <- -0.1272
+#
+#
+# betas$c0	                      <- -3.973
+# betas$c_male	                  <- 0.3889
+# betas$c_age10	                  <- 0.1123
+# betas$c_nowsmk                  <- 0.4025
+# betas$c_oxygen                  <- 0.5558
+# betas$c_fev1pp100	              <- -1.1552
+# betas$c_sgrq10                  <- 0.205
+# betas$c_cardiovascular	        <- 0.3255
+# betas$c_randomized_azithromycin <- -0.1103
+# betas$c_LAMA	                  <- -0.1385
+# betas$c_LABA            	      <- 0.01246
+# betas$c_ICS	                    <- 0.3879
+# betas$c_randomized_LAMA	        <- 0.1074
+# betas$c_randomized_LABA	        <- -0.2253
+# betas$c_randomized_ICS	        <- -0.1211
+# betas$c_randomized_statin	      <- 0.109
+# betas$c_BMI10           	      <- -0.106
+#
+#
+# betas$v1 	<- 0.5968
+# betas$v2	<- 2.3847
+# betas$cov	<- 0.147
+#
+#
+# betas$b_randomized_azithromycin <- 	 log(1/1.30)
+# betas$c_randomized_azithromycin <- 	log(0.93)
+#
+# results <- acceptEngine(samplePatients, betas=betas)
 acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="LastYrExacCount",
                           lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = TRUE,  betas = NULL, KeepSGRQ = TRUE, KeepMeds = TRUE){
 
