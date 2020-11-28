@@ -350,6 +350,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 #' @param lastYrExacCol the column specifying last year all exacerbation count
 #' @param lastYrSevExacCol the column specifying last year severe exacerbation count
 #' @param calculate_CIs whether to calculate confidence interval of the mean
+#' @param ... for backward compatibility
 #' @return patientData with prediction
 #' @examples
 #' results <- accept(samplePatients)

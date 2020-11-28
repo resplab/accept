@@ -23,6 +23,8 @@ accept(
 \item{lastYrSevExacCol}{the column specifying last year severe exacerbation count}
 
 \item{calculate_CIs}{whether to calculate confidence interval of the mean}
+
+\item{...}{for backward compatibility}
 }
 \value{
 patientData with prediction
