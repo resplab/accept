@@ -6,7 +6,6 @@
 #' @importFrom plotly plot_ly
 #' @importFrom stringr str_replace
 #' @importFrom grDevices colorRamp
-#' @importFrom mvtnorm dmvnorm
 #' @importFrom reldist wtd.quantile
 NULL
 

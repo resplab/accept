@@ -1,3 +1,11 @@
+binorm_pdf <- function(x, sigma) {
+  s1 <- sqrt(sigma[1, 1])
+  s2 <- sqrt(sigma[2, 2])
+  rho <- sigma[1, 2] / (s1 * s2)
+  Z <- x[1] ^ 2 / sigma[1, 1] - 2 * rho * x[1] * x[2] / (s1 * s2) + x[2] ^ 2 / sigma[2, 2]
+  densRes <- 1 / (2 * pi * s1 * s2 * sqrt(1 - rho ^ 2)) * exp(- Z / (2 * (1 - rho ^ 2)))
+  return(densRes)
+}
 
 # Predicts COPD exacerbation rate by severity level
 # @param patientData patient data matrix. Can have one or many patients in it
@@ -148,7 +156,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 
   RE_seq_1 = seq(from = -2 * covMat[1, 1], to = 2 * covMat[1, 1], length.out = random_sampling_N)
   RE_seq_2 = seq(from = -2 * covMat[2, 2], to = 2 * covMat[2, 2], length.out = random_sampling_N)
-  RE_W_mat <- outer(X = RE_seq_1, Y = RE_seq_2, FUN = Vectorize(function(x, y) mvtnorm::dmvnorm(c(x, y), sigma = covMat)))
+  RE_W_mat <- outer(X = RE_seq_1, Y = RE_seq_2, FUN = Vectorize(function(x, y) binorm_pdf(c(x, y), sigma = covMat)))
 
   Lambda  <- exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*% matrix(exp(RE_seq_1), nrow = 1)
   ProbSev <- exp(as.matrix(patientData[ , "c_lin"], ncol = 1)) %*% matrix(exp(RE_seq_2), nrow = 1)

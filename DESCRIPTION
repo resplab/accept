@@ -15,7 +15,6 @@ Imports:
     MASS,
     dplyr,
     stringr,
-    mvtnorm,
     extrafont,
     plotly,
     viridis,
