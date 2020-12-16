@@ -7,6 +7,15 @@ binorm_pdf <- function(x, sigma) {
   return(densRes)
 }
 
+Sp_Manual_Pred <- function(Predictor, CoefEst, Boundary_knots) {
+  bs_obj <- bs(Predictor, knots = 0, Boundary.knots = Boundary_knots)
+  if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(bs_obj)[-1]))
+  else BasisFuncs <- as.matrix(cbind(1, bs_obj[ , -1]), ncol=4)
+  Preds <- BasisFuncs %*% matrix(CoefEst, ncol = 1)
+  return(Preds)
+}
+
+
 # Predicts COPD exacerbation rate by severity level
 # @param patientData patient data matrix. Can have one or many patients in it
 # @param random_sampling_N number of random sampling. Default is 1000.
@@ -480,10 +489,21 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
   betas$b_randomized_azithromycin <- 	 log(1/1.30)
   betas$c_randomized_azithromycin <- 	 log(0.93)
 
-  results <- acceptEngine(patientData = patientData, betas = betas)
+  results_before_adj <- acceptEngine(patientData = patientData, betas = betas)
 
+
+  rate_boundary_knots = c(0.3484506, 4.1066510)
+  sev_boundary_knots = c(0.02767713, 1.74609740)
+
+  rate_coeff <- c(0.031, 1.554, 3.514, 5.235 )
+  sev_coeff <- c(1.167, 0.326, 0.028, 0.003)
+
+  adj_predicted_exac_rate         <- Sp_Manual_Pred(results_before_adj$predicted_exac_rate, rate_coeff, rate_boundary_knots)
+  adj_predicted_severe_exac_rate <- Sp_Manual_Pred(results_before_adj$predicted_severe_exac_rate, sev_coeff, sev_boundary_knots)
+
+
+  results <- c(adj_predicted_exac_rate, adj_predicted_severe_exac_rate)
   return(results)
-
 
 }
 

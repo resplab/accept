@@ -7,6 +7,7 @@
 #' @importFrom stringr str_replace
 #' @importFrom grDevices colorRamp
 #' @importFrom reldist wtd.quantile
+#' @importFrom splines bs
 NULL
 
 #' Sample Patient Characteristics Inputs

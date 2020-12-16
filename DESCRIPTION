@@ -18,5 +18,6 @@ Imports:
     extrafont,
     plotly,
     viridis,
-    reldist
+    reldist,
+    splines
 RoxygenNote: 7.1.1
