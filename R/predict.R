@@ -420,6 +420,74 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
 }
 
 
+#' Predicts COPD exacerbation rate by severity level based on accept2 model
+#' @param patientData patient data matrix. Can have one or many patients in it
+#' @param random_sampling_N number of random sampling. Default is 100.
+#' @param lastYrExacCol the column specifying last year all exacerbation count
+#' @param lastYrSevExacCol the column specifying last year severe exacerbation count
+#' @param calculate_CIs whether to calculate confidence interval of the mean
+#' @param ... for backward compatibility
+#' @return patientData with prediction
+#' @examples
+#' results <- accept(samplePatients)
+#' @export
+accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
+                    lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE, ...){
+
+  betas <- list()
+  betas$gamma	                    <- 0.9706
+  betas$b0	                      <- -0.2014
+  betas$b_male	                  <- -0.1855
+  betas$b_age10	                  <- -0.00823
+  betas$b_nowsmk	                <- -0.1867
+  betas$b_oxygen	                <- 0.1209
+  betas$b_fev1pp100	              <- -0.5584
+  betas$b_sgrq10                  <- 0.1064
+  betas$b_cardiovascular	        <- 0.1359
+  betas$b_randomized_azithromycin <- -0.1287
+  betas$b_LAMA	                  <- 0.1678
+  betas$b_LABA	                  <- 0.1137
+  betas$b_ICS	                    <- 0.279
+  betas$b_randomized_LAMA	        <- 0.2202
+  betas$b_randomized_LABA	        <- 0.1321
+  betas$b_randomized_ICS	        <- -0.2359
+  betas$b_randomized_statin	      <- -0.1573
+  betas$b_BMI10                   <- -0.1333
+
+  betas$c0	                      <- -3.6901
+  betas$c_male	                  <- 0.4255
+  betas$c_age10	                  <- 0.09545
+  betas$c_nowsmk                  <- 0.4211
+  betas$c_oxygen                  <- 0.546
+  betas$c_fev1pp100	              <- -0.8095
+  betas$c_sgrq10                  <- 0.1781
+  betas$c_cardiovascular	        <- 0.2326
+  betas$c_randomized_azithromycin <- -0.1305
+  betas$c_LAMA	                  <- -0.1638
+  betas$c_LABA            	      <- 0.05466
+  betas$c_ICS	                    <- 0.2677
+  betas$c_randomized_LAMA	        <- 0.2193
+  betas$c_randomized_LABA	        <- -0.4085
+  betas$c_randomized_ICS	        <- -0.1755
+  betas$c_randomized_statin	      <- 0.2169
+  betas$c_BMI10           	      <- -0.09666
+
+  betas$v1 	<- 0.6855
+  betas$v2	<- 2.2494
+  betas$cov	<- 0.08772
+
+  # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
+  betas$b_randomized_azithromycin <- 	 log(1/1.30)
+  betas$c_randomized_azithromycin <- 	 log(0.93)
+
+  results <- acceptEngine(patientData = patientData, betas = betas)
+
+  return(results)
+
+
+}
+
+
 #' Predicts probability of observing n exacerbations in the next year
 #' @param patientResults patient results vector, produced by accept.
 #' @param n how many exacerbations
