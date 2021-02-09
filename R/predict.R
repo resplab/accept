@@ -435,6 +435,8 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
 #' @param lastYrExacCol the column specifying last year all exacerbation count
 #' @param lastYrSevExacCol the column specifying last year severe exacerbation count
 #' @param calculate_CIs whether to calculate confidence interval of the mean
+#' @param KeepSGRQ default is TRUE. If set to false, the reduced model without SGRQ will be used.
+#' @param KeepMeds default is TRUE. If set to false, the reduced model without medication predictors will be used.
 #' @param ... for backward compatibility
 #' @return patientData with prediction
 #' @examples
