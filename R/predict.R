@@ -441,62 +441,216 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
 #' results <- accept(samplePatients)
 #' @export
 accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                    lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE, ...){
+                    lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE, KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
 
   betas <- list()
-  betas$gamma	                    <- 0.9706
-  betas$b0	                      <- -0.2014
-  betas$b_male	                  <- -0.1855
-  betas$b_age10	                  <- -0.00823
-  betas$b_nowsmk	                <- -0.1867
-  betas$b_oxygen	                <- 0.1209
-  betas$b_fev1pp100	              <- -0.5584
-  betas$b_sgrq10                  <- 0.1064
-  betas$b_cardiovascular	        <- 0.1359
-  betas$b_randomized_azithromycin <- -0.1287
-  betas$b_LAMA	                  <- 0.1678
-  betas$b_LABA	                  <- 0.1137
-  betas$b_ICS	                    <- 0.279
-  betas$b_randomized_LAMA	        <- 0.2202
-  betas$b_randomized_LABA	        <- 0.1321
-  betas$b_randomized_ICS	        <- -0.2359
-  betas$b_randomized_statin	      <- -0.1573
-  betas$b_BMI10                   <- -0.1333
 
-  betas$c0	                      <- -3.6901
-  betas$c_male	                  <- 0.4255
-  betas$c_age10	                  <- 0.09545
-  betas$c_nowsmk                  <- 0.4211
-  betas$c_oxygen                  <- 0.546
-  betas$c_fev1pp100	              <- -0.8095
-  betas$c_sgrq10                  <- 0.1781
-  betas$c_cardiovascular	        <- 0.2326
-  betas$c_randomized_azithromycin <- -0.1305
-  betas$c_LAMA	                  <- -0.1638
-  betas$c_LABA            	      <- 0.05466
-  betas$c_ICS	                    <- 0.2677
-  betas$c_randomized_LAMA	        <- 0.2193
-  betas$c_randomized_LABA	        <- -0.4085
-  betas$c_randomized_ICS	        <- -0.1755
-  betas$c_randomized_statin	      <- 0.2169
-  betas$c_BMI10           	      <- -0.09666
+  if (KeepSGRQ & KeepMeds){
+    # model coefficients
+    betas$gamma	                    <- 0.9706
+    betas$b0	                      <- -0.2014
+    betas$b_male	                  <- -0.1855
+    betas$b_age10	                  <- -0.00823
+    betas$b_nowsmk	                <- -0.1867
+    betas$b_oxygen	                <- 0.1209
+    betas$b_fev1pp100	              <- -0.5584
+    betas$b_sgrq10                  <- 0.1064
+    betas$b_cardiovascular	        <- 0.1359
+    betas$b_randomized_azithromycin <- -0.1287
+    betas$b_LAMA	                  <- 0.1678
+    betas$b_LABA	                  <- 0.1137
+    betas$b_ICS	                    <- 0.279
+    betas$b_randomized_LAMA	        <- 0.2202
+    betas$b_randomized_LABA	        <- 0.1321
+    betas$b_randomized_ICS	        <- -0.2359
+    betas$b_randomized_statin	      <- -0.1573
+    betas$b_BMI10                   <- -0.1333
 
-  betas$v1 	<- 0.6855
-  betas$v2	<- 2.2494
-  betas$cov	<- 0.08772
+    betas$c0	                      <- -3.6901
+    betas$c_male	                  <- 0.4255
+    betas$c_age10	                  <- 0.09545
+    betas$c_nowsmk                  <- 0.4211
+    betas$c_oxygen                  <- 0.546
+    betas$c_fev1pp100	              <- -0.8095
+    betas$c_sgrq10                  <- 0.1781
+    betas$c_cardiovascular	        <- 0.2326
+    betas$c_randomized_azithromycin <- -0.1305
+    betas$c_LAMA	                  <- -0.1638
+    betas$c_LABA            	      <- 0.05466
+    betas$c_ICS	                    <- 0.2677
+    betas$c_randomized_LAMA	        <- 0.2193
+    betas$c_randomized_LABA	        <- -0.4085
+    betas$c_randomized_ICS	        <- -0.1755
+    betas$c_randomized_statin	      <- 0.2169
+    betas$c_BMI10           	      <- -0.09666
 
+    betas$v1 	<- 0.6855
+    betas$v2	<- 2.2494
+    betas$cov	<- 0.08772
+
+    # Spline coefficients
+    rate_boundary_knots = c(0.3484506, 4.1066510)
+    sev_boundary_knots = c(0.02767713, 1.74609740)
+
+    rate_coeff <- c(0.031, 1.554, 3.514, 5.235 )
+    sev_coeff <- c(1.167, 1.102, 1,212, 1.202)
+
+  } else if (!KeepMeds & KeepSGRQ)
+  {
+    # model coefficients
+    betas$gamma	                    <- 0.9707
+    betas$b0	                      <- 0.1371
+    betas$b_male	                  <- -0.1841
+    betas$b_age10	                  <- -0.00501
+    betas$b_nowsmk	                <- -0.2136
+    betas$b_oxygen	                <- 0.1381
+    betas$b_fev1pp100	              <- -0.6955
+    betas$b_sgrq10                  <- 0.1111
+    betas$b_cardiovascular	        <- 0.1835
+    betas$b_randomized_azithromycin <- -0.06597
+    betas$b_randomized_LAMA	        <- 0.2385
+    betas$b_randomized_LABA	        <- 0.1318
+    betas$b_randomized_ICS	        <- -0.2669
+    betas$b_randomized_statin	      <- -0.2646
+    betas$b_BMI10                   <- -0.1352
+
+    betas$c0	                      <- -3.6522
+    betas$c_male	                  <- 0.4285
+    betas$c_age10	                  <- 0.09704
+    betas$c_nowsmk                  <- 0.4338
+    betas$c_oxygen                  <- 0.539
+    betas$c_fev1pp100	              <- -0.7998
+    betas$c_sgrq10                  <- 0.1778
+    betas$c_cardiovascular	        <- 0.2554
+    betas$c_randomized_azithromycin <- -0.09003
+    betas$c_randomized_LAMA	        <- 0.2093
+    betas$c_randomized_LABA	        <- -0.4087
+    betas$c_randomized_ICS	        <- -0.1739
+    betas$c_randomized_statin	      <- 0.08586
+    betas$c_BMI10           	      <- -0.08287
+
+    betas$v1 	<- 0.7083
+    betas$v2	<- 2.2753
+    betas$cov	<- 0.09212
+
+    # Spline coefficients
+    rate_boundary_knots = c(0.419, 3.751)
+    sev_boundary_knots = c(0.036, 1.583)
+
+    rate_coeff <- c(0.008, 1.883, 3.410, 5.267)
+    sev_coeff <- c(0.041, 0.530, 1.629, 2.474)
+
+  } else if (KeepMeds & !KeepSGRQ)
+  {
+
+    # model coefficients
+    betas$gamma	                    <- 0.97
+    betas$b0	                      <- 0.5072
+    betas$b_male	                  <- -0.1791
+    betas$b_age10	                  <- -0.040983
+    betas$b_nowsmk	                <- -0.1353
+    betas$b_oxygen	                <- 0.1561
+    betas$b_fev1pp100	              <- -0.7846
+    betas$b_cardiovascular	        <- 0.1642
+    betas$b_randomized_azithromycin <- -0.1259
+    betas$b_LAMA	                  <- 0.1808
+    betas$b_LABA	                  <- 0.0933
+    betas$b_ICS	                    <- 0.3052
+    betas$b_randomized_LAMA	        <- 0.2451
+    betas$b_randomized_LABA	        <- 0.1034
+    betas$b_randomized_ICS	        <- -0.2339
+    betas$b_randomized_statin	      <- -0.1575
+    betas$b_BMI10                   <- -0.1088
+
+    betas$c0	                      <- -2.4146
+    betas$c_male	                  <- 0.4525
+    betas$c_age10	                  <- 0.03839
+    betas$c_nowsmk                  <- 0.51
+    betas$c_oxygen                  <- 0.6046
+    betas$c_fev1pp100	              <- -1.2895
+    betas$c_cardiovascular	        <- 0.2882
+    betas$c_randomized_azithromycin <- -0.1343
+    betas$c_LAMA	                  <- -0.1531
+    betas$c_LABA            	      <- 0.01885
+    betas$c_ICS	                    <- 0.3003
+    betas$c_randomized_LAMA	        <- 0.2378
+    betas$c_randomized_LABA	        <- -0.4569
+    betas$c_randomized_ICS	        <- -0.171
+    betas$c_randomized_statin	      <- 0.1928
+    betas$c_BMI10           	      <- -0.06825
+
+    betas$v1 	<- 0.7161
+    betas$v2	<- 2.3299
+    betas$cov	<- 0.1465
+
+    # Spline coefficients
+    rate_boundary_knots = c(0.44, 3.78)
+    sev_boundary_knots = c(0.046, 1.583)
+
+    rate_coeff <- c(0.081,
+                    1.535,
+                    3.189,
+                    5.204)
+    sev_coeff <- c(0.049,
+                   0.527,
+                   1.752,
+                   1.358)
+  } else if (!KeepMeds & !KeepSGRQ)
+  {
+    # model coefficients
+    betas$gamma	                    <- 0.9701
+    betas$b0	                      <- 0.8911
+    betas$b_male	                  <- -0.1791
+    betas$b_age10	                  <- -0.0397
+    betas$b_nowsmk	                <- -0.1616
+    betas$b_oxygen	                <- 0.1777
+    betas$b_fev1pp100	              <- -0.9282
+    betas$b_cardiovascular	        <- 0.216
+    betas$b_randomized_azithromycin <- -0.05931
+    betas$b_randomized_LAMA	        <- 0.2871
+    betas$b_randomized_LABA	        <- 0.09825
+    betas$b_randomized_ICS	        <- -0.2612
+    betas$b_randomized_statin	      <- -0.2646
+    betas$b_BMI10                   <- -0.1112
+
+    betas$c0	                      <- -2.3819
+    betas$c_male	                  <- 0.45
+    betas$c_age10	                  <- 0.0423
+    betas$c_nowsmk                  <- 0.5255
+    betas$c_oxygen                  <- 0.6051
+    betas$c_fev1pp100	              <- -1.3091
+    betas$c_cardiovascular	        <- 0.3234
+    betas$c_randomized_azithromycin <- -0.08298
+    betas$c_randomized_LAMA	        <- 0.2853
+    betas$c_randomized_LABA	        <- -0.475
+    betas$c_randomized_ICS	        <- -0.1957
+    betas$c_randomized_statin	      <- 0.07671
+    betas$c_BMI10           	      <- -0.06022
+
+    betas$v1 	<- 0.7424
+    betas$v2	<- 2.3784
+    betas$cov	<- 0.1564
+
+    # Spline coefficients
+    rate_boundary_knots = c(0.513,
+                            3.458)
+    sev_boundary_knots = c(0.054,
+                           1.421)
+
+    rate_coeff <- c(0.050,
+                    1.969,
+                    3.279,
+                    5.041)
+    sev_coeff <- c(0.023,
+                   0.847,
+                   0.832,
+                   1.511)
+  }
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
   betas$b_randomized_azithromycin <- 	 log(1/1.30)
   betas$c_randomized_azithromycin <- 	 log(0.93)
 
-  results_before_adj <- acceptEngine(patientData = patientData, betas = betas)
-
-
-  rate_boundary_knots = c(0.3484506, 4.1066510)
-  sev_boundary_knots = c(0.02767713, 1.74609740)
-
-  rate_coeff <- c(0.031, 1.554, 3.514, 5.235 )
-  sev_coeff <- c(1.167, 0.326, 0.028, 0.003)
+  results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
   adj_predicted_exac_rate         <- Sp_Manual_Pred(results_before_adj$predicted_exac_rate, rate_coeff, rate_boundary_knots)
   adj_predicted_severe_exac_rate <- Sp_Manual_Pred(results_before_adj$predicted_severe_exac_rate, sev_coeff, sev_boundary_knots)
