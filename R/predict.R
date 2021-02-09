@@ -499,6 +499,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   } else if (!KeepMeds & KeepSGRQ)
   {
+    message ("Warning: You are using a simplified version of the model that does not include medications. See the manuscript for more details.")
     # model coefficients
     betas$gamma	                    <- 0.9707
     betas$b0	                      <- 0.1371
@@ -544,7 +545,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   } else if (KeepMeds & !KeepSGRQ)
   {
-
+    message ("Warning: You are using a simplified version of the model that does not include St. George Respiratory Questionnaire. See the manuscript for more details.")
     # model coefficients
     betas$gamma	                    <- 0.97
     betas$b0	                      <- 0.5072
@@ -599,6 +600,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
                    1.358)
   } else if (!KeepMeds & !KeepSGRQ)
   {
+    message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
     # model coefficients
     betas$gamma	                    <- 0.9701
     betas$b0	                      <- 0.8911
