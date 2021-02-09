@@ -425,9 +425,23 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
 
   return(results)
 
-
 }
 
+#' Predicts COPD exacerbation rate by severity level
+#' @param patientData patient data matrix. Can have one or many patients in it
+#' @param random_sampling_N number of random sampling. Default is 1000.
+#' @param random_distribution_iteration default is 2*10^4
+#' @param calculate_CIs whether to calculate confidence interval of the mean
+#' @return patientData with prediction
+#' @examples
+#' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
+#' @export
+predictACCEPT <- function (patientData, random_sampling_N = 1e2,
+                           random_distribution_iteration = 2e4, calculate_CIs = TRUE){
+  .Deprecated("accept")
+  results <- accept(patientData = patientData, random_sampling_N = random_sampling_N , calculate_CIs = calculate_CIs)
+  return(results)
+}
 
 #' Predicts COPD exacerbation rate by severity level based on accept2 model
 #' @param patientData patient data matrix. Can have one or many patients in it
@@ -495,7 +509,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     sev_boundary_knots = c(0.02767713, 1.74609740)
 
     rate_coeff <- c(0.031, 1.554, 3.514, 5.235 )
-    sev_coeff <- c(1.167, 1.102, 1,212, 1.202)
+    sev_coeff <- c(1.167, 1.102, 1.212, 1.202)
 
   } else if (!KeepMeds & KeepSGRQ)
   {
