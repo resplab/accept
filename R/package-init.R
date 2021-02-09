@@ -1,9 +1,5 @@
 #' @import dplyr
-#' @import viridis
-#' @import extrafont
 #' @importFrom stats dpois quantile rpois dbinom weighted.mean
-#' @importFrom stringr str_replace
-#' @importFrom grDevices colorRamp
 #' @importFrom reldist wtd.quantile
 #' @importFrom splines bs
 NULL

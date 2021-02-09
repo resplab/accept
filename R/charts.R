@@ -21,7 +21,7 @@ plotHeatMap <- function(patientResults, n = 10, shortened = TRUE) {
   plotly::plot_ly(x = colnames(heatPlotly),
           y = rownames(heatPlotly),
           z = heatPlotly, type = "heatmap")  %>%
-    layout(
+    plotly::layout(
       title = "Predicted Probability of Experiencing Certain Number of Exacerbations",
       yaxis = list(title = "Number of Severe Exacerbations"),
       xaxis = list(title = "Number of All Exacerbations")
@@ -96,7 +96,7 @@ plotExacerbations <- function(patientResults, type="rate", interval = "PI",
                  array= error_y1[c(2,4)],
                  arrayminus = error_y1[c(1,3)]
                )) %>%
-    add_trace(y = ~y2,
+    plotly::add_trace(y = ~y2,
               name = 'Azithromycin Treatment',
               marker = list(color = colors[2]),
               error_y = list(
@@ -108,7 +108,7 @@ plotExacerbations <- function(patientResults, type="rate", interval = "PI",
                 array= error_y2[c(2,4)],
                 arrayminus = error_y2[c(1,3)]
               )) %>%
-    layout(xaxis = list(title = "Exacerbation Type",
+    plotly::layout(xaxis = list(title = "Exacerbation Type",
                         tickangle = -45),
            yaxis = list(title = yAxisTitle),
            margin = list(b = 100),

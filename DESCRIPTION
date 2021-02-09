@@ -14,9 +14,6 @@ Imports:
     stats,
     MASS,
     dplyr,
-    stringr,
-    extrafont,
-    viridis,
     reldist,
     splines
 Suggests:
