@@ -8,7 +8,7 @@ predictACCEPT(
   patientData,
   random_sampling_N = 100,
   random_distribution_iteration = 20000,
-  calculate_CIs = TRUE
+  ...
 )
 }
 \arguments{
@@ -17,8 +17,6 @@ predictACCEPT(
 \item{random_sampling_N}{number of random sampling. Default is 1000.}
 
 \item{random_distribution_iteration}{default is 2*10^4}
-
-\item{calculate_CIs}{whether to calculate confidence interval of the mean}
 }
 \value{
 patientData with prediction

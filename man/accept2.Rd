@@ -9,7 +9,6 @@ accept2(
   random_sampling_N = 100,
   lastYrExacCol = "LastYrExacCount",
   lastYrSevExacCol = "LastYrSevExacCount",
-  calculate_CIs = FALSE,
   KeepSGRQ = TRUE,
   KeepMeds = TRUE,
   ...
@@ -23,8 +22,6 @@ accept2(
 \item{lastYrExacCol}{the column specifying last year all exacerbation count}
 
 \item{lastYrSevExacCol}{the column specifying last year severe exacerbation count}
-
-\item{calculate_CIs}{whether to calculate confidence interval of the mean}
 
 \item{KeepSGRQ}{default is TRUE. If set to false, the reduced model without SGRQ will be used.}
 

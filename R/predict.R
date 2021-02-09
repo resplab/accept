@@ -77,7 +77,7 @@ Sp_Manual_Pred <- function(Predictor, CoefEst, Boundary_knots) {
 #
 # results <- acceptEngine(samplePatients, betas=betas)
 acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="LastYrExacCount",
-                          lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = TRUE,  betas = NULL, KeepSGRQ = TRUE, KeepMeds = TRUE){
+                          lastYrSevExacCol="LastYrSevExacCount", betas = NULL, KeepSGRQ = TRUE, KeepMeds = TRUE){
 
   gamma	                    <- betas$gamma
   b0	                      <- betas$b0
@@ -366,14 +366,13 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 #' @param random_sampling_N number of random sampling. Default is 100.
 #' @param lastYrExacCol the column specifying last year all exacerbation count
 #' @param lastYrSevExacCol the column specifying last year severe exacerbation count
-#' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @param ... for backward compatibility
 #' @return patientData with prediction
 #' @examples
 #' results <- accept(samplePatients)
 #' @export
 accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                           lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE, ...){
+                           lastYrSevExacCol="LastYrSevExacCount", ...){
 
   betas <- list()
   betas$gamma	                    <- 0.9687
@@ -431,15 +430,14 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 1000.
 #' @param random_distribution_iteration default is 2*10^4
-#' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @return patientData with prediction
 #' @examples
 #' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
 #' @export
 predictACCEPT <- function (patientData, random_sampling_N = 1e2,
-                           random_distribution_iteration = 2e4, calculate_CIs = TRUE){
+                           random_distribution_iteration = 2e4, ...){
   .Deprecated("accept")
-  results <- accept(patientData = patientData, random_sampling_N = random_sampling_N , calculate_CIs = calculate_CIs)
+  results <- accept(patientData = patientData, random_sampling_N = random_sampling_N )
   return(results)
 }
 
@@ -448,7 +446,6 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
 #' @param random_sampling_N number of random sampling. Default is 100.
 #' @param lastYrExacCol the column specifying last year all exacerbation count
 #' @param lastYrSevExacCol the column specifying last year severe exacerbation count
-#' @param calculate_CIs whether to calculate confidence interval of the mean
 #' @param KeepSGRQ default is TRUE. If set to false, the reduced model without SGRQ will be used.
 #' @param KeepMeds default is TRUE. If set to false, the reduced model without medication predictors will be used.
 #' @param ... for backward compatibility
@@ -457,7 +454,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
 #' results <- accept(samplePatients)
 #' @export
 accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                    lastYrSevExacCol="LastYrSevExacCount", calculate_CIs = FALSE, KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
+                    lastYrSevExacCol="LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
 
   betas <- list()
 

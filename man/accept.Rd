@@ -9,7 +9,6 @@ accept(
   random_sampling_N = 100,
   lastYrExacCol = "LastYrExacCount",
   lastYrSevExacCol = "LastYrSevExacCount",
-  calculate_CIs = FALSE,
   ...
 )
 }
@@ -21,8 +20,6 @@ accept(
 \item{lastYrExacCol}{the column specifying last year all exacerbation count}
 
 \item{lastYrSevExacCol}{the column specifying last year severe exacerbation count}
-
-\item{calculate_CIs}{whether to calculate confidence interval of the mean}
 
 \item{...}{for backward compatibility}
 }
