@@ -688,7 +688,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #' @examples
 #' results <- accept(samplePatients[1,])
 #' predictCountProb (results)
-#' @import plotly
 #' @export
 predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
   results <- matrix (0, nrow = n, ncol = n)

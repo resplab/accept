@@ -8,12 +8,17 @@
 #' plotHeatMap(results)
 #' @export
 
-plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
+plotHeatMap <- function(patientResults, n = 10, shortened = TRUE) {
 
-  results = predictCountProb(patientResults, n=n, shortened = shortened)
+  if (!requireNamespace("plotly", quietly = TRUE)) {
+    stop("Package \"plotly\" needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+
+  results <- predictCountProb(patientResults, n=n, shortened = shortened)
   heatPlotly <- t(results)
 
-  plot_ly(x = colnames(heatPlotly),
+  plotly::plot_ly(x = colnames(heatPlotly),
           y = rownames(heatPlotly),
           z = heatPlotly, type = "heatmap")  %>%
     layout(
@@ -36,8 +41,13 @@ plotHeatMap = function(patientResults, n = 10, shortened = TRUE) {
 #' results <- accept(samplePatients[1,])
 #' plotExacerbations(results)
 #' @export
-plotExacerbations = function(patientResults, type="rate", interval = "PI",
+plotExacerbations <- function(patientResults, type="rate", interval = "PI",
                              colors = c("#007bff", 'rgb(204,204,204)')) {
+
+  if (!requireNamespace("plotly", quietly = TRUE)) {
+    stop("Package \"plotly\" needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
 
   base_strings = c("predicted_exac_",
     "predicted_severe_exac_")
@@ -74,7 +84,7 @@ plotExacerbations = function(patientResults, type="rate", interval = "PI",
   } else if (type == "probability") {
     yAxisTitle = "Probability of an Exacerbation in Next Year"
   }
-  p <- plot_ly(data, x = ~x, y = ~y1, type = 'bar',
+  p <- plotly::plot_ly(data, x = ~x, y = ~y1, type = 'bar',
                name = 'No Treatment',
                marker = list(color = colors[1]),
                error_y = list(

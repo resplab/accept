@@ -16,8 +16,9 @@ Imports:
     dplyr,
     stringr,
     extrafont,
-    plotly,
     viridis,
     reldist,
     splines
+Suggests:
+    plotly
 RoxygenNote: 7.1.1
