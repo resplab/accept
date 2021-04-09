@@ -7,10 +7,12 @@ binorm_pdf <- function(x, sigma) {
   return(densRes)
 }
 
-Sp_Manual_Pred <- function(Predictor, CoefEst, Boundary_knots) {
-  bs_obj <- bs(Predictor, knots = 0, Boundary.knots = Boundary_knots)
-  if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(bs_obj)[-1]))
-  else BasisFuncs <- as.matrix(cbind(1, bs_obj[ , -1]), ncol=4)
+Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
+  ns_obj <- ns(Predictor, knots = knots, Boundary.knots = Boundary_knots)
+  # if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(bs_obj)[-1]))
+  if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(bs_obj)))
+  else BasisFuncs <- as.matrix(cbind(1, bs_obj), ncol = 4)
+  # else BasisFuncs <- as.matrix(cbind(1, bs_obj[ , -1]), ncol=4)
   Preds <- BasisFuncs %*% matrix(CoefEst, ncol = 1)
   return(Preds)
 }
@@ -502,11 +504,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.08772
 
     # Spline coefficients
-    rate_boundary_knots = c(0.3484506, 4.1066510)
-    sev_boundary_knots = c(0.02767713, 1.74609740)
+    rate_knots = c(0.7350006, 1.0117792, 1.4871101)
+    rate_boundary_knots = c(0.3484526, 4.1070899)
+    sev_knots = c(0.1130671, 0.1572244, 0.2492935)
+    sev_boundary_knots = c(0.02767912, 1.74626725)
 
-    rate_coeff <- c(0.031, 1.554, 3.514, 5.235 )
-    sev_coeff <- c(1.167, 1.102, 1.212, 1.202)
+    rate_coeff <- c(0.06365574, 0.9028774, 2.337001, 4.227584, 4.984058)
+    sev_coeff <- c(0.06185307, 0.1098645, 0.8443617, 1.731538, 2.443909)
 
   } else if (!KeepMeds & KeepSGRQ)
   {
@@ -548,11 +552,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.09212
 
     # Spline coefficients
-    rate_boundary_knots = c(0.419, 3.751)
-    sev_boundary_knots = c(0.036, 1.583)
+    rate_knots = c(0.7067188, 0.9390936, 1.3580630)
+    rate_boundary_knots = c(0.4192529, 3.7512636)
+    sev_knots = c(0.1053470, 0.1451243, 0.2185094)
+    sev_boundary_knots = c(0.03569361, 1.58295416)
 
-    rate_coeff <- c(0.008, 1.883, 3.410, 5.267)
-    sev_coeff <- c(0.041, 0.530, 1.629, 2.474)
+    rate_coeff <- c(0.1229588, 0.946245, 2.235102, 4.042771, 5.066363)
+    sev_coeff <- c(0.04700803, 0.09856134, 0.8258146, 1.717946, 2.368377)
 
   } else if (KeepMeds & !KeepSGRQ)
   {
@@ -598,17 +604,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.1465
 
     # Spline coefficients
-    rate_boundary_knots = c(0.44, 3.78)
-    sev_boundary_knots = c(0.046, 1.583)
+    rate_knots = c(0.7647513, 1.0065108, 1.4470261)
+    rate_boundary_knots = c(0.4404736, 3.7805472)
+    sev_knots = c(0.1154535, 0.1532026, 0.2128810)
+    sev_boundary_knots = c(0.0464447, 1.5826205)
 
-    rate_coeff <- c(0.081,
-                    1.535,
-                    3.189,
-                    5.204)
-    sev_coeff <- c(0.049,
-                   0.527,
-                   1.752,
-                   1.358)
+    rate_coeff <- c(0.1541827, 0.8683087, 2.099319, 3.983433, 4.970192)
+    sev_coeff <- c(0.04983984, 0.1174657, 0.8002212, 1.691261, 2.371849)
   } else if (!KeepMeds & !KeepSGRQ)
   {
     message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
@@ -647,19 +649,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.1564
 
     # Spline coefficients
-    rate_boundary_knots = c(0.513,
-                            3.458)
-    sev_boundary_knots = c(0.054,
-                           1.421)
+    rate_knots = c(0.7218699, 0.9348697, 1.3454337)
+    rate_boundary_knots = c(0.5126264, 3.4578199)
+    sev_knots = c(0.1058391, 0.1330139, 0.1817342)
+    sev_boundary_knots = c(0.05405478, 1.42064639)
 
-    rate_coeff <- c(0.050,
-                    1.969,
-                    3.279,
-                    5.041)
-    sev_coeff <- c(0.023,
-                   0.847,
-                   0.832,
-                   1.511)
+    rate_coeff <- c(0.1426013, 0.9598645, 2.159312, 3.954245, 4.929968)
+    sev_coeff <- c(0.05773483, 0.1153612, 0.6661175, 1.502799, 2.213245)
   }
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
   betas$b_randomized_azithromycin <- 	 log(1/1.30)
@@ -667,8 +663,8 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
-  adj_predicted_exac_rate         <- Sp_Manual_Pred(results_before_adj$predicted_exac_rate, rate_coeff, rate_boundary_knots)
-  adj_predicted_severe_exac_rate <- Sp_Manual_Pred(results_before_adj$predicted_severe_exac_rate, sev_coeff, sev_boundary_knots)
+  adj_predicted_exac_rate         <- Sp_Manual_Pred(results_before_adj$predicted_exac_rate, rate_coeff, rate_knots, rate_boundary_knots)
+  adj_predicted_severe_exac_rate <- Sp_Manual_Pred(results_before_adj$predicted_severe_exac_rate, sev_coeff, sev_knots, sev_boundary_knots)
 
 
   results <- c(adj_predicted_exac_rate, adj_predicted_severe_exac_rate)
