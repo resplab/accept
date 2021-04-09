@@ -230,8 +230,8 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
            ## ??? temp outcomes
            Rate_Sev_Adj = Rate_Sev_Adj,
            Rate_non_Sev_Adj = Rate_non_Sev_Adj,
-           Lambda_Sev = Lambda_Sev,
-           Posterior_Sev_W = Posterior_Sev_W,
+           # Lambda_Sev = Lambda_Sev,
+           # Posterior_Sev_W = Posterior_Sev_W,
 
 
            predicted_exac_rate                        = Rate_Adj,
