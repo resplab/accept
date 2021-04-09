@@ -377,46 +377,81 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
                            lastYrSevExacCol="LastYrSevExacCount", ...){
 
   betas <- list()
-  betas$gamma	                    <- 0.9687
-  betas$b0	                      <- -0.00964
-  betas$b_male	                  <- -0.157
-  betas$b_age10	                  <- -0.01885
-  betas$b_nowsmk	                <- -0.2009
-  betas$b_oxygen	                <- 0.08781
-  betas$b_fev1pp100	              <- -0.4419
-  betas$b_sgrq10                  <- 0.103
-  betas$b_cardiovascular	        <- 0.09837
-  betas$b_randomized_azithromycin <- -0.1687
-  betas$b_LAMA	                  <- 0.1485
-  betas$b_LABA	                  <- 0.1216
-  betas$b_ICS	                    <- 0.2232
-  betas$b_randomized_LAMA	        <- 0.172
-  betas$b_randomized_LABA	        <- 0.1398
-  betas$b_randomized_ICS	        <- -0.2452
-  betas$b_randomized_statin	      <- -0.05617
-  betas$b_BMI10                   <- -0.1272
+  # betas$gamma	                    <- 0.9687
+  # betas$b0	                      <- -0.00964
+  # betas$b_male	                  <- -0.157
+  # betas$b_age10	                  <- -0.01885
+  # betas$b_nowsmk	                <- -0.2009
+  # betas$b_oxygen	                <- 0.08781
+  # betas$b_fev1pp100	              <- -0.4419
+  # betas$b_sgrq10                  <- 0.103
+  # betas$b_cardiovascular	        <- 0.09837
+  # betas$b_randomized_azithromycin <- -0.1687
+  # betas$b_LAMA	                  <- 0.1485
+  # betas$b_LABA	                  <- 0.1216
+  # betas$b_ICS	                    <- 0.2232
+  # betas$b_randomized_LAMA	        <- 0.172
+  # betas$b_randomized_LABA	        <- 0.1398
+  # betas$b_randomized_ICS	        <- -0.2452
+  # betas$b_randomized_statin	      <- -0.05617
+  # betas$b_BMI10                   <- -0.1272
+  betas$gamma	                    <- 0.9706
+  betas$b0	                      <- -0.2014
+  betas$b_male	                  <- -0.1855
+  betas$b_age10	                  <- -0.00823
+  betas$b_nowsmk	                <- -0.1867
+  betas$b_oxygen	                <- 0.1209
+  betas$b_fev1pp100	              <- -0.5584
+  betas$b_sgrq10                  <- 0.1064
+  betas$b_cardiovascular	        <- 0.1359
+  betas$b_randomized_azithromycin <- -0.1287
+  betas$b_LAMA	                  <- 0.1678
+  betas$b_LABA	                  <- 0.1137
+  betas$b_ICS	                    <- 0.279
+  betas$b_randomized_LAMA	        <- 0.2202
+  betas$b_randomized_LABA	        <- 0.1321
+  betas$b_randomized_ICS	        <- -0.2359
+  betas$b_randomized_statin	      <- -0.1573
+  betas$b_BMI10                   <- -0.1333
 
-  betas$c0	                      <- -3.973
-  betas$c_male	                  <- 0.3889
-  betas$c_age10	                  <- 0.1123
-  betas$c_nowsmk                  <- 0.4025
-  betas$c_oxygen                  <- 0.5558
-  betas$c_fev1pp100	              <- -1.1552
-  betas$c_sgrq10                  <- 0.205
-  betas$c_cardiovascular	        <- 0.3255
-  betas$c_randomized_azithromycin <- -0.1103
-  betas$c_LAMA	                  <- -0.1385
-  betas$c_LABA            	      <- 0.01246
-  betas$c_ICS	                    <- 0.3879
-  betas$c_randomized_LAMA	        <- 0.1074
-  betas$c_randomized_LABA	        <- -0.2253
-  betas$c_randomized_ICS	        <- -0.1211
-  betas$c_randomized_statin	      <- 0.109
-  betas$c_BMI10           	      <- -0.106
+  # betas$c0	                      <- -3.973
+  # betas$c_male	                  <- 0.3889
+  # betas$c_age10	                  <- 0.1123
+  # betas$c_nowsmk                  <- 0.4025
+  # betas$c_oxygen                  <- 0.5558
+  # betas$c_fev1pp100	              <- -1.1552
+  # betas$c_sgrq10                  <- 0.205
+  # betas$c_cardiovascular	        <- 0.3255
+  # betas$c_randomized_azithromycin <- -0.1103
+  # betas$c_LAMA	                  <- -0.1385
+  # betas$c_LABA            	      <- 0.01246
+  # betas$c_ICS	                    <- 0.3879
+  # betas$c_randomized_LAMA	        <- 0.1074
+  # betas$c_randomized_LABA	        <- -0.2253
+  # betas$c_randomized_ICS	        <- -0.1211
+  # betas$c_randomized_statin	      <- 0.109
+  # betas$c_BMI10           	      <- -0.106
+  betas$c0	                      <- -3.6901
+  betas$c_male	                  <- 0.4255
+  betas$c_age10	                  <- 0.09545
+  betas$c_nowsmk                  <- 0.4211
+  betas$c_oxygen                  <- 0.546
+  betas$c_fev1pp100	              <- -0.8095
+  betas$c_sgrq10                  <- 0.1781
+  betas$c_cardiovascular	        <- 0.2326
+  betas$c_randomized_azithromycin <- -0.1305
+  betas$c_LAMA	                  <- -0.1638
+  betas$c_LABA            	      <- 0.05466
+  betas$c_ICS	                    <- 0.2677
+  betas$c_randomized_LAMA	        <- 0.2193
+  betas$c_randomized_LABA	        <- -0.4085
+  betas$c_randomized_ICS	        <- -0.1755
+  betas$c_randomized_statin	      <- 0.2169
+  betas$c_BMI10           	      <- -0.09666
 
-  betas$v1 	<- 0.5968
-  betas$v2	<- 2.3847
-  betas$cov	<- 0.147
+  betas$v1 	<- 0.6855
+  betas$v2	<- 2.2494
+  betas$cov	<- 0.08772
 
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
   betas$b_randomized_azithromycin <- 	 log(1/1.30)
