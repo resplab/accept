@@ -227,6 +227,13 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
            # predicted_exac_probability_lower_CI        = risk_at_least_one_exac_lower_CI,
            # predicted_exac_probability_upper_CI        = risk_at_least_one_exac_upper_CI,
 
+           ## ??? temp outcomes
+           Rate_Sev_Adj = Rate_Sev_Adj,
+           Rate_non_Sev_Adj = Rate_non_Sev_Adj,
+           Lambda_Sev = Lambda_Sev,
+           Posterior_Sev_W = Posterior_Sev_W,
+
+
            predicted_exac_rate                        = Rate_Adj,
            predicted_exac_rate_lower_PI               = Rate_Adj_lower_PI,
            predicted_exac_rate_upper_PI               = Rate_Adj_upper_PI,
