@@ -454,8 +454,8 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
   betas$cov	<- 0.08772
 
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-  betas$b_randomized_azithromycin <- 	 log(1/1.30)
-  betas$c_randomized_azithromycin <- 	 log(0.93)
+  # betas$b_randomized_azithromycin <- 	 log(1/1.30)
+  # betas$c_randomized_azithromycin <- 	 log(0.93)
 
   results <- acceptEngine(patientData = patientData, betas = betas)
 
