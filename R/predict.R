@@ -169,7 +169,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
   RE_seq_2 = seq(from = -2 * covMat[2, 2], to = 2 * covMat[2, 2], length.out = random_sampling_N)
   RE_W_mat <- outer(X = RE_seq_1, Y = RE_seq_2, FUN = Vectorize(function(x, y) binorm_pdf(c(x, y), sigma = covMat)))
 
-  Lambda  <- exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*% matrix(exp(RE_seq_1), nrow = 1)
+  Lambda  <- exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*% matrix(exp(RE_seq_1), nrow = 1) ^ gamma
   ProbSev <- exp(as.matrix(patientData[ , "c_lin"], ncol = 1)) %*% matrix(exp(RE_seq_2), nrow = 1)
   ProbSev <- ProbSev / (1 + ProbSev)
 
