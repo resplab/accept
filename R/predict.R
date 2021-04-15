@@ -10,8 +10,8 @@ binorm_pdf <- function(x, sigma) {
 Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
   ns_obj <- ns(Predictor, knots = knots, Boundary.knots = Boundary_knots)
   # if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(bs_obj)[-1]))
-  if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(bs_obj)))
-  else BasisFuncs <- as.matrix(cbind(1, bs_obj), ncol = 4)
+  if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(ns_obj)))
+  else BasisFuncs <- as.matrix(cbind(1, ns_obj), ncol = 4)
   # else BasisFuncs <- as.matrix(cbind(1, bs_obj[ , -1]), ncol=4)
   Preds <- BasisFuncs %*% matrix(CoefEst, ncol = 1)
   return(Preds)
