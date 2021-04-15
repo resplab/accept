@@ -227,13 +227,6 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
            # predicted_exac_probability_lower_CI        = risk_at_least_one_exac_lower_CI,
            # predicted_exac_probability_upper_CI        = risk_at_least_one_exac_upper_CI,
 
-           ## ??? temp outcomes
-           Rate_Sev_Adj = Rate_Sev_Adj,
-           Rate_non_Sev_Adj = Rate_non_Sev_Adj,
-           # Lambda_Sev = Lambda_Sev,
-           # Posterior_Sev_W = Posterior_Sev_W,
-
-
            predicted_exac_rate                        = Rate_Adj,
            predicted_exac_rate_lower_PI               = Rate_Adj_lower_PI,
            predicted_exac_rate_upper_PI               = Rate_Adj_upper_PI,
@@ -246,11 +239,11 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
            # predicted_severe_exac_probability_lower_CI = risk_at_least_one_Sev_exac_lower_CI,
            # predicted_severe_exac_probability_upper_CI = risk_at_least_one_Sev_exac_upper_CI,
 
-           predicted_severe_exac_rate                 = Rate_non_Sev_Adj,
-           predicted_severe_exac_rate_lower_PI        = Rate_non_Sev_Adj_lower_PI,
-           predicted_severe_exac_rate_upper_PI        = Rate_non_Sev_Adj_upper_PI
-           # predicted_severe_exac_rate_lower_CI        = Rate_non_Sev_Adj_lower_CI,
-           # predicted_severe_exac_rate_upper_CI        = Rate_non_Sev_Adj_upper_CI,
+           predicted_severe_exac_rate                 = Rate_Sev_Adj,
+           predicted_severe_exac_rate_lower_PI        = Rate_Sev_Adj_lower_PI,
+           predicted_severe_exac_rate_upper_PI        = Rate_Sev_Adj_upper_PI
+           # predicted_severe_exac_rate_lower_CI        = Rate_Sev_Adj_lower_CI,
+           # predicted_severe_exac_rate_upper_CI        = Rate_Sev_Adj_upper_CI,
     )
 
   ## Now for Azithromycin
@@ -356,11 +349,11 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
                                         # azithromycin_predicted_severe_exac_probability_lower_CI = azithromycin_risk_at_least_one_Sev_exac_lower_CI,
                                         # azithromycin_predicted_severe_exac_probability_upper_CI = azithromycin_risk_at_least_one_Sev_exac_upper_CI,
                                         #
-                                        azithromycin_predicted_severe_exac_rate                 = azithromycin_Rate_non_Sev_Adj,
-                                        azithromycin_predicted_severe_exac_rate_lower_PI        = azithromycin_Rate_non_Sev_Adj_lower_PI,
-                                        azithromycin_predicted_severe_exac_rate_upper_PI        = azithromycin_Rate_non_Sev_Adj_upper_PI
-                                        # azithromycin_predicted_severe_exac_rate_lower_CI        = azithromycin_Rate_non_Sev_Adj_lower_CI,
-                                        # azithromycin_predicted_severe_exac_rate_upper_CI        = azithromycin_Rate_non_Sev_Adj_upper_CI,
+                                        azithromycin_predicted_severe_exac_rate                 = azithromycin_Rate_Sev_Adj,
+                                        azithromycin_predicted_severe_exac_rate_lower_PI        = azithromycin_Rate_Sev_Adj_lower_PI,
+                                        azithromycin_predicted_severe_exac_rate_upper_PI        = azithromycin_Rate_Sev_Adj_upper_PI
+                                        # azithromycin_predicted_severe_exac_rate_lower_CI        = azithromycin_Rate_Sev_Adj_lower_CI,
+                                        # azithromycin_predicted_severe_exac_rate_upper_CI        = azithromycin_Rate_Sev_Adj_upper_CI,
 
   )
 
