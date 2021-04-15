@@ -18,6 +18,7 @@ Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
 }
 
 
+
 # Predicts COPD exacerbation rate by severity level
 # @param patientData patient data matrix. Can have one or many patients in it
 # @param random_sampling_N number of random sampling. Default is 1000.
