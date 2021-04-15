@@ -540,13 +540,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.08772
 
     # Spline coefficients
-    rate_knots = c(0.7350006, 1.0117792, 1.4871101)
-    rate_boundary_knots = c(0.3484526, 4.1070899)
-    sev_knots = c(0.1130671, 0.1572244, 0.2492935)
-    sev_boundary_knots = c(0.02767912, 1.74626725)
+    rate_knots = c(0.7145958, 0.9912697, 1.4652412)
+    rate_boundary_knots = c(0.329367, 4.068048)
+    sev_knots = c(0.1104125, 0.1553361, 0.2440743)
+    sev_boundary_knots = c(0.02618769, 1.72861911)
 
-    rate_coeff <- c(0.06365574, 0.9028774, 2.337001, 4.227584, 4.984058)
-    sev_coeff <- c(0.06185307, 0.1098645, 0.8443617, 1.731538, 2.443909)
+    rate_coeff <- c(0.06518199, 0.90307795, 2.31804966, 4.23148175, 5.03274433)
+    sev_coeff <- c(0.05010488, 0.10449992, 0.82837734, 1.76211800, 2.45999937)
 
   } else if (!KeepMeds & KeepSGRQ)
   {
@@ -588,13 +588,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.09212
 
     # Spline coefficients
-    rate_knots = c(0.7067188, 0.9390936, 1.3580630)
-    rate_boundary_knots = c(0.4192529, 3.7512636)
-    sev_knots = c(0.1053470, 0.1451243, 0.2185094)
-    sev_boundary_knots = c(0.03569361, 1.58295416)
+    rate_knots = c(0.1018911, 0.1420318, 0.2163109)
+    rate_boundary_knots = c(0.03407203, 1.56146110)
+    sev_knots = c(0.6866579, 0.9167824, 1.3328795)
+    sev_boundary_knots = c(0.3993395, 3.7012484)
 
-    rate_coeff <- c(0.1229588, 0.946245, 2.235102, 4.042771, 5.066363)
-    sev_coeff <- c(0.04700803, 0.09856134, 0.8258146, 1.717946, 2.368377)
+    rate_coeff <- c(0.1197930, 0.9126978, 2.2951754, 4.0110488, 4.9058539)
+    sev_coeff <- c(0.05871868, 0.10250238, 0.82620839, 1.68624119, 2.38272234)
 
   } else if (KeepMeds & !KeepSGRQ)
   {
@@ -640,13 +640,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.1465
 
     # Spline coefficients
-    rate_knots = c(0.7647513, 1.0065108, 1.4470261)
-    rate_boundary_knots = c(0.4404736, 3.7805472)
-    sev_knots = c(0.1154535, 0.1532026, 0.2128810)
-    sev_boundary_knots = c(0.0464447, 1.5826205)
+    rate_knots = c(0.7456274, 0.9866093, 1.4210972)
+    rate_boundary_knots = c(0.4203808, 3.7239562)
+    sev_knots = c(0.1137685, 0.1493893, 0.2106265)
+    sev_boundary_knots = c(0.04448195, 1.56042213)
 
-    rate_coeff <- c(0.1541827, 0.8683087, 2.099319, 3.983433, 4.970192)
-    sev_coeff <- c(0.04983984, 0.1174657, 0.8002212, 1.691261, 2.371849)
+    rate_coeff <- c(0.1650515, 0.8529724, 2.0886867, 3.9422245, 4.9643087)
+    sev_coeff <- c(0.05590748, 0.09148651, 0.86588143, 1.69546615, 2.33351171)
   } else if (!KeepMeds & !KeepSGRQ)
   {
     message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
@@ -685,17 +685,17 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$cov	<- 0.1564
 
     # Spline coefficients
-    rate_knots = c(0.7218699, 0.9348697, 1.3454337)
-    rate_boundary_knots = c(0.5126264, 3.4578199)
-    sev_knots = c(0.1058391, 0.1330139, 0.1817342)
-    sev_boundary_knots = c(0.05405478, 1.42064639)
+    rate_knots = c(0.7028951, 0.9131159, 1.3158333)
+    rate_boundary_knots = c(0.4924904, 3.3967642)
+    sev_knots = c(0.1020546, 0.1304339, 0.1826366)
+    sev_boundary_knots = c(0.05212108, 1.39483400)
 
-    rate_coeff <- c(0.1426013, 0.9598645, 2.159312, 3.954245, 4.929968)
-    sev_coeff <- c(0.05773483, 0.1153612, 0.6661175, 1.502799, 2.213245)
+    rate_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
+    sev_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
   }
-  # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-  betas$b_randomized_azithromycin <- 	 log(1/1.30)
-  betas$c_randomized_azithromycin <- 	 log(0.93)
+  # # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
+  # betas$b_randomized_azithromycin <- 	 log(1/1.30)
+  # betas$c_randomized_azithromycin <- 	 log(0.93)
 
   results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
