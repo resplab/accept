@@ -229,7 +229,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 
 
   patientData <- patientData %>%
-    # select(-log_alpha, -c_lin) %>%
+    select(-log_alpha, -c_lin) %>%
     mutate(predicted_exac_probability                 = risk_at_least_one_exac,
            predicted_exac_probability_lower_PI        = risk_at_least_one_exac_lower_PI,
            predicted_exac_probability_upper_PI        = risk_at_least_one_exac_upper_PI,
@@ -253,41 +253,23 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
            predicted_severe_exac_rate_upper_PI        = Rate_Sev_Adj_upper_PI
            # predicted_severe_exac_rate_lower_CI        = Rate_Sev_Adj_lower_CI,
            # predicted_severe_exac_rate_upper_CI        = Rate_Sev_Adj_upper_CI,
-
-           # # For Azithromycin
-           #
-           # azithromycin_predicted_exac_probability                 = azithromycin_risk_at_least_one_exac,
-           # azithromycin_predicted_exac_probability_lower_PI        = azithromycin_risk_at_least_one_exac_lower_PI,
-           # azithromycin_predicted_exac_probability_upper_PI        = azithromycin_risk_at_least_one_exac_upper_PI,
-           # # azithromycin_predicted_exac_probability_lower_CI        = azithromycin_risk_at_least_one_exac_lower_CI,
-           # # azithromycin_predicted_exac_probability_upper_CI        = azithromycin_risk_at_least_one_exac_upper_CI,
-           # #
-           # azithromycin_predicted_exac_rate                        = azithromycin_Rate_Adj,
-           # azithromycin_predicted_exac_rate_lower_PI               = azithromycin_Rate_Adj_lower_PI,
-           # azithromycin_predicted_exac_rate_upper_PI               = azithromycin_Rate_Adj_upper_PI,
-           # #azithromycin_predicted_exac_rate_lower_CI               = azithromycin_Rate_Adj_lower_CI,
-           # #azithromycin_predicted_exac_rate_upper_CI               = azithromycin_Rate_Adj_upper_CI,
-           # #
-           # azithromycin_predicted_severe_exac_probability          = azithromycin_risk_at_least_one_Sev_exac,
-           # azithromycin_predicted_severe_exac_probability_lower_PI = azithromycin_risk_at_least_one_Sev_exac_lower_PI,
-           # azithromycin_predicted_severe_exac_probability_upper_PI = azithromycin_risk_at_least_one_Sev_exac_upper_PI,
-           # # azithromycin_predicted_severe_exac_probability_lower_CI = azithromycin_risk_at_least_one_Sev_exac_lower_CI,
-           # # azithromycin_predicted_severe_exac_probability_upper_CI = azithromycin_risk_at_least_one_Sev_exac_upper_CI,
-           # #
-           # azithromycin_predicted_severe_exac_rate                 = azithromycin_Rate_Sev_Adj,
-           # azithromycin_predicted_severe_exac_rate_lower_PI        = azithromycin_Rate_Sev_Adj_lower_PI,
-           # azithromycin_predicted_severe_exac_rate_upper_PI        = azithromycin_Rate_Sev_Adj_upper_PI
-           # # azithromycin_predicted_severe_exac_rate_lower_CI        = azithromycin_Rate_Sev_Adj_lower_CI,
-           # # azithromycin_predicted_severe_exac_rate_upper_CI        = azithromycin_Rate_Sev_Adj_upper_CI,
     )
 
-  # reshape(patientData, timevar = azithromycin_ind, idvar = ID, direction = "wide",
-  #         v.names = c("predicted_exac_probability", "predicted_exac_probability_lower_PI",
-  #                     "predicted_exac_probability_upper_PI", "predicted_exac_rate",
-  #                     "predicted_exac_rate_lower_PI", "predicted_exac_rate_upper_PI",
-  #                     "predicted_severe_exac_probability", "predicted_severe_exac_probability_lower_PI",
-  #                     "predicted_severe_exac_probability_upper_PI", "predicted_severe_exac_rate",
-  #                     "predicted_severe_exac_rate_lower_PI", "predicted_severe_exac_rate_upper_PI"))
+  patientData <-
+    reshape(as.data.frame(patientData),
+            timevar = "azithromycin_ind", idvar = "ID", direction = "wide",
+            v.names = c("predicted_exac_probability", "predicted_exac_probability_lower_PI",
+                        "predicted_exac_probability_upper_PI", "predicted_exac_rate",
+                        "predicted_exac_rate_lower_PI", "predicted_exac_rate_upper_PI",
+                        "predicted_severe_exac_probability", "predicted_severe_exac_probability_lower_PI",
+                        "predicted_severe_exac_probability_upper_PI", "predicted_severe_exac_rate",
+                        "predicted_severe_exac_rate_lower_PI", "predicted_severe_exac_rate_upper_PI"))
+
+  colnames(patientData)[grep(".0", colnames(patientData), fixed = T)] <-
+    unlist(strsplit(colnames(patientData)[grep(".0", colnames(patientData), fixed = T)], ".0"))
+  colnames(patientData)[grep(".1", colnames(patientData), fixed = T)] <-
+    paste0("azithromycin_",
+           unlist(strsplit(colnames(patientData)[grep(".1", colnames(patientData), fixed = T)], ".1")))
 
 
   # ## Now for Azithromycin
