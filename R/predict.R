@@ -48,7 +48,7 @@ Sp_Manual_Vec <- function(data, CoefEst, knots, Boundary_knots) {
   data$adj_azithromycin_predicted_severe_exac_probability_lower_PI <- 1 - exp(-data$adj_azithromycin_predicted_severe_exac_rate_lower_PI)
   data$adj_azithromycin_predicted_severe_exac_probability_upper_PI <- 1 - exp(-data$adj_azithromycin_predicted_severe_exac_rate_upper_PI)
 
-  return(Preds)
+  return(data)
 }
 
 
@@ -283,7 +283,6 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
            # predicted_severe_exac_probability_upper_CI = risk_at_least_one_Sev_exac_upper_CI,
 
            predicted_severe_exac_rate                 = Rate_Sev_Adj,
-           predicted_severe_exac_rate_sd              = Rate_Sev_SD_Adj,
            predicted_severe_exac_rate_lower_PI        = Rate_Sev_Adj_lower_PI,
            predicted_severe_exac_rate_upper_PI        = Rate_Sev_Adj_upper_PI
            # predicted_severe_exac_rate_lower_CI        = Rate_Sev_Adj_lower_CI,
