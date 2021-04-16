@@ -169,7 +169,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
               c_LAMA                    * LAMA   +
               c_LABA                    * LABA   +
               c_ICS                     * ICS    +
-              c_BMI                     * BMIBMI +
+              c_BMI                     * BMI +
               b_randomized_azithromycin * azithromycin_ind)
 
 
