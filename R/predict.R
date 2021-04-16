@@ -17,6 +17,40 @@ Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
   return(Preds)
 }
 
+Sp_Manual_Vec <- function(data, CoefEst, knots, Boundary_knots) {
+
+  data$adj_predicted_exac_rate <- abs(Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots))
+  data$adj_predicted_exac_rate_lower_PI <- abs(Sp_Manual_Pred(data$predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$adj_predicted_exac_rate_upper_PI <- abs(Sp_Manual_Pred(data$predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+  data$adj_predicted_severe_exac_rate <- abs(Sp_Manual_Pred(data$predicted_severe_exac_rate, CoefEst, knots, Boundary_knots))
+  data$adj_predicted_severe_exac_rate_lower_PI <- abs(Sp_Manual_Pred(data$predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$adj_predicted_severe_exac_rate_upper_PI <- abs(Sp_Manual_Pred(data$predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+
+  data$adj_predicted_exac_probability <- 1 - exp(-data$adj_predicted_exac_rate)
+  data$adj_predicted_exac_probability_lower_PI <- 1 - exp(-data$adj_predicted_exac_rate_lower_PI)
+  data$adj_predicted_exac_probability_upper_PI <- 1 - exp(-data$adj_predicted_exac_rate_upper_PI)
+  data$adj_predicted_severe_exac_probability <- 1 - exp(-data$adj_predicted_severe_exac_rate)
+  data$adj_predicted_severe_exac_probability_lower_PI <- 1 - exp(-data$adj_predicted_severe_exac_rate_lower_PI)
+  data$adj_predicted_severe_exac_probability_upper_PI <- 1 - exp(-data$adj_predicted_severe_exac_rate_upper_PI)
+
+  # For azithromycin
+  data$adj_azithromycin_predicted_exac_rate <- abs(Sp_Manual_Pred(data$azithromycin_predicted_exac_rate, CoefEst, knots, Boundary_knots))
+  data$adj_azithromycin_predicted_exac_rate_lower_PI <- abs(Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$adj_azithromycin_predicted_exac_rate_upper_PI <- abs(Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+  data$adj_azithromycin_predicted_severe_exac_rate <- abs(Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate, CoefEst, knots, Boundary_knots))
+  data$adj_azithromycin_predicted_severe_exac_rate_lower_PI <- abs(Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$adj_azithromycin_predicted_severe_exac_rate_upper_PI <- abs(Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+
+  data$adj_azithromycin_predicted_exac_probability <- 1 - exp(-data$adj_azithromycin_predicted_exac_rate)
+  data$adj_azithromycin_predicted_exac_probability_lower_PI <- 1 - exp(-data$adj_azithromycin_predicted_exac_rate_lower_PI)
+  data$adj_azithromycin_predicted_exac_probability_upper_PI <- 1 - exp(-data$adj_azithromycin_predicted_exac_rate_upper_PI)
+  data$adj_azithromycin_predicted_severe_exac_probability <- 1 - exp(-data$adj_azithromycin_predicted_severe_exac_rate)
+  data$adj_azithromycin_predicted_severe_exac_probability_lower_PI <- 1 - exp(-data$adj_azithromycin_predicted_severe_exac_rate_lower_PI)
+  data$adj_azithromycin_predicted_severe_exac_probability_upper_PI <- 1 - exp(-data$adj_azithromycin_predicted_severe_exac_rate_upper_PI)
+
+  return(Preds)
+}
+
 
 # Predicts COPD exacerbation rate by severity level
 # @param patientData patient data matrix. Can have one or many patients in it
@@ -249,6 +283,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
            # predicted_severe_exac_probability_upper_CI = risk_at_least_one_Sev_exac_upper_CI,
 
            predicted_severe_exac_rate                 = Rate_Sev_Adj,
+           predicted_severe_exac_rate_sd              = Rate_Sev_SD_Adj,
            predicted_severe_exac_rate_lower_PI        = Rate_Sev_Adj_lower_PI,
            predicted_severe_exac_rate_upper_PI        = Rate_Sev_Adj_upper_PI
            # predicted_severe_exac_rate_lower_CI        = Rate_Sev_Adj_lower_CI,
@@ -270,118 +305,6 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
   colnames(patientData)[grep(".1", colnames(patientData), fixed = T)] <-
     paste0("azithromycin_",
            unlist(strsplit(colnames(patientData)[grep(".1", colnames(patientData), fixed = T)], ".1")))
-
-
-  # ## Now for Azithromycin
-  #
-  # patientData <- patientData %>% mutate (log_alpha = b0 +
-  #                                          b_male           * male   +
-  #                                          b_age            * age    +
-  #                                          b_nowsmk         * smoker +
-  #                                          b_oxygen         * oxygen +
-  #                                          b_fev1           * FEV1   +
-  #                                          b_SGRQ           * SGRQ   +
-  #                                          b_cardiovascular * statin +
-  #                                          b_LAMA           * LAMA   +
-  #                                          b_LABA           * LABA   +
-  #                                          b_ICS            * ICS    +
-  #                                          b_BMI            * BMI    +
-  #                                          b_randomized_azithromycin)       %>%
-  #   mutate (c_lin = c0 +
-  #             c_male           * male   +
-  #             c_age            * age    +
-  #             c_nowsmk         * smoker +
-  #             c_oxygen         * oxygen +
-  #             c_fev1           * FEV1   +
-  #             c_SGRQ           * SGRQ   +
-  #             c_cardiovascular * statin +
-  #             c_LAMA           * LAMA   +
-  #             c_LABA           * LABA   +
-  #             c_ICS            * ICS    +
-  #             c_BMI            * BMI    +
-  #             c_randomized_azithromycin)
-  #
-  #
-  #
-  # azithromycin_Lambda  <- exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*% matrix(exp(RE_seq_1), nrow = 1)
-  # azithromycin_ProbSev <- exp(as.matrix(patientData[ , "c_lin"], ncol = 1)) %*% matrix(exp(RE_seq_2), nrow = 1)
-  # azithromycin_ProbSev <- azithromycin_ProbSev / (1 + azithromycin_ProbSev)
-  #
-  # azithromycin_Lambda_Sev <- lapply(c(1 : nrow(patientData)), function(x) matrix(azithromycin_Lambda[x, ], ncol = 1) %*% matrix(azithromycin_ProbSev[x, ], nrow = 1))
-  # azithromycin_Lambda_non_Sev <- lapply(c(1 : nrow(patientData)), function(x) matrix(azithromycin_Lambda[x, ], ncol = 1) %*% matrix(1 - azithromycin_ProbSev[x, ], nrow = 1))
-  #
-  # azithromycin_Posterior_Sev_W <-
-  #   lapply(c(1 : nrow(patientData)), function(x) {
-  #     t(apply(azithromycin_Lambda_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrSevExacCol]), lambda = y))) * RE_W_mat
-  #   })
-  #
-  # azithromycin_Posterior_non_Sev_W <-
-  #   lapply(c(1 : nrow(patientData)), function(x) {
-  #     t(apply(azithromycin_Lambda_non_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrExacCol] - patientData[x , lastYrSevExacCol]), lambda = y))) * RE_W_mat
-  #   })
-  #
-  # azithromycin_Posterior_all_W <-
-  #   lapply(c(1 : nrow(patientData)), function(x) {
-  #     t(apply(azithromycin_Lambda_non_Sev[[x]]+azithromycin_Lambda_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrExacCol]), lambda = y))) * RE_W_mat
-  #   })
-  #
-  # azithromycin_Rate_Sev_Adj <- sapply(c(1 : nrow(patientData)), function(x) weighted.mean(x = azithromycin_Lambda_Sev[[x]], w = azithromycin_Posterior_Sev_W[[x]]))
-  # azithromycin_Rate_Sev_Adj_lower_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(azithromycin_Lambda_Sev[[x]]), weight = azithromycin_Posterior_Sev_W[[x]], q = 0.025))
-  # azithromycin_Rate_Sev_Adj_upper_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(azithromycin_Lambda_Sev[[x]]), weight = azithromycin_Posterior_Sev_W[[x]], q = 0.975))
-  #
-  #
-  # azithromycin_Rate_non_Sev_Adj <- sapply(c(1 : nrow(patientData)), function(x) weighted.mean(x = azithromycin_Lambda_non_Sev[[x]], w = azithromycin_Posterior_non_Sev_W[[x]]))
-  # azithromycin_Rate_non_Sev_Adj_lower_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(azithromycin_Lambda_non_Sev[[x]]), weight = azithromycin_Posterior_non_Sev_W[[x]], q = 0.025))
-  # azithromycin_Rate_non_Sev_Adj_upper_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(azithromycin_Lambda_non_Sev[[x]]), weight = azithromycin_Posterior_non_Sev_W[[x]], q = 0.975))
-  #
-  #
-  # azithromycin_Rate_Sev_SD_Adj <- sqrt(azithromycin_Rate_Sev_Adj + azithromycin_Rate_Sev_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
-  # azithromycin_Rate_non_Sev_SD_Adj <- sqrt(azithromycin_Rate_non_Sev_Adj + azithromycin_Rate_non_Sev_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
-  #
-  # azithromycin_Rate_Adj <- azithromycin_Rate_Sev_Adj + azithromycin_Rate_non_Sev_Adj
-  # azithromycin_Rate_Adj_lower_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(azithromycin_Lambda_non_Sev[[x]]+azithromycin_Lambda_Sev[[x]]), weight = azithromycin_Posterior_all_W[[x]], q = 0.025))
-  # azithromycin_Rate_Adj_upper_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(azithromycin_Lambda_non_Sev[[x]]+azithromycin_Lambda_Sev[[x]]), weight = azithromycin_Posterior_all_W[[x]], q = 0.975))
-  #
-  #
-  # azithromycin_Rate_SD_Adj <- sqrt(azithromycin_Rate_Adj + azithromycin_Rate_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
-  #
-  # azithromycin_risk_at_least_one_exac <- 1 - exp(-azithromycin_Rate_Adj)
-  # risk_at_least_one_exac_lower_PI <- 1 - exp(-Rate_Adj_lower_PI)
-  # azithromycin_risk_at_least_one_exac_lower_PI <- 1 - exp(-azithromycin_Rate_Adj_lower_PI)
-  # azithromycin_risk_at_least_one_exac_upper_PI <- 1 - exp(-azithromycin_Rate_Adj_upper_PI)
-  #
-  # azithromycin_risk_at_least_one_Sev_exac <- 1 - exp(-azithromycin_Rate_Sev_Adj)
-  # azithromycin_risk_at_least_one_Sev_exac_lower_PI <- 1 - exp(-azithromycin_Rate_Sev_Adj_lower_PI)
-  # azithromycin_risk_at_least_one_Sev_exac_upper_PI <- 1 - exp(-azithromycin_Rate_Sev_Adj_upper_PI)
-  #
-  #
-  # ## Putting it all together
-  # patientData <- patientData %>% select(-log_alpha, -c_lin) %>%
-  #                                mutate(azithromycin_predicted_exac_probability                 = azithromycin_risk_at_least_one_exac,
-  #                                       azithromycin_predicted_exac_probability_lower_PI        = azithromycin_risk_at_least_one_exac_lower_PI,
-  #                                       azithromycin_predicted_exac_probability_upper_PI        = azithromycin_risk_at_least_one_exac_upper_PI,
-  #                                       # azithromycin_predicted_exac_probability_lower_CI        = azithromycin_risk_at_least_one_exac_lower_CI,
-  #                                       # azithromycin_predicted_exac_probability_upper_CI        = azithromycin_risk_at_least_one_exac_upper_CI,
-  #                                       #
-  #                                       azithromycin_predicted_exac_rate                        = azithromycin_Rate_Adj,
-  #                                       azithromycin_predicted_exac_rate_lower_PI               = azithromycin_Rate_Adj_lower_PI,
-  #                                       azithromycin_predicted_exac_rate_upper_PI               = azithromycin_Rate_Adj_upper_PI,
-  #                                       #azithromycin_predicted_exac_rate_lower_CI               = azithromycin_Rate_Adj_lower_CI,
-  #                                       #azithromycin_predicted_exac_rate_upper_CI               = azithromycin_Rate_Adj_upper_CI,
-  #                                       #
-  #                                       azithromycin_predicted_severe_exac_probability          = azithromycin_risk_at_least_one_Sev_exac,
-  #                                       azithromycin_predicted_severe_exac_probability_lower_PI = azithromycin_risk_at_least_one_Sev_exac_lower_PI,
-  #                                       azithromycin_predicted_severe_exac_probability_upper_PI = azithromycin_risk_at_least_one_Sev_exac_upper_PI,
-  #                                       # azithromycin_predicted_severe_exac_probability_lower_CI = azithromycin_risk_at_least_one_Sev_exac_lower_CI,
-  #                                       # azithromycin_predicted_severe_exac_probability_upper_CI = azithromycin_risk_at_least_one_Sev_exac_upper_CI,
-  #                                       #
-  #                                       azithromycin_predicted_severe_exac_rate                 = azithromycin_Rate_Sev_Adj,
-  #                                       azithromycin_predicted_severe_exac_rate_lower_PI        = azithromycin_Rate_Sev_Adj_lower_PI,
-  #                                       azithromycin_predicted_severe_exac_rate_upper_PI        = azithromycin_Rate_Sev_Adj_upper_PI
-  #                                       # azithromycin_predicted_severe_exac_rate_lower_CI        = azithromycin_Rate_Sev_Adj_lower_CI,
-  #                                       # azithromycin_predicted_severe_exac_rate_upper_CI        = azithromycin_Rate_Sev_Adj_upper_CI,
-  #
-  # )
 
   return(patientData)
 
@@ -564,7 +487,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$v2	<- 2.2494
     betas$cov	<- 0.08772
 
-    # Spline coefficients
+    # Spline coefficients: Rates
     rate_knots = c(0.7145958, 0.9912697, 1.4652412)
     rate_boundary_knots = c(0.329367, 4.068048)
     sev_knots = c(0.1104125, 0.1553361, 0.2440743)
@@ -572,6 +495,15 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
     rate_coeff <- c(0.06518199, 0.90307795, 2.31804966, 4.23148175, 5.03274433)
     sev_coeff <- c(0.05010488, 0.10449992, 0.82837734, 1.76211800, 2.45999937)
+
+    # # Spline coefficients: Rates SD
+    # rate_sd_knots = c(1.094181, 1.385639, 1.869338)
+    # rate_sd_boundary_knots = c(0.6570114, 4.4393714)
+    # sev_sd_knots = c(0.3146421, 0.3946886, 0.5139000)
+    # sev_sd_boundary_knots = c(0.1635914, 2.1318767)
+    #
+    # rate_sd_coeff <- c(0.06518199, 0.90307795, 2.31804966, 4.23148175, 5.03274433)
+    # sev_sd_coeff <- c(0.05010488, 0.10449992, 0.82837734, 1.76211800, 2.45999937)
 
   } else if (!KeepMeds & KeepSGRQ)
   {
@@ -612,7 +544,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$v2	<- 2.2753
     betas$cov	<- 0.09212
 
-    # Spline coefficients
+    # Spline coefficients: Rates
     rate_knots = c(0.1018911, 0.1420318, 0.2163109)
     rate_boundary_knots = c(0.03407203, 1.56146110)
     sev_knots = c(0.6866579, 0.9167824, 1.3328795)
@@ -620,6 +552,15 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
     rate_coeff <- c(0.1197930, 0.9126978, 2.2951754, 4.0110488, 4.9058539)
     sev_coeff <- c(0.05871868, 0.10250238, 0.82620839, 1.68624119, 2.38272234)
+
+    # # Spline coefficients: Rates SD
+    # rate_sd_knots = c(1.073695, 1.322028, 1.757652)
+    # rate_sd_boundary_knots = c(0.7461577, 4.1526036)
+    # sev_sd_knots = c(0.3082505, 0.3793651, 0.4842369)
+    # sev_sd_boundary_knots = c(0.1874411, 1.9911807)
+    #
+    # rate_sd_coeff <- c(0.1197930, 0.9126978, 2.2951754, 4.0110488, 4.9058539)
+    # sev_sd_coeff <- c(0.05871868, 0.10250238, 0.82620839, 1.68624119, 2.38272234)
 
   } else if (KeepMeds & !KeepSGRQ)
   {
@@ -664,7 +605,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$v2	<- 2.3299
     betas$cov	<- 0.1465
 
-    # Spline coefficients
+    # Spline coefficients: Rates
     rate_knots = c(0.7456274, 0.9866093, 1.4210972)
     rate_boundary_knots = c(0.4203808, 3.7239562)
     sev_knots = c(0.1137685, 0.1493893, 0.2106265)
@@ -672,6 +613,16 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
     rate_coeff <- c(0.1650515, 0.8529724, 2.0886867, 3.9422245, 4.9643087)
     sev_coeff <- c(0.05590748, 0.09148651, 0.86588143, 1.69546615, 2.33351171)
+
+    # # Spline coefficients: Rates SD
+    # rate_sd_knots = c(1.135575, 1.394780, 1.849915)
+    # rate_sd_boundary_knots = c(0.7730686, 4.2004400)
+    # sev_sd_knots = c(0.3337935, 0.3988211, 0.4797775)
+    # sev_sd_boundary_knots = c(0.2154971, 1.9994128)
+    #
+    # rate_sd_coeff <- c(0.1650515, 0.8529724, 2.0886867, 3.9422245, 4.9643087)
+    # sev_sd_coeff <- c(0.05590748, 0.09148651, 0.86588143, 1.69546615, 2.33351171)
+
   } else if (!KeepMeds & !KeepSGRQ)
   {
     message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
@@ -709,7 +660,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$v2	<- 2.3784
     betas$cov	<- 0.1564
 
-    # Spline coefficients
+    # Spline coefficients: Rates
     rate_knots = c(0.7028951, 0.9131159, 1.3158333)
     rate_boundary_knots = c(0.4924904, 3.3967642)
     sev_knots = c(0.1020546, 0.1304339, 0.1826366)
@@ -717,6 +668,15 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
     rate_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
     sev_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
+
+    # # Spline coefficients: Rates SD
+    # rate_sd_knots = c(1.102237, 1.331966, 1.762869)
+    # rate_sd_boundary_knots = c(0.8650963, 3.9466022)
+    # sev_sd_knots = c(0.3243839, 0.3758356, 0.4438127)
+    # sev_sd_boundary_knots = c(0.2342438, 1.8553959)
+    #
+    # rate_sd_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
+    # sev_sd_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
   }
   # # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
   # betas$b_randomized_azithromycin <- 	 log(1/1.30)
@@ -724,13 +684,9 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
-  adj_predicted_exac_rate         <- Sp_Manual_Pred(results_before_adj$predicted_exac_rate, rate_coeff, rate_knots, rate_boundary_knots)
-  adj_predicted_severe_exac_rate <- Sp_Manual_Pred(results_before_adj$predicted_severe_exac_rate, sev_coeff, sev_knots, sev_boundary_knots)
+  results_after_adj <- Sp_Manual_Vec(results_before_adj, rate_coeff, rate_knots, rate_boundary_knots)
 
-
-  results <- c(adj_predicted_exac_rate, adj_predicted_severe_exac_rate)
-  return(results)
-
+  return(results_after_adj)
 }
 
 
