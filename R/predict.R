@@ -402,8 +402,8 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
   betas$cov	<- 0.08772
 
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-  # betas$b_randomized_azithromycin <- 	 log(1/1.30)
-  # betas$c_randomized_azithromycin <- 	 log(0.93)
+  betas$b_randomized_azithromycin <- 	 log(1/1.30)
+  betas$c_randomized_azithromycin <- 	 log(0.93)
 
   results <- acceptEngine(patientData = patientData, betas = betas)
 
@@ -677,9 +677,9 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     # rate_sd_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
     # sev_sd_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
   }
-  # # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-  # betas$b_randomized_azithromycin <- 	 log(1/1.30)
-  # betas$c_randomized_azithromycin <- 	 log(0.93)
+  # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
+  betas$b_randomized_azithromycin <- 	 log(1/1.30)
+  betas$c_randomized_azithromycin <- 	 log(0.93)
 
   results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
