@@ -9,10 +9,8 @@ binorm_pdf <- function(x, sigma) {
 
 Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
   ns_obj <- ns(Predictor, knots = knots, Boundary.knots = Boundary_knots)
-  # if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(bs_obj)[-1]))
   if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(ns_obj)))
   else BasisFuncs <- as.matrix(cbind(1, ns_obj), ncol = 4)
-  # else BasisFuncs <- as.matrix(cbind(1, bs_obj[ , -1]), ncol=4)
   Preds <- BasisFuncs %*% matrix(CoefEst, ncol = 1)
   return(Preds)
 }
@@ -51,67 +49,6 @@ Sp_Manual_Vec <- function(data, CoefEst, knots, Boundary_knots) {
   return(data)
 }
 
-
-# Predicts COPD exacerbation rate by severity level
-# @param patientData patient data matrix. Can have one or many patients in it
-# @param random_sampling_N number of random sampling. Default is 1000.
-# @param lastYrExacCol the column specifying last year all exacerbation count
-# @param lastYrSevExacCol the column specifying last year severe exacerbation count
-# @param calculate_CIs whether to calculate confidence interval of the mean
-# @param betas betas provided by the user.
-# @param KeepSGRQ default is TRUE. If set to false, the value of SGRQ beta will be forced to be 0. Can be used for models without SGRQ.
-# @param KeepMeds default is TRUE. If set to false, beta values for LAMA, LABA, and ICS will be forced to be 0.Can be used for models without medications.
-# @return patientData with prediction
-# @examples
-# betas <- list()
-# betas$gamma	                    <- 0.9687
-# betas$b0	                      <- -0.00964
-# betas$b_male	                  <- -0.157
-# betas$b_age10	                  <- -0.01885
-# betas$b_nowsmk	                <- -0.2009
-# betas$b_oxygen	                <- 0.08781
-# betas$b_fev1pp100	              <- -0.4419
-# betas$b_sgrq10                  <- 0.103
-# betas$b_cardiovascular	        <- 0.09837
-# betas$b_randomized_azithromycin <- -0.1687
-# betas$b_LAMA	                  <- 0.1485
-# betas$b_LABA	                  <- 0.1216
-# betas$b_ICS	                    <- 0.2232
-# betas$b_randomized_LAMA	        <- 0.172
-# betas$b_randomized_LABA	        <- 0.1398
-# betas$b_randomized_ICS	        <- -0.2452
-# betas$b_randomized_statin	      <- -0.05617
-# betas$b_BMI10                   <- -0.1272
-#
-#
-# betas$c0	                      <- -3.973
-# betas$c_male	                  <- 0.3889
-# betas$c_age10	                  <- 0.1123
-# betas$c_nowsmk                  <- 0.4025
-# betas$c_oxygen                  <- 0.5558
-# betas$c_fev1pp100	              <- -1.1552
-# betas$c_sgrq10                  <- 0.205
-# betas$c_cardiovascular	        <- 0.3255
-# betas$c_randomized_azithromycin <- -0.1103
-# betas$c_LAMA	                  <- -0.1385
-# betas$c_LABA            	      <- 0.01246
-# betas$c_ICS	                    <- 0.3879
-# betas$c_randomized_LAMA	        <- 0.1074
-# betas$c_randomized_LABA	        <- -0.2253
-# betas$c_randomized_ICS	        <- -0.1211
-# betas$c_randomized_statin	      <- 0.109
-# betas$c_BMI10           	      <- -0.106
-#
-#
-# betas$v1 	<- 0.5968
-# betas$v2	<- 2.3847
-# betas$cov	<- 0.147
-#
-#
-# betas$b_randomized_azithromycin <- 	 log(1/1.30)
-# betas$c_randomized_azithromycin <- 	log(0.93)
-#
-# results <- acceptEngine(samplePatients, betas=betas)
 acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="LastYrExacCount",
                           lastYrSevExacCol="LastYrSevExacCount", betas = NULL, KeepSGRQ = TRUE, KeepMeds = TRUE){
 
@@ -325,24 +262,6 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
                            lastYrSevExacCol="LastYrSevExacCount", ...){
 
   betas <- list()
-  # betas$gamma	                    <- 0.9687
-  # betas$b0	                      <- -0.00964
-  # betas$b_male	                  <- -0.157
-  # betas$b_age10	                  <- -0.01885
-  # betas$b_nowsmk	                <- -0.2009
-  # betas$b_oxygen	                <- 0.08781
-  # betas$b_fev1pp100	              <- -0.4419
-  # betas$b_sgrq10                  <- 0.103
-  # betas$b_cardiovascular	        <- 0.09837
-  # betas$b_randomized_azithromycin <- -0.1687
-  # betas$b_LAMA	                  <- 0.1485
-  # betas$b_LABA	                  <- 0.1216
-  # betas$b_ICS	                    <- 0.2232
-  # betas$b_randomized_LAMA	        <- 0.172
-  # betas$b_randomized_LABA	        <- 0.1398
-  # betas$b_randomized_ICS	        <- -0.2452
-  # betas$b_randomized_statin	      <- -0.05617
-  # betas$b_BMI10                   <- -0.1272
   betas$gamma	                    <- 0.9706
   betas$b0	                      <- -0.2014
   betas$b_male	                  <- -0.1855
@@ -362,23 +281,6 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
   betas$b_randomized_statin	      <- -0.1573
   betas$b_BMI10                   <- -0.1333
 
-  # betas$c0	                      <- -3.973
-  # betas$c_male	                  <- 0.3889
-  # betas$c_age10	                  <- 0.1123
-  # betas$c_nowsmk                  <- 0.4025
-  # betas$c_oxygen                  <- 0.5558
-  # betas$c_fev1pp100	              <- -1.1552
-  # betas$c_sgrq10                  <- 0.205
-  # betas$c_cardiovascular	        <- 0.3255
-  # betas$c_randomized_azithromycin <- -0.1103
-  # betas$c_LAMA	                  <- -0.1385
-  # betas$c_LABA            	      <- 0.01246
-  # betas$c_ICS	                    <- 0.3879
-  # betas$c_randomized_LAMA	        <- 0.1074
-  # betas$c_randomized_LABA	        <- -0.2253
-  # betas$c_randomized_ICS	        <- -0.1211
-  # betas$c_randomized_statin	      <- 0.109
-  # betas$c_BMI10           	      <- -0.106
   betas$c0	                      <- -3.6901
   betas$c_male	                  <- 0.4255
   betas$c_age10	                  <- 0.09545
@@ -408,8 +310,9 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
   results <- acceptEngine(patientData = patientData, betas = betas)
 
   return(results)
-
 }
+
+
 
 #' Predicts COPD exacerbation rate by severity level
 #' @param patientData patient data matrix. Can have one or many patients in it
@@ -426,6 +329,8 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
   return(results)
 }
 
+
+
 #' Predicts COPD exacerbation rate by severity level based on accept2 model
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 100.
@@ -436,7 +341,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
 #' @param ... for backward compatibility
 #' @return patientData with prediction
 #' @examples
-#' results <- accept(samplePatients)
+#' results <- accept2(samplePatients)
 #' @export
 accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
                     lastYrSevExacCol="LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
@@ -495,15 +400,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.06518199, 0.90307795, 2.31804966, 4.23148175, 5.03274433)
     sev_coeff <- c(0.05010488, 0.10449992, 0.82837734, 1.76211800, 2.45999937)
 
-    # # Spline coefficients: Rates SD
-    # rate_sd_knots = c(1.094181, 1.385639, 1.869338)
-    # rate_sd_boundary_knots = c(0.6570114, 4.4393714)
-    # sev_sd_knots = c(0.3146421, 0.3946886, 0.5139000)
-    # sev_sd_boundary_knots = c(0.1635914, 2.1318767)
-    #
-    # rate_sd_coeff <- c(0.06518199, 0.90307795, 2.31804966, 4.23148175, 5.03274433)
-    # sev_sd_coeff <- c(0.05010488, 0.10449992, 0.82837734, 1.76211800, 2.45999937)
-
   } else if (!KeepMeds & KeepSGRQ)
   {
     message ("Warning: You are using a simplified version of the model that does not include medications. See the manuscript for more details.")
@@ -552,14 +448,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1197930, 0.9126978, 2.2951754, 4.0110488, 4.9058539)
     sev_coeff <- c(0.05871868, 0.10250238, 0.82620839, 1.68624119, 2.38272234)
 
-    # # Spline coefficients: Rates SD
-    # rate_sd_knots = c(1.073695, 1.322028, 1.757652)
-    # rate_sd_boundary_knots = c(0.7461577, 4.1526036)
-    # sev_sd_knots = c(0.3082505, 0.3793651, 0.4842369)
-    # sev_sd_boundary_knots = c(0.1874411, 1.9911807)
-    #
-    # rate_sd_coeff <- c(0.1197930, 0.9126978, 2.2951754, 4.0110488, 4.9058539)
-    # sev_sd_coeff <- c(0.05871868, 0.10250238, 0.82620839, 1.68624119, 2.38272234)
 
   } else if (KeepMeds & !KeepSGRQ)
   {
@@ -613,15 +501,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1650515, 0.8529724, 2.0886867, 3.9422245, 4.9643087)
     sev_coeff <- c(0.05590748, 0.09148651, 0.86588143, 1.69546615, 2.33351171)
 
-    # # Spline coefficients: Rates SD
-    # rate_sd_knots = c(1.135575, 1.394780, 1.849915)
-    # rate_sd_boundary_knots = c(0.7730686, 4.2004400)
-    # sev_sd_knots = c(0.3337935, 0.3988211, 0.4797775)
-    # sev_sd_boundary_knots = c(0.2154971, 1.9994128)
-    #
-    # rate_sd_coeff <- c(0.1650515, 0.8529724, 2.0886867, 3.9422245, 4.9643087)
-    # sev_sd_coeff <- c(0.05590748, 0.09148651, 0.86588143, 1.69546615, 2.33351171)
-
   } else if (!KeepMeds & !KeepSGRQ)
   {
     message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
@@ -668,14 +547,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
     sev_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
 
-    # # Spline coefficients: Rates SD
-    # rate_sd_knots = c(1.102237, 1.331966, 1.762869)
-    # rate_sd_boundary_knots = c(0.8650963, 3.9466022)
-    # sev_sd_knots = c(0.3243839, 0.3758356, 0.4438127)
-    # sev_sd_boundary_knots = c(0.2342438, 1.8553959)
-    #
-    # rate_sd_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
-    # sev_sd_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
   }
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
   betas$b_randomized_azithromycin <- 	 log(1/1.30)
@@ -687,6 +558,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   return(results_after_adj)
 }
+
 
 
 #' Predicts probability of observing n exacerbations in the next year
@@ -729,3 +601,5 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
  }
  return(results)
 }
+
+
