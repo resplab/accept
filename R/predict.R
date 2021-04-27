@@ -403,6 +403,7 @@ predictACCEPT <- function (patientData, random_sampling_N = 1e2,
 #' @return patientData with prediction
 #'
 #' @importFrom splines ns
+#' @importFrom stats reshape
 #'
 #' @examples
 #' results <- accept2(samplePatients)
