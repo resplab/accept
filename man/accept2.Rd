@@ -36,5 +36,5 @@ patientData with prediction
 Predicts COPD exacerbation rate by severity level based on accept2 model
 }
 \examples{
-results <- accept(samplePatients)
+results <- accept2(samplePatients)
 }
