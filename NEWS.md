@@ -6,7 +6,7 @@ This is a minor release with new and optimized functionality. Importantly, the p
 * functions optimized for speed and performance. Model predictions are now calculated approximately 10 times faster.
 
 ## Breaking changes
-* `predcitACCEPT()` is now replaced with `accept()` and `accept2()`.
+* `predictACCEPT()` is now replaced with `accept()` and `accept2()`.
 
 # accept 0.7.1
 * doi updated as the manuscript is now published in Lancet Respiratory Medicine.
