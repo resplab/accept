@@ -178,31 +178,31 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
   rm(patientData_temp)
 
   patientData <- patientData %>% mutate (log_alpha = b0 +
-                                           b_male                    * male   +
-                                           b_age                     * age    +
-                                           b_nowsmk                  * smoker +
-                                           b_oxygen                  * oxygen +
-                                           b_fev1                    * FEV1   +
-                                           b_SGRQ                    * SGRQ   +
-                                           b_cardiovascular          * statin +
-                                           b_LAMA                    * LAMA   +
-                                           b_LABA                    * LABA   +
-                                           b_ICS                     * ICS    +
-                                           b_BMI                     * BMI    +
-                                           b_randomized_azithromycin * azithromycin_ind)       %>%
+                                           b_male                    * .data$male   +
+                                           b_age                     * .data$age    +
+                                           b_nowsmk                  * .data$smoker +
+                                           b_oxygen                  * .data$oxygen +
+                                           b_fev1                    * .data$FEV1   +
+                                           b_SGRQ                    * .data$SGRQ   +
+                                           b_cardiovascular          * .data$statin +
+                                           b_LAMA                    * .data$LAMA   +
+                                           b_LABA                    * .data$LABA   +
+                                           b_ICS                     * .data$ICS    +
+                                           b_BMI                     * .data$BMI    +
+                                           b_randomized_azithromycin * .data$azithromycin_ind)       %>%
     mutate (c_lin = c0 +
-              c_male                    * male   +
-              c_age                     * age    +
-              c_nowsmk                  * smoker +
-              c_oxygen                  * oxygen +
-              c_fev1                    * FEV1   +
-              c_SGRQ                    * SGRQ   +
-              c_cardiovascular          * statin +
-              c_LAMA                    * LAMA   +
-              c_LABA                    * LABA   +
-              c_ICS                     * ICS    +
-              c_BMI                     * BMI +
-              b_randomized_azithromycin * azithromycin_ind)
+              c_male                    * .data$male   +
+              c_age                     * .data$age    +
+              c_nowsmk                  * .data$smoker +
+              c_oxygen                  * .data$oxygen +
+              c_fev1                    * .data$FEV1   +
+              c_SGRQ                    * .data$SGRQ   +
+              c_cardiovascular          * .data$statin +
+              c_LAMA                    * .data$LAMA   +
+              c_LABA                    * .data$LABA   +
+              c_ICS                     * .data$ICS    +
+              c_BMI                     * .data$BMI +
+              b_randomized_azithromycin * .data$azithromycin_ind)
 
 
   RE_seq_1 = seq(from = -2 * covMat[1, 1], to = 2 * covMat[1, 1], length.out = random_sampling_N)
@@ -261,7 +261,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 
 
   patientData <- patientData %>%
-    select(-log_alpha, -c_lin) %>%
+    select(-.data$log_alpha, -.data$c_lin) %>%
     mutate(predicted_exac_probability                 = risk_at_least_one_exac,
            predicted_exac_probability_lower_PI        = risk_at_least_one_exac_lower_PI,
            predicted_exac_probability_upper_PI        = risk_at_least_one_exac_upper_PI,
@@ -309,7 +309,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 
 
 
-#' Predicts COPD exacerbation rate by severity level
+#' Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 100.
 #' @param lastYrExacCol the column specifying last year all exacerbation count
@@ -374,25 +374,7 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
 }
 
 
-
-#' Predicts COPD exacerbation rate by severity level
-#' @param patientData patient data matrix. Can have one or many patients in it
-#' @param random_sampling_N number of random sampling. Default is 1000.
-#' @param random_distribution_iteration default is 2*10^4
-#' @return patientData with prediction
-#' @examples
-#' results <- predictACCEPT(samplePatients, random_distribution_iteration = 5000)
-#' @export
-predictACCEPT <- function (patientData, random_sampling_N = 1e2,
-                           random_distribution_iteration = 2e4, ...){
-  .Deprecated("accept")
-  results <- accept(patientData = patientData, random_sampling_N = random_sampling_N )
-  return(results)
-}
-
-
-
-#' Predicts COPD exacerbation rate by severity level based on accept2 model
+#' Predicts COPD exacerbation rate by severity level based on the updated accept2 model, which improves accuracy in patients without an exacerbation history.
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 100.
 #' @param lastYrExacCol the column specifying last year all exacerbation count

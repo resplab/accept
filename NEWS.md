@@ -1,3 +1,7 @@
+# accept 0.8.2
+* new prediction model accept2 added.
+* functions optimized for speed and performance.
+
 # accept 0.7.1
 * doi updated as the manuscript is now published in Lancet Respiratory Medicine.
 

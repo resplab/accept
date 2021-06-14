@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{accept2}
 \alias{accept2}
-\title{Predicts COPD exacerbation rate by severity level based on accept2 model}
+\title{Predicts COPD exacerbation rate by severity level based on the updated accept2 model, which improves accuracy in patients without an exacerbation history.}
 \usage{
 accept2(
   patientData,
@@ -33,7 +33,7 @@ accept2(
 patientData with prediction
 }
 \description{
-Predicts COPD exacerbation rate by severity level based on accept2 model
+Predicts COPD exacerbation rate by severity level based on the updated accept2 model, which improves accuracy in patients without an exacerbation history.
 }
 \examples{
 results <- accept2(samplePatients)

@@ -7,7 +7,7 @@ Authors@R: c(
     person("Abdollah", "Safari", email = "asafari@mail.ubc.ca", role = c("aut")),
     person("Ainsleigh", "Hill", email = "ainsleigh.hill@alumni.ubc.ca", role = c("aut")))
 Description: Allows clinicians to predict the rate and severity of future acute exacerbation in Chronic Obstructive Pulmonary Disease (COPD) patients, based on the clinical prediction model published in Adibi et al. (2020) <doi:10.1016/S2213-2600(19)30397-2>. 
-Depends: R (>= 3.6.2)
+Depends: R (>= 3.6.0)
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

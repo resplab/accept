@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{accept}
 \alias{accept}
-\title{Predicts COPD exacerbation rate by severity level}
+\title{Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)}
 \usage{
 accept(
   patientData,
@@ -27,7 +27,7 @@ accept(
 patientData with prediction
 }
 \description{
-Predicts COPD exacerbation rate by severity level
+Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)
 }
 \examples{
 results <- accept(samplePatients)
