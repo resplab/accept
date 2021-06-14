@@ -5,7 +5,6 @@ This is a minor release with new and optimized functionality. Importantly, the p
 * new prediction model accept2 added. 
 * functions optimized for speed and performance. Model predictions are now calculated approximately 10 times faster.
 
-
 ## Breaking changes
 * `predcitACCEPT()` is now replaced with `accept()` and `accept2()`.
 
