@@ -68,7 +68,7 @@
 <div class="page-header"><h1 class="hasAnchor">
 <a href="#accept" class="anchor"></a>accept</h1></div>
 <p>R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)</p>
-<p>Please refer to the published paper for more information:</p>
+<p>The package includes two main functions <code><a href="reference/accept.html">accept()</a></code> and <code><a href="reference/accept2.html">accept2()</a></code>. <code><a href="reference/accept.html">accept()</a></code> provides predictions of exacerbations for COPD patients per original published manuscript. <code><a href="reference/accept2.html">accept2()</a></code> is an updated version of ACCEPT that is fine tuned for improved precitions in patients who do not have a prior history of exacerbations. Please refer to the published paper for more information:</p>
 <p>Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; <a href="https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext">doi:10.1016/S2213-2600(19)30397-2</a></p>
 <p>The following animation explains the <code>accept</code> model in 90 seconds:</p>
 <p><a href="https://www.youtube.com/watch?v=UuGLN128Z3Y"><img src="https://img.youtube.com/vi/UuGLN128Z3Y/0.jpg" alt="IMAGE ALT TEXT HERE"></a></p>
@@ -101,7 +101,7 @@ samplePatients &lt;- accept::samplePatients
 <h3 class="hasAnchor">
 <a href="#exacerbation-prediction" class="anchor"></a>Exacerbation Prediction</h3>
 <p>To get a prediction for exacerbation rate, you will need to pass in a patient vector:</p>
-<pre><code>results &lt;- accept(samplePatients[1,])
+<pre><code>results &lt;- accept2(samplePatients[1,]) #accept2 uses the updated prediction model
 print(t(results))</code></pre>
 <p>The <strong>accept()</strong> function returns a data frame with the original patient data, along with the predictions for different treatment options.</p>
 <p>To visualize the data, there is a graphing function called <strong>plotExacerbations()</strong>, which creates a Plotly bar graph. You have the option of selecting <strong>probability</strong> or <strong>rate</strong> for which prediction you want to see, and either <strong>CI</strong> or <strong>PI</strong> to select the confidence interval or prediction interval respectively.</p>
@@ -113,7 +113,7 @@ print(t(results))</code></pre>
 <h3 class="hasAnchor">
 <a href="#probability-of-n-exacerbations-poisson" class="anchor"></a>Probability of N Exacerbations (Poisson)</h3>
 <p>We can also calculate the predicted number of exacerbations in a year:</p>
-<pre><code>patientResults = accept(samplePatients[1,])
+<pre><code>patientResults = accept(samplePatients[1,]) #accept uses the original prediction model
 exacerbationsMatrix = predictCountProb(patientResults, n = 10, shortened = TRUE)
 print(exacerbationsMatrix)</code></pre>
 <p>The shortened parameter groups the probabilities from 3-10 exacerbations into one category, “3 or more exacerbations.” To see all n exacerbation probabilities:</p>
@@ -125,7 +125,7 @@ print(exacerbationsMatrix)</code></pre>
 <div id="cloud-based-api-access" class="section level2">
 <h2 class="hasAnchor">
 <a href="#cloud-based-api-access" class="anchor"></a>Cloud-based API Access</h2>
-<p>The <a href="http://www.peermodels.com">Peer Models Network</a> allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the <a href="http://models.peermodels.com">Peer Models Network model repository</a>.</p>
+<p>The <a href="http://www.peermodelsnetwork.com">Peer Models Network</a> allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the <a href="http://models.peermodelsnetwork.com">Peer Models Network model repository</a>.</p>
 <div id="python" class="section level4">
 <h4 class="hasAnchor">
 <a href="#python" class="anchor"></a>Python</h4>
