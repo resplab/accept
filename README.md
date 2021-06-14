@@ -8,7 +8,7 @@
 # accept
 R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)
 
-Please refer to the published paper for more information: 
+The package includes two main functions `accept()` and `accept2()`. `accept()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved precitions in patients who do not have a prior history of exacerbations. Please refer to the published paper for more information: 
 
 Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
 
@@ -49,7 +49,7 @@ samplePatients <- accept::samplePatients
 To get a prediction for exacerbation rate, you will need to pass in a patient vector:
 
 ```
-results <- accept(samplePatients[1,])
+results <- accept2(samplePatients[1,]) #accept2 uses the updated prediction model
 print(t(results))
 ```
 
@@ -74,7 +74,7 @@ plotExacerbations(results, type="rate", interval = "CI")
 We can also calculate the predicted number of exacerbations in a year:
 
 ```
-patientResults = accept(samplePatients[1,])
+patientResults = accept(samplePatients[1,]) #accept uses the original prediction model
 exacerbationsMatrix = predictCountProb(patientResults, n = 10, shortened = TRUE)
 print(exacerbationsMatrix)
 ```
@@ -94,7 +94,7 @@ plotHeatMap(patientResults, shortened = FALSE)
 
 ## Cloud-based API Access 
 
-The [Peer Models Network](http://www.peermodels.com) allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the [Peer Models Network model repository](http://models.peermodels.com).
+The [Peer Models Network](http://www.peermodelsnetwork.com) allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the [Peer Models Network model repository](http://models.peermodelsnetwork.com).
 
 #### Python
 ```
