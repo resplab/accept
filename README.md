@@ -94,7 +94,7 @@ plotHeatMap(patientResults, shortened = FALSE)
 
 ## Cloud-based API Access 
 
-The [Peer Models Network](http://www.peermodelsnetwork.com) allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the [Peer Models Network model repository](http://models.peermodelsnetwork.com).
+The [Peer Models Network](https://www.peermodelsnetwork.com) allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the [Peer Models Network model repository](https://models.peermodelsnetwork.com).
 
 #### Python
 ```
