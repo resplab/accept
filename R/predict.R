@@ -17,12 +17,18 @@ Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
 
 Sp_Manual_Vec <- function(data, CoefEst, knots, Boundary_knots) {
 
-  data$predicted_exac_rate <- max(0, Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots))
-  data$predicted_exac_rate_lower_PI <- max(0, Sp_Manual_Pred(data$predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
-  data$predicted_exac_rate_upper_PI <- max(0, Sp_Manual_Pred(data$predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
-  data$predicted_severe_exac_rate <- max(0, Sp_Manual_Pred(data$predicted_severe_exac_rate, CoefEst, knots, Boundary_knots))
-  data$predicted_severe_exac_rate_lower_PI <- max(0, Sp_Manual_Pred(data$predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
-  data$predicted_severe_exac_rate_upper_PI <- max(0, Sp_Manual_Pred(data$predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+  data$predicted_exac_rate <- ifelse(Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots) < 0, 0,
+                                     Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots))
+  data$predicted_exac_rate_lower_PI <- ifelse(Sp_Manual_Pred(data$predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                              Sp_Manual_Pred(data$predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$predicted_exac_rate_upper_PI <- ifelse(Sp_Manual_Pred(data$predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                              Sp_Manual_Pred(data$predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+  data$predicted_severe_exac_rate <- ifelse(Sp_Manual_Pred(data$predicted_severe_exac_rate, CoefEst, knots, Boundary_knots) < 0, 0,
+                                            Sp_Manual_Pred(data$predicted_severe_exac_rate, CoefEst, knots, Boundary_knots))
+  data$predicted_severe_exac_rate_lower_PI <- ifelse(Sp_Manual_Pred(data$predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                     Sp_Manual_Pred(data$predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$predicted_severe_exac_rate_upper_PI <- ifelse(Sp_Manual_Pred(data$predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                     Sp_Manual_Pred(data$predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
 
   data$predicted_exac_probability <- 1 - exp(-data$predicted_exac_rate)
   data$predicted_exac_probability_lower_PI <- 1 - exp(-data$predicted_exac_rate_lower_PI)
@@ -32,12 +38,18 @@ Sp_Manual_Vec <- function(data, CoefEst, knots, Boundary_knots) {
   data$predicted_severe_exac_probability_upper_PI <- 1 - exp(-data$predicted_severe_exac_rate_upper_PI)
 
   # For azithromycin
-  data$azithromycin_predicted_exac_rate <- max(0, Sp_Manual_Pred(data$azithromycin_predicted_exac_rate, CoefEst, knots, Boundary_knots))
-  data$azithromycin_predicted_exac_rate_lower_PI <- max(0, Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
-  data$azithromycin_predicted_exac_rate_upper_PI <- max(0, Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
-  data$azithromycin_predicted_severe_exac_rate <- max(0, Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate, CoefEst, knots, Boundary_knots))
-  data$azithromycin_predicted_severe_exac_rate_lower_PI <- max(0, Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
-  data$azithromycin_predicted_severe_exac_rate_upper_PI <- max(0, Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+  data$azithromycin_predicted_exac_rate <-                ifelse(Sp_Manual_Pred(data$azithromycin_predicted_exac_rate, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                                 Sp_Manual_Pred(data$azithromycin_predicted_exac_rate, CoefEst, knots, Boundary_knots))
+  data$azithromycin_predicted_exac_rate_lower_PI <-       ifelse(Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                                 Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$azithromycin_predicted_exac_rate_upper_PI <-       ifelse(Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                                 Sp_Manual_Pred(data$azithromycin_predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
+  data$azithromycin_predicted_severe_exac_rate <-         ifelse(Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                                 Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate, CoefEst, knots, Boundary_knots))
+  data$azithromycin_predicted_severe_exac_rate_lower_PI <- ifelse(Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                                  Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
+  data$azithromycin_predicted_severe_exac_rate_upper_PI <- ifelse(Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots) < 0, 0,
+                                                                  Sp_Manual_Pred(data$azithromycin_predicted_severe_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
 
   data$azithromycin_predicted_exac_probability <- 1 - exp(-data$azithromycin_predicted_exac_rate)
   data$azithromycin_predicted_exac_probability_lower_PI <- 1 - exp(-data$azithromycin_predicted_exac_rate_lower_PI)
