@@ -1,3 +1,8 @@
+# accept 0.8.3
+
+## Bug fixes
+* `accept2` can now receive vector input and produce vector output. 
+
 # accept 0.8.2
 This is a minor release with new and optimized functionality. Importantly, the package now includes the updated model `accept 2.0` which is fine-tuned to provide better predictions for individuals with no prior exacerbation history. Users can use the `accept()` function to produce predictions from the original publication, while `accept2()` provides predictions from the updated model.  We have also optimized the code for speed and the code for both models now runs about an order of magnitude faster.
 
