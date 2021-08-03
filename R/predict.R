@@ -614,11 +614,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
   results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
   results_after_adj <- Sp_Manual_Vec(results_before_adj, rate_coeff, rate_knots, rate_boundary_knots)
+  
+  ci_plot <- plotly::plot_ly(data = iris, x = ~Sepal.Length, y = ~Petal.Length)
+  
+  result_list <- list(results_after_adj, ci_plot)
 
-  return(results_after_adj)
+  return(result_list, ci_plot)
 }
-
-
 
 #' Predicts probability of observing n exacerbations in the next year
 #' @param patientResults patient results vector, produced by accept.
