@@ -615,7 +615,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   results_after_adj <- Sp_Manual_Vec(results_before_adj, rate_coeff, rate_knots, rate_boundary_knots)
   
-  ci_plot <- plotly::plot_ly(data = iris, x = ~Sepal.Length, y = ~Petal.Length)
+  ci_plot <- plotly::plot_ly(x = ~c(1:5))
   
   result_list <- list(results_after_adj, ci_plot)
 
