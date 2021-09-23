@@ -660,3 +660,46 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 }
 
 
+#' CTS Treatment Guideline based on Mild, Moderate, or Severe Categories
+#' @param patient patient information vector, must include either SGRQ or CAT score
+#' @return a message that specifies treatment recommendation based on the threshold specified and CTS guidelines
+#' @examples
+#' patient <- accept(samplePatients[1,])
+#' txRecom (patient)
+#' @export
+txRecom <- function (patient){
+
+  threshold <- 0.65 #Low risk vs high risk of AECOPD
+  if (is.numeric(patient$SGRQ)) {
+    patient$CAT <- 0.65 * patient$SGRQ - 12.34 # See web app for more detasls, based on the plot in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4940016/
+  } else if (!is.numeric(patient$CAT)) {stop("Either CAT or SGRQ score is needed for tx recommendation.")}
+  if (patient$CAT < 10 & patient$LastYrExacCount == 0) {
+    recom <- "SABD prn first line. If did not work, consider either LAMA or LABA"
+    return(recom)
+  } else if (patient$predicted_exac_probability < threshold) { #Low Risk of AECOPD
+
+    if (patient$LAMA & patient$LABA) {
+      recom <- "Consider LAMA/LABA/ICS combination"
+      return(recom)}
+    else if (patient$LAMA | patient$LABA) {
+      recom <- "Consider LAMA/LABA combination."
+      return (recom)
+    }
+  } else { # High-Risk of AECOPD
+    if (patient$LAMA & patient$LABA & patient$ICS) {
+      recom <- "Consider oral therapies, namely azithromycin or reflumilast."
+      return(recom)
+    } else if ((patient$LAMA & patient$LABA) | (patient$ICS & patient$LABA))
+    {
+      recom <- "Consider LAMA/LABA/ICS combination."
+      return(recom)
+    } else {
+      recom <- "Consider LAMA/LABA combination or ICS/LABA combination."
+    }
+
+  }
+
+  }
+
+
+
