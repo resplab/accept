@@ -7,7 +7,7 @@
 txRecom(patient)
 }
 \arguments{
-\item{patient}{patient information vector, must include either SGRQ or CAT score}
+\item{patient}{patient information vector that includes predictions. must include either SGRQ or CAT score}
 }
 \value{
 a message that specifies treatment recommendation based on the threshold specified and CTS guidelines
@@ -17,5 +17,6 @@ CTS Treatment Guideline based on Mild, Moderate, or Severe Categories
 }
 \examples{
 patient <- accept(samplePatients[1,])
-txRecom (patient)
+patientPredictions <- accept2(patient)
+txRecom (patientPredictions)
 }

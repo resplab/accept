@@ -661,18 +661,23 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 
 
 #' CTS Treatment Guideline based on Mild, Moderate, or Severe Categories
-#' @param patient patient information vector, must include either SGRQ or CAT score
+#' @param patient patient information vector that includes predictions. must include either SGRQ or CAT score
 #' @return a message that specifies treatment recommendation based on the threshold specified and CTS guidelines
 #' @examples
 #' patient <- accept(samplePatients[1,])
-#' txRecom (patient)
+#' patientPredictions <- accept2(patient)
+#' txRecom (patientPredictions)
 #' @export
 txRecom <- function (patient){
 
   threshold <- 0.65 #Low risk vs high risk of AECOPD
-  if (is.numeric(patient$SGRQ)) {
-    patient$CAT <- 0.65 * patient$SGRQ - 12.34 # See web app for more detasls, based on the plot in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4940016/
-  } else if (!is.numeric(patient$CAT)) {stop("Either CAT or SGRQ score is needed for tx recommendation.")}
+
+  if (!("predicted_exac_probability" %in% colnames(patient))) {
+    stop("Input vector does not include predicted exacerbation probabilities. Consider running accept() or accept2() first.")
+  }
+  if ("SGRQ" %in% colnames(patient)) {
+    patient$CAT <- 0.65 * patient$SGRQ - 12.34 # See web app for more details, based on the plot in https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4940016/
+  } else if ("CAT" %in% colnames(patient)) {stop("Either CAT or SGRQ score is needed for tx recommendation.")}
   if (patient$CAT < 10 & patient$LastYrExacCount == 0) {
     recom <- "SABD prn first line. If did not work, consider either LAMA or LABA"
     return(recom)
@@ -687,7 +692,7 @@ txRecom <- function (patient){
     }
   } else { # High-Risk of AECOPD
     if (patient$LAMA & patient$LABA & patient$ICS) {
-      recom <- "Consider oral therapies, namely azithromycin or reflumilast."
+      recom <- "Consider oral therapies."
       return(recom)
     } else if ((patient$LAMA & patient$LABA) | (patient$ICS & patient$LABA))
     {
