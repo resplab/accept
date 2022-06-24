@@ -474,6 +474,9 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$b_sgrq10                  <- 0.1111
     betas$b_cardiovascular	        <- 0.1835
     betas$b_randomized_azithromycin <- -0.06597
+    betas$b_LAMA	                  <- 0
+    betas$b_LABA	                  <- 0
+    betas$b_ICS	                    <- 0
     betas$b_randomized_LAMA	        <- 0.2385
     betas$b_randomized_LABA	        <- 0.1318
     betas$b_randomized_ICS	        <- -0.2669
@@ -489,6 +492,9 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$c_sgrq10                  <- 0.1778
     betas$c_cardiovascular	        <- 0.2554
     betas$c_randomized_azithromycin <- -0.09003
+    betas$c_LAMA	                  <- 0
+    betas$c_LABA	                  <- 0
+    betas$c_ICS	                    <- 0
     betas$c_randomized_LAMA	        <- 0.2093
     betas$c_randomized_LABA	        <- -0.4087
     betas$c_randomized_ICS	        <- -0.1739
@@ -520,6 +526,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$b_nowsmk	                <- -0.1353
     betas$b_oxygen	                <- 0.1561
     betas$b_fev1pp100	              <- -0.7846
+    betas$b_sgrq10                  <- 0
     betas$b_cardiovascular	        <- 0.1642
     betas$b_randomized_azithromycin <- -0.1259
     betas$b_LAMA	                  <- 0.1808
@@ -537,6 +544,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$c_nowsmk                  <- 0.51
     betas$c_oxygen                  <- 0.6046
     betas$c_fev1pp100	              <- -1.2895
+    betas$c_sgrq10                  <- 0
     betas$c_cardiovascular	        <- 0.2882
     betas$c_randomized_azithromycin <- -0.1343
     betas$c_LAMA	                  <- -0.1531
@@ -572,8 +580,12 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$b_nowsmk	                <- -0.1616
     betas$b_oxygen	                <- 0.1777
     betas$b_fev1pp100	              <- -0.9282
+    betas$b_sgrq10                  <- 0
     betas$b_cardiovascular	        <- 0.216
     betas$b_randomized_azithromycin <- -0.05931
+    betas$b_LAMA	                  <- 0
+    betas$b_LABA	                  <- 0
+    betas$b_ICS	                    <- 0
     betas$b_randomized_LAMA	        <- 0.2871
     betas$b_randomized_LABA	        <- 0.09825
     betas$b_randomized_ICS	        <- -0.2612
@@ -586,8 +598,12 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     betas$c_nowsmk                  <- 0.5255
     betas$c_oxygen                  <- 0.6051
     betas$c_fev1pp100	              <- -1.3091
+    betas$c_sgrq10                  <- 0
     betas$c_cardiovascular	        <- 0.3234
     betas$c_randomized_azithromycin <- -0.08298
+    betas$c_LAMA	                  <- 0
+    betas$c_LABA	                  <- 0
+    betas$c_ICS	                    <- 0
     betas$c_randomized_LAMA	        <- 0.2853
     betas$c_randomized_LABA	        <- -0.475
     betas$c_randomized_ICS	        <- -0.1957
