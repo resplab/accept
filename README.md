@@ -8,7 +8,7 @@
 # accept
 R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)
 
-The package includes two main functions `accept()` and `accept2()`. `accept()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved precitions in patients who do not have a prior history of exacerbations. Please refer to the published paper for more information: 
+The package includes two main functions `accept()` and `accept2()`. `accept()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations. Please refer to the published paper for more information: 
 
 Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
 

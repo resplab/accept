@@ -1,3 +1,9 @@
+# accept 0.9.0
+
+## Bug fixes
+* A bug in projecting the number of severe exacerbations using `accept2` has now been fixed. 
+
+
 # accept 0.8.3
 
 ## Bug fixes
