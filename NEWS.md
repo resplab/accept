@@ -1,3 +1,10 @@
+# accept 0.9.1
+
+## Bug fixes
+* A bug that prevented reduced models with `accept2` to execute properly has now been fixed. 
+
+
+
 # accept 0.9.0
 
 ## Bug fixes
