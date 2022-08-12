@@ -514,6 +514,10 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1197930, 0.9126978, 2.2951754, 4.0110488, 4.9058539)
     sev_coeff <- c(0.05871868, 0.10250238, 0.82620839, 1.68624119, 2.38272234)
 
+    # set excluded covariates to zero
+    patientData$LAMA <- 0
+    patientData$LABA <- 0
+    patientData$ICS <- 0
 
   } else if (KeepMeds & !KeepSGRQ)
   {
@@ -569,6 +573,9 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1650515, 0.8529724, 2.0886867, 3.9422245, 4.9643087)
     sev_coeff <- c(0.05590748, 0.09148651, 0.86588143, 1.69546615, 2.33351171)
 
+    # set excluded covariates to zero
+    patientData$SGRQ <- 0
+
   } else if (!KeepMeds & !KeepSGRQ)
   {
     message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
@@ -623,6 +630,11 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
     sev_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
 
+    # set excluded covariates to zero
+    patientData$LAMA <- 0
+    patientData$LABA <- 0
+    patientData$ICS <- 0
+    patientData$SGRQ <- 0
   }
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
   betas$b_randomized_azithromycin <- 	 log(1/1.30)
@@ -635,6 +647,13 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
                                      knots = rate_knots, knots_sev = sev_knots,
                                      Boundary_knots = rate_boundary_knots,
                                      Boundary_knots_sev = sev_boundary_knots)
+
+  if (! KeepSGRQ) results_after_adj$SGRQ <- NULL
+  if (! KeepMeds) {
+    results_after_adj$ICS <- NULL
+    results_after_adj$LAMA <- NULL
+    results_after_adj$LABA <- NULL
+  }
 
   return(results_after_adj)
 }
