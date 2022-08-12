@@ -15,7 +15,8 @@ Imports:
     stats,
     dplyr,
     reldist,
-    splines
+    splines,
+    mice
 Suggests:
     plotly
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.1
