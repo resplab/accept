@@ -663,34 +663,41 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #' A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.
 #'
 #' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
-#' @param refData a referenced data with the same format as accept samplePatients that the imputation will be based on.
-#' @param num_imput Number of multiple imputations. The default is 10.
-#' @param max_iter A scalar giving the number of iterations. The default is 5.
-#' @param seed An integer that is used as argument by the set.seed() for offsetting the random number generator. Default is to leave the random number generator alone.
 #'
 #' @return patientData with prediction.
 #' @export
 #'
-#' @importFrom mice mice
-#' @importFrom mice complete
 #' @importFrom splines ns
 #' @importFrom stats reshape
 #'
 #' @examples
-#' results <- FlexACCEPT(data = samplePatients, refData = samplePatients)
-FlexACCEPT <- function(data,
-                       refData,
-                       num_imput = 10,
-                       max_iter = 5,
-                       seed = NA) {
+#' results <- FlexCCEPT(data = samplePatients)
+FlexCCEPT <- function(data) {
+
+  model_list <- get0("model_list", envir = asNamespace("accept"))
+  trt_table <- get0("trt_table", envir = asNamespace("accept"))
+  samplePatients <- accept::samplePatients
 
   samplePatients_colNames <- colnames(samplePatients)
   samplePatients_colNames <- samplePatients_colNames[! grepl("randomized_|Last", samplePatients_colNames)]
 
+  if (! "SGRQ" %in% colnames(data)) {
+    if ("CAT" %in% colnames(data)) {
+      data$SGRQ <- 18.87 + 1.53 * data$CAT
+    }
+    else {
+      if("mMRC" %in% colnames(data)) {
+        data$SGRQ <- 20.43 + 14.77 * data$mMRC
+      }
+    }
+  }
+  if (all(! is.na(data$SGRQ))) {
+    if (! all(c("CAT", "mMRC") %in% colnames(data))) data$CAT <- data$SGRQ / 1.53 - 18.87 / 1.53
+  }
+
   data_temp <-
     data %>%
-    select(samplePatients_colNames) %>%
-    mutate(source = "new")
+    select(samplePatients_colNames)
 
   data_colNames <- colnames(data)
   KeepSGRQ_flag <- TRUE
@@ -704,129 +711,68 @@ FlexACCEPT <- function(data,
     data_colNames <- data_colNames[data_colNames != "SGRQ"]
   }
 
-  if (sum(is.na(data_temp[ , intersect(data_colNames, samplePatients_colNames)])) == 0) {
-    acceptPreds <-
-      data_temp %>%
-      left_join(data[ , c("ID", "LastYrExacCount", "LastYrSevExacCount",
-                          "randomized_azithromycin", "randomized_statin", "randomized_LAMA",
-                          "randomized_LABA", "randomized_ICS")], by = "ID") %>%
-      accept2(KeepSGRQ = KeepSGRQ_flag, KeepMeds = KeepMeds_flag) %>%
-      select(data_colNames,
-             "predicted_exac_probability", "predicted_exac_rate",
-             "predicted_severe_exac_probability", "predicted_severe_exac_rate")
-    return(acceptPreds)
+
+  colNames_missing <- sort(colnames(data_temp)[apply(data_temp, 2, function(x) any(is.na(x)))])
+  colNames_complete <- sort(samplePatients_colNames[! samplePatients_colNames %in% c("ID", colNames_missing)])
+  if (any(c("LAMA", "LABA", "ICS", "SGRQ") %in% colNames_missing)) {
+    colNames_missing <- colNames_missing[! colNames_missing %in% c("LAMA", "LABA", "ICS", "SGRQ")]
   }
 
-  refData_temp <-
-    refData %>%
-    select(samplePatients_colNames) %>%
-    mutate(source = "ref") %>%
-    bind_rows(data_temp)
-
-  if (! KeepMeds_flag) {
-    refData_temp <-
-      refData_temp %>%
-      select(- any_of(c("ICS", "LAMA", "LABA")))
-  }
-  if (! KeepSGRQ_flag) {
-    refData_temp <-
-      refData_temp %>%
-      select(- any_of(c("SGRQ")))
-  }
-
-  ## Create a MICE object with 10 imputed datasets
-  mice_predMatrxi <- make.predictorMatrix(data = refData_temp)
-  mice_predMatrxi["ID" , ] <- mice_predMatrxi["source" , ] <-
-    mice_predMatrxi[ , "ID"] <- mice_predMatrxi[ , "source"] <- 0
-  if (is.na(seed)) {
-    try(
-      miceObj <- mice(data = refData_temp, m = num_imput,
-                      maxit = max_iter, printFlag = FALSE,
-                      predictorMatrix = mice_predMatrxi),
-      silent = TRUE
-    )
-  }
-  else {
-    try(
-      miceObj <- mice(data = refData_temp, m = num_imput,
-                      maxit = max_iter, seed = seed, printFlag = FALSE,
-                      predictorMatrix = mice_predMatrxi),
-      silent = TRUE
-    )
-  }
-
-  if (! exists("miceObj")) stop("The datasets provided do not include enough information for imputation!")
-  else {
-    if (sum(is.na(complete(miceObj))) > 0) stop("The datasets provided do not include enough information for imputation!")
+  if (length(colNames_missing) > 0) {
+    for (i in 1 : length(colNames_missing)) {
+      res_temp <- colNames_missing[i]
+      model_temp <-
+        model_list %>%
+        filter(.data$response == res_temp &
+                 .data$predictors == paste(colNames_complete, collapse = ","))
+      if (res_temp %in% c("male", "smoker", "oxygen", "statin")) {
+        pred_temp <-
+          cbind(1, as.matrix(data.frame(data_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          matrix(unlist(model_temp$coef), ncol = 1)
+        pred_temp <- as.vector(round(exp(pred_temp) / (1 + exp(pred_temp))))
+      }
+      else {
+        pred_temp <-
+          cbind(1, as.matrix(data.frame(data_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          matrix(unlist(model_temp$coef), ncol = 1)
+        pred_temp <- as.vector(pred_temp)
+      }
+      data_temp[ , res_temp] <- pred_temp
+      colNames_complete <- sort(c(colNames_complete, res_temp))
+    }
   }
 
   ## Obtain ACCEPT 2 predictions for each set of imputed dataset
-  Preds_MICE <-
-    miceObj %>%
-    complete(1) %>%
-    filter(source == "new") %>%
-    left_join(data[ , c("ID", "LastYrExacCount", "LastYrSevExacCount",
-                        "randomized_azithromycin", "randomized_statin", "randomized_LAMA",
-                        "randomized_LABA", "randomized_ICS")], by = "ID") %>%
+  acceptPreds <-
+    data %>%
+    select(- any_of(colNames_missing)) %>%
+    left_join(data_temp[ , c("ID", colNames_missing)], by = "ID") %>%
     accept2(KeepSGRQ = KeepSGRQ_flag, KeepMeds = KeepMeds_flag) %>%
     select(data_colNames,
            "predicted_exac_probability", "predicted_exac_rate",
            "predicted_severe_exac_probability", "predicted_severe_exac_rate") %>%
-    rename(predRate_mice = predicted_exac_rate,
-           predSRate_mice = predicted_severe_exac_rate,
-           predProb_mice = predicted_exac_probability,
-           predSProb_mice = predicted_severe_exac_probability) %>%
-    mutate(set = 1)
+    mutate(risk_level = ifelse(.data$predicted_exac_rate >= 2 |
+                                 .data$predicted_severe_exac_rate >= 1,
+                               "High", "Low"),
+           symptom_level = NA)
 
-
-  if (num_imput > 1) {
-    for (i in 2 : num_imput) {
-      Preds_MICE_temp <-
-        miceObj %>%
-        complete(i) %>%
-        filter(source == "new") %>%
-        left_join(data[ , c("ID", "LastYrExacCount", "LastYrSevExacCount",
-                            "randomized_azithromycin", "randomized_statin", "randomized_LAMA",
-                            "randomized_LABA", "randomized_ICS")], by = "ID") %>%
-        accept2(KeepSGRQ = KeepSGRQ_flag, KeepMeds = KeepMeds_flag) %>%
-        select(data_colNames,
-               "predicted_exac_probability", "predicted_exac_rate",
-               "predicted_severe_exac_probability", "predicted_severe_exac_rate") %>%
-        rename(predRate_mice = predicted_exac_rate,
-               predSRate_mice = predicted_severe_exac_rate,
-               predProb_mice = predicted_exac_probability,
-               predSProb_mice = predicted_severe_exac_probability) %>%
-        mutate(set = i)
-
-      Preds_MICE <- rbind(Preds_MICE, Preds_MICE_temp)
-      rm(Preds_MICE_temp)
-    }
-
-    ## Obtain average of prediction to aggregate predictions from the imputed datasets
-    Preds_MICE <-
-      Preds_MICE %>%
-      group_by(ID, set) %>%
-      mutate(predRate_mice = mean(predRate_mice),
-             predSRate_mice = mean(predSRate_mice),
-             predProb_mice = mean(predProb_mice),
-             predSProb_mice = mean(predSProb_mice)) %>%
-      ungroup() %>%
-      filter(set == 1) %>%
-      select(! set)
+  if ("CAT" %in% colnames(acceptPreds)) {
+    acceptPreds <-
+      acceptPreds %>%
+      mutate(symptom_level = ifelse(.data$CAT < 10, "Low", "High"))
+  }
+  if ("mMRC" %in% colnames(acceptPreds)) {
+    acceptPreds <-
+      acceptPreds %>%
+      mutate(symptom_level = ifelse(.data$mMRC <= 1, "Low", "High"))
+  }
+  if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds))) {
+    acceptPreds <-
+      acceptPreds %>%
+      left_join(trt_table, by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
   }
 
-  if (! KeepMeds_flag) {
-    Preds_MICE <-
-      Preds_MICE %>%
-      left_join(data[ , c("ID", "ICS", "LAMA", "LABA")], by = "ID")
-  }
-  if (! KeepSGRQ_flag) {
-    Preds_MICE <-
-      Preds_MICE %>%
-      left_join(data[ , c("ID", "SGRQ")], by = "ID")
-  }
-
-  return(Preds_MICE)
+  return(acceptPreds)
 }
 
 
