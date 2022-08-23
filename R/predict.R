@@ -609,10 +609,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #' results <- accept(data = samplePatients)
 accept <- function(data) {
 
-  model_list <- get0("model_list", envir = asNamespace("accept"))
-  trt_table <- get0("trt_table", envir = asNamespace("accept"))
-  samplePatients <- accept::samplePatients
-
   samplePatients_colNames <- colnames(samplePatients)
   samplePatients_colNames <- samplePatients_colNames[! grepl("randomized_|Last", samplePatients_colNames)]
 
