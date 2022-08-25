@@ -626,9 +626,7 @@ accept <- function(data) {
     if (! all(c("CAT", "mMRC") %in% colnames(data))) data$CAT <- data$SGRQ / 1.53 - 18.87 / 1.53
   }
 
-  data_temp <-
-    data %>%
-    select(samplePatients_colNames)
+  data_temp <- data[samplePatients_colNames]
 
   data_colNames <- colnames(data)
   KeepSGRQ_flag <- TRUE
@@ -653,9 +651,8 @@ accept <- function(data) {
     for (i in 1 : length(colNames_missing)) {
       res_temp <- colNames_missing[i]
       model_temp <-
-        model_list %>%
-        filter(.data$response == res_temp &
-                 .data$predictors == paste(colNames_complete, collapse = ","))
+        model_list[model_list$response == res_temp &
+                     model_list$predictors == paste(colNames_complete, collapse = ",") , ]
       if (res_temp %in% c("male", "smoker", "oxygen", "statin")) {
         pred_temp <-
           cbind(1, as.matrix(data.frame(data_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
@@ -674,33 +671,48 @@ accept <- function(data) {
   }
 
   ## Obtain ACCEPT 2 predictions for each set of imputed dataset
-  acceptPreds <-
-    data %>%
-    select(- any_of(colNames_missing)) %>%
-    left_join(data_temp[ , c("ID", colNames_missing)], by = "ID") %>%
-    accept2(KeepSGRQ = KeepSGRQ_flag, KeepMeds = KeepMeds_flag) %>%
-    select(data_colNames,
-           "predicted_exac_probability", "predicted_exac_rate",
-           "predicted_severe_exac_probability", "predicted_severe_exac_rate") %>%
-    mutate(risk_level = ifelse(.data$predicted_exac_rate >= 2 |
-                                 .data$predicted_severe_exac_rate >= 1,
-                               "High", "Low"),
-           symptom_level = NA)
+  if (any(colnames(data) %in% colNames_missing)) {
+    acceptPreds <- data[ , ! (colnames(data) %in% colNames_missing)]
+  }
+  else {
+    acceptPreds <- data
+  }
+  if (length(colNames_missing) > 0) {
+    acceptPreds <- merge(acceptPreds, data_temp[ , c("ID", colNames_missing)],
+                         by = "ID")
+  }
+  acceptPreds <- accept2(patientData = acceptPreds,
+                         KeepSGRQ = KeepSGRQ_flag,
+                         KeepMeds = KeepMeds_flag)
+  acceptPreds <- acceptPreds[ , c(data_colNames,
+                                  "predicted_exac_probability", "predicted_exac_rate",
+                                  "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
+  acceptPreds$risk_level <- ifelse(acceptPreds$predicted_exac_rate >= 2 |
+                                     acceptPreds$predicted_severe_exac_rate >= 1,
+                                   "High", "Low")
+  acceptPreds$symptom_level = NA
+  # acceptPreds <-
+  #   data %>%
+  #   select(- any_of(colNames_missing)) %>%
+  #   left_join(data_temp[ , c("ID", colNames_missing)], by = "ID") %>%
+  #   accept2(KeepSGRQ = KeepSGRQ_flag, KeepMeds = KeepMeds_flag) %>%
+  #   select(data_colNames,
+  #          "predicted_exac_probability", "predicted_exac_rate",
+  #          "predicted_severe_exac_probability", "predicted_severe_exac_rate") %>%
+  #   mutate(risk_level = ifelse(.data$predicted_exac_rate >= 2 |
+  #                                .data$predicted_severe_exac_rate >= 1,
+  #                              "High", "Low"),
+  #          symptom_level = NA)
 
   if ("CAT" %in% colnames(acceptPreds)) {
-    acceptPreds <-
-      acceptPreds %>%
-      mutate(symptom_level = ifelse(.data$CAT < 10, "Low", "High"))
+    acceptPreds$symptom_level <- ifelse(acceptPreds$CAT < 10, "Low", "High")
   }
   if ("mMRC" %in% colnames(acceptPreds)) {
-    acceptPreds <-
-      acceptPreds %>%
-      mutate(symptom_level = ifelse(.data$mMRC <= 1, "Low", "High"))
+    acceptPreds$symptom_level <- ifelse(acceptPreds$mMRC <= 1, "Low", "High")
   }
   if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds))) {
-    acceptPreds <-
-      acceptPreds %>%
-      left_join(trt_table, by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
+    acceptPreds <- merge(acceptPreds, trt_table,
+                         by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
   }
 
   return(acceptPreds)
