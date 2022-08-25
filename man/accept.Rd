@@ -4,10 +4,14 @@
 \alias{accept}
 \title{A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.}
 \usage{
-accept(data)
+accept(data, version = "flexccept", ...)
 }
 \arguments{
 \item{data}{new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.}
+
+\item{version}{indicates which version of ACCEPT needs to be called.}
+
+\item{...}{for other versions of accept.}
 }
 \value{
 patientData with prediction.

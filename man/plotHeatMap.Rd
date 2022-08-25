@@ -20,6 +20,6 @@ a heatmap
 Creates heatmap of number of exacerbations
 }
 \examples{
-results <- accept(samplePatients[1,])
+results <- accept1(samplePatients[1,])
 plotHeatMap(results)
 }

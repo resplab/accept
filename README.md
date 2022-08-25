@@ -74,7 +74,7 @@ plotExacerbations(results, type="rate", interval = "CI")
 We can also calculate the predicted number of exacerbations in a year:
 
 ```
-patientResults = accept(samplePatients[1,]) #accept uses the original prediction model
+patientResults = accept1(samplePatients[1,]) #accept uses the original prediction model
 exacerbationsMatrix = predictCountProb(patientResults, n = 10, shortened = TRUE)
 print(exacerbationsMatrix)
 ```

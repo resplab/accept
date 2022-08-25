@@ -322,6 +322,71 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 
 
 
+
+#' Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)
+#' @param patientData patient data matrix. Can have one or many patients in it
+#' @param random_sampling_N number of random sampling. Default is 100.
+#' @param lastYrExacCol the column specifying last year all exacerbation count
+#' @param lastYrSevExacCol the column specifying last year severe exacerbation count
+#' @param ... for backward compatibility
+#' @return patientData with prediction
+#' @examples
+#' results <- accept1(samplePatients)
+#' @export
+accept1 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
+                     lastYrSevExacCol="LastYrSevExacCount", ...){
+
+  betas <- list()
+  betas$gamma	                    <- 0.9706
+  betas$b0	                      <- -0.2014
+  betas$b_male	                  <- -0.1855
+  betas$b_age10	                  <- -0.00823
+  betas$b_nowsmk	                <- -0.1867
+  betas$b_oxygen	                <- 0.1209
+  betas$b_fev1pp100	              <- -0.5584
+  betas$b_sgrq10                  <- 0.1064
+  betas$b_cardiovascular	        <- 0.1359
+  betas$b_randomized_azithromycin <- -0.1287
+  betas$b_LAMA	                  <- 0.1678
+  betas$b_LABA	                  <- 0.1137
+  betas$b_ICS	                    <- 0.279
+  betas$b_randomized_LAMA	        <- 0.2202
+  betas$b_randomized_LABA	        <- 0.1321
+  betas$b_randomized_ICS	        <- -0.2359
+  betas$b_randomized_statin	      <- -0.1573
+  betas$b_BMI10                   <- -0.1333
+
+  betas$c0	                      <- -3.6901
+  betas$c_male	                  <- 0.4255
+  betas$c_age10	                  <- 0.09545
+  betas$c_nowsmk                  <- 0.4211
+  betas$c_oxygen                  <- 0.546
+  betas$c_fev1pp100	              <- -0.8095
+  betas$c_sgrq10                  <- 0.1781
+  betas$c_cardiovascular	        <- 0.2326
+  betas$c_randomized_azithromycin <- -0.1305
+  betas$c_LAMA	                  <- -0.1638
+  betas$c_LABA            	      <- 0.05466
+  betas$c_ICS	                    <- 0.2677
+  betas$c_randomized_LAMA	        <- 0.2193
+  betas$c_randomized_LABA	        <- -0.4085
+  betas$c_randomized_ICS	        <- -0.1755
+  betas$c_randomized_statin	      <- 0.2169
+  betas$c_BMI10           	      <- -0.09666
+
+  betas$v1 	<- 0.6855
+  betas$v2	<- 2.2494
+  betas$cov	<- 0.08772
+
+  # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
+  betas$b_randomized_azithromycin <- 	 log(1/1.30)
+  betas$c_randomized_azithromycin <- 	 log(0.93)
+
+  results <- acceptEngine(patientData = patientData, betas = betas)
+
+  return(results)
+}
+
 #' Predicts COPD exacerbation rate by severity level based on the updated accept2 model, which improves accuracy in patients without an exacerbation history.
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 100.
@@ -339,7 +404,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 #' results <- accept2(samplePatients)
 #' @export
 accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                    lastYrSevExacCol="LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
+                     lastYrSevExacCol="LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
 
   betas <- list()
 
@@ -598,18 +663,31 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #' A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.
 #'
 #' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
-#'
+#' @param version indicates which version of ACCEPT needs to be called.
+#' @param ... for other versions of accept.
 #' @return patientData with prediction.
-#' @export
 #'
 #' @importFrom splines ns
 #' @importFrom stats reshape
 #'
 #' @examples
 #' results <- accept(data = samplePatients)
-accept <- function(data) {
+#' @export
+accept <- function(data, version = "flexccept", ...) {
 
-  samplePatients_colNames <- colnames(samplePatients)
+  if (version == "accept1") {
+    return(accept1(data, ...))
+  }
+  if (version == "accept2") {
+    return(accept2(data, ...))
+  }
+
+  samplePatients_colNames <- c("ID", "male", "age", "smoker", "oxygen",
+                               "statin", "LAMA", "LABA", "ICS", "FEV1",
+                               "BMI", "SGRQ", "LastYrExacCount",
+                               "LastYrSevExacCount", "randomized_azithromycin",
+                               "randomized_statin", "randomized_LAMA",
+                               "randomized_LABA", "randomized_ICS")
   samplePatients_colNames <- samplePatients_colNames[! grepl("randomized_|Last", samplePatients_colNames)]
 
   if (! "SGRQ" %in% colnames(data)) {
@@ -689,26 +767,14 @@ accept <- function(data) {
                                   "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
   acceptPreds$risk_level <- ifelse(acceptPreds$predicted_exac_rate >= 2 |
                                      acceptPreds$predicted_severe_exac_rate >= 1,
-                                   "High", "Low")
+                                   1, 0)
   acceptPreds$symptom_level = NA
-  # acceptPreds <-
-  #   data %>%
-  #   select(- any_of(colNames_missing)) %>%
-  #   left_join(data_temp[ , c("ID", colNames_missing)], by = "ID") %>%
-  #   accept2(KeepSGRQ = KeepSGRQ_flag, KeepMeds = KeepMeds_flag) %>%
-  #   select(data_colNames,
-  #          "predicted_exac_probability", "predicted_exac_rate",
-  #          "predicted_severe_exac_probability", "predicted_severe_exac_rate") %>%
-  #   mutate(risk_level = ifelse(.data$predicted_exac_rate >= 2 |
-  #                                .data$predicted_severe_exac_rate >= 1,
-  #                              "High", "Low"),
-  #          symptom_level = NA)
 
   if ("CAT" %in% colnames(acceptPreds)) {
-    acceptPreds$symptom_level <- ifelse(acceptPreds$CAT < 10, "Low", "High")
+    acceptPreds$symptom_level <- ifelse(acceptPreds$CAT < 10, 0, 1)
   }
   if ("mMRC" %in% colnames(acceptPreds)) {
-    acceptPreds$symptom_level <- ifelse(acceptPreds$mMRC <= 1, "Low", "High")
+    acceptPreds$symptom_level <- ifelse(acceptPreds$mMRC <= 1, 0, 1)
   }
   if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds))) {
     acceptPreds <- merge(acceptPreds, trt_table,
@@ -725,6 +791,7 @@ accept <- function(data) {
 #' @param n how many exacerbations
 #' @param shortened boolean: Shortened results groups into 0, 1, 2, and 3 or more exacerbations
 #' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
+#'
 #' @examples
 #' results <- accept2(samplePatients[1,])
 #' predictCountProb (results)
@@ -738,27 +805,27 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
   colnames(results) = colNames
   rownames(results) = rowNames
   # i is all exacs, j of them severe
- for (i in 1:n) {
-   for (j in 1:n) {
+  for (i in 1:n) {
+    for (j in 1:n) {
       if (i>=j) {
-       results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) *
-                         dbinom(x= j-1, size = (i-1), prob = patientResults$predicted_severe_exac_probability)
-                         # factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
-                         # patientResults$predicted_severe_exac_probability ^ (j-1) *
-                         # (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
-       }}
- }
- if (shortened) {
-   shortResults <- results
-   shortResults[,4] <- rowSums(results[, 4:10])
-   shortResults[4,] <- colSums(results[4:10, ])
-   shortResults <- shortResults[1:4, 1:4]
-   colnames(shortResults) <- c("none severe", "1 severe", "2 severe", "3 or more severe")
-   rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
+        results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) *
+          dbinom(x= j-1, size = (i-1), prob = patientResults$predicted_severe_exac_probability)
+        # factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
+        # patientResults$predicted_severe_exac_probability ^ (j-1) *
+        # (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
+      }}
+  }
+  if (shortened) {
+    shortResults <- results
+    shortResults[,4] <- rowSums(results[, 4:10])
+    shortResults[4,] <- colSums(results[4:10, ])
+    shortResults <- shortResults[1:4, 1:4]
+    colnames(shortResults) <- c("none severe", "1 severe", "2 severe", "3 or more severe")
+    rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
 
-   results <- shortResults
- }
- return(results)
+    results <- shortResults
+  }
+  return(results)
 }
 
 

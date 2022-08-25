@@ -31,6 +31,6 @@ a bar graph
 Creates bar graph comparing no treatment with azithromycin treatment
 }
 \examples{
-results <- accept(samplePatients[1,])
+results <- accept1(samplePatients[1,])
 plotExacerbations(results)
 }

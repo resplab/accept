@@ -4,7 +4,7 @@
 #' @param shortened boolean
 #' @return a heatmap
 #' @examples
-#' results <- accept(samplePatients[1,])
+#' results <- accept1(samplePatients[1,])
 #' plotHeatMap(results)
 #' @export
 
@@ -38,7 +38,7 @@ plotHeatMap <- function(patientResults, n = 10, shortened = TRUE) {
 #' can use hexadecimal, rgb, or R color codes
 #' @return a bar graph
 #' @examples
-#' results <- accept(samplePatients[1,])
+#' results <- accept1(samplePatients[1,])
 #' plotExacerbations(results)
 #' @export
 plotExacerbations <- function(patientResults, type="rate", interval = "PI",
@@ -75,6 +75,7 @@ plotExacerbations <- function(patientResults, type="rate", interval = "PI",
                abs(error_y1[c(3,4)]-y1[2]))
   error_y2 = c(abs(error_y2[c(1,2)]-y2[1]),
                abs(error_y2[c(3,4)]-y2[2]))
+  if (is.null(y2)) y2 <- c(NA, NA)
   data <- data.frame(x, y1, y2)
 
   #The default order will be alphabetized unless specified as below:
