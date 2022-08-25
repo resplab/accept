@@ -765,9 +765,9 @@ accept <- function(data, version = "flexccept", ...) {
   acceptPreds <- acceptPreds[ , c(data_colNames,
                                   "predicted_exac_probability", "predicted_exac_rate",
                                   "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
-  acceptPreds$risk_level <- ifelse(acceptPreds$predicted_exac_rate >= 2 |
+  acceptPreds$risk_level <- as.vector(ifelse(acceptPreds$predicted_exac_rate >= 2 |
                                      acceptPreds$predicted_severe_exac_rate >= 1,
-                                   1, 0)
+                                   1, 0))
   acceptPreds$symptom_level = NA
 
   if ("CAT" %in% colnames(acceptPreds)) {
