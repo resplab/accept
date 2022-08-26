@@ -8,9 +8,11 @@
 # accept
 R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)
 
-The package includes two main functions `accept()` and `accept2()`. `accept()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations. Please refer to the published paper for more information: 
+The function `accept()` provides predictions from the latest version of the `accept` prediction model. `accept1()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations. Please refer to the published papers for more information: 
 
-Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
+Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine, 8(10), pp.1013-1021; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
+
+Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M. and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally validating the Acute COPD exacerbation prediction tool (ACCEPT). EClinicalMedicine, 51, p.101574. [doi:10.1016/j.eclinm.2022.101574](http://doi/org/10.1016/j.eclinm.2022.101574)
 
 The following animation explains the `accept` model in 90 seconds:
 
@@ -49,11 +51,11 @@ samplePatients <- accept::samplePatients
 To get a prediction for exacerbation rate, you will need to pass in a patient vector:
 
 ```
-results <- accept2(samplePatients[1,]) #accept2 uses the updated prediction model
+results <- accept(samplePatients[1,]) #accept uses the latest updated prediction model
 print(t(results))
 ```
 
-The **accept()** function returns a data frame with the original patient data, along with the predictions for different treatment options. 
+The **accept()** function returns a data frame with the patient data used for prediction, along with the predictions for different treatment options. 
 
 To visualize the data, there is a graphing function called **plotExacerbations()**, which creates a Plotly bar graph. You have the option of selecting **probability** or **rate** for which prediction you want to see, and either **CI** or **PI** to select the confidence interval or prediction interval respectively.
 
@@ -134,3 +136,4 @@ Please cite:
 
 Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
 
+Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M. and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally validating the Acute COPD exacerbation prediction tool (ACCEPT). EClinicalMedicine, 51, p.101574. [doi:10.1016/j.eclinm.2022.101574](http://doi/org/10.1016/j.eclinm.2022.101574)
