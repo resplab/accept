@@ -11,7 +11,7 @@ Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
   ns_obj <- ns(Predictor, knots = knots, Boundary.knots = Boundary_knots)
   if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(ns_obj)))
   else BasisFuncs <- as.matrix(cbind(1, ns_obj), ncol = 4)
-  Preds <- BasisFuncs %*% matrix(CoefEst, ncol = 1)
+  Preds <- as.vector(BasisFuncs %*% matrix(CoefEst, ncol = 1))
   return(Preds)
 }
 
@@ -403,8 +403,8 @@ accept1 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #' @examples
 #' results <- accept2(samplePatients)
 #' @export
-accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                     lastYrSevExacCol="LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
+accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "LastYrExacCount",
+                     lastYrSevExacCol = "LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
 
   betas <- list()
 
@@ -642,7 +642,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
-  results_after_adj <- Sp_Manual_Vec(results_before_adj,
+  results_after_adj <- Sp_Manual_Vec(data = results_before_adj,
                                      CoefEst = rate_coeff, CoefEst_sev = sev_coeff,
                                      knots = rate_knots, knots_sev = sev_knots,
                                      Boundary_knots = rate_boundary_knots,
@@ -664,6 +664,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #'
 #' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param version indicates which version of ACCEPT needs to be called.
+#' @param prediction_interval default is FALSE If set to true, returns prediction intervals of the predictions.
 #' @param ... for other versions of accept.
 #' @return patientData with prediction.
 #'
@@ -673,7 +674,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #' @examples
 #' results <- accept(data = samplePatients)
 #' @export
-accept <- function(data, version = "flexccept", ...) {
+accept <- function(data, version = "flexccept", prediction_interval = FALSE, ...) {
 
   if (version == "accept1") {
     return(accept1(data, ...))
@@ -762,11 +763,24 @@ accept <- function(data, version = "flexccept", ...) {
   acceptPreds <- accept2(patientData = acceptPreds,
                          KeepSGRQ = KeepSGRQ_flag,
                          KeepMeds = KeepMeds_flag)
-  acceptPreds <- acceptPreds[ , c(data_colNames,
-                                  "predicted_exac_probability", "predicted_exac_rate",
-                                  "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
-  acceptPreds$risk_level <- as.vector(ifelse(acceptPreds$predicted_exac_probability >= 0.61,
-                                             1, 0))
+  if (prediction_interval) {
+    acceptPreds <- acceptPreds[ , c(data_colNames,
+                                    "predicted_exac_probability",
+                                    "predicted_exac_probability_lower_PI", "predicted_exac_probability_upper_PI",
+                                    "predicted_exac_rate",
+                                    "predicted_exac_rate_lower_PI", "predicted_exac_rate_upper_PI",
+                                    "predicted_severe_exac_probability",
+                                    "predicted_severe_exac_probability_lower_PI", "predicted_severe_exac_probability_upper_PI",
+                                    "predicted_severe_exac_rate",
+                                    "predicted_severe_exac_rate_lower_PI", "predicted_severe_exac_rate_upper_PI")]
+  }
+  else {
+    acceptPreds <- acceptPreds[ , c(data_colNames,
+                                    "predicted_exac_probability", "predicted_exac_rate",
+                                    "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
+  }
+  acceptPreds$risk_level <- ifelse(acceptPreds$predicted_exac_probability >= 0.61,
+                                   1, 0)
   acceptPreds$symptom_level = NA
 
   if ("CAT" %in% colnames(acceptPreds)) {
@@ -779,6 +793,9 @@ accept <- function(data, version = "flexccept", ...) {
       all(! is.na(acceptPreds$symptom_level))) {
     acceptPreds <- merge(acceptPreds, trt_table,
                          by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
+  }
+  else {
+    acceptPreds$recommended_treatment = NA
   }
 
   return(acceptPreds)
