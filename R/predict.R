@@ -11,7 +11,7 @@ Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
   ns_obj <- ns(Predictor, knots = knots, Boundary.knots = Boundary_knots)
   if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(ns_obj)))
   else BasisFuncs <- as.matrix(cbind(1, ns_obj), ncol = 4)
-  Preds <- BasisFuncs %*% matrix(CoefEst, ncol = 1)
+  Preds <- as.vector(BasisFuncs %*% matrix(CoefEst, ncol = 1))
   return(Preds)
 }
 
@@ -322,6 +322,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 
 
 
+
 #' Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 100.
@@ -330,10 +331,10 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 #' @param ... for backward compatibility
 #' @return patientData with prediction
 #' @examples
-#' results <- accept(samplePatients)
+#' results <- accept1(samplePatients)
 #' @export
-accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                           lastYrSevExacCol="LastYrSevExacCount", ...){
+accept1 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
+                     lastYrSevExacCol="LastYrSevExacCount", ...){
 
   betas <- list()
   betas$gamma	                    <- 0.9706
@@ -386,7 +387,6 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
   return(results)
 }
 
-
 #' Predicts COPD exacerbation rate by severity level based on the updated accept2 model, which improves accuracy in patients without an exacerbation history.
 #' @param patientData patient data matrix. Can have one or many patients in it
 #' @param random_sampling_N number of random sampling. Default is 100.
@@ -403,8 +403,8 @@ accept <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrE
 #' @examples
 #' results <- accept2(samplePatients)
 #' @export
-accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                    lastYrSevExacCol="LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
+accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "LastYrExacCount",
+                     lastYrSevExacCol = "LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
 
   betas <- list()
 
@@ -514,6 +514,10 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1197930, 0.9126978, 2.2951754, 4.0110488, 4.9058539)
     sev_coeff <- c(0.05871868, 0.10250238, 0.82620839, 1.68624119, 2.38272234)
 
+    # set excluded covariates to zero
+    patientData$LAMA <- 0
+    patientData$LABA <- 0
+    patientData$ICS <- 0
 
   } else if (KeepMeds & !KeepSGRQ)
   {
@@ -569,6 +573,9 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1650515, 0.8529724, 2.0886867, 3.9422245, 4.9643087)
     sev_coeff <- c(0.05590748, 0.09148651, 0.86588143, 1.69546615, 2.33351171)
 
+    # set excluded covariates to zero
+    patientData$SGRQ <- 0
+
   } else if (!KeepMeds & !KeepSGRQ)
   {
     message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
@@ -623,6 +630,11 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
     rate_coeff <- c(0.1513950, 0.9446998, 2.2107619, 3.9384999, 4.8656656)
     sev_coeff <- c(0.05768919, 0.12920786, 0.63391906, 1.49899418, 2.24064269)
 
+    # set excluded covariates to zero
+    patientData$LAMA <- 0
+    patientData$LABA <- 0
+    patientData$ICS <- 0
+    patientData$SGRQ <- 0
   }
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
   betas$b_randomized_azithromycin <- 	 log(1/1.30)
@@ -630,22 +642,175 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 
   results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
 
-  results_after_adj <- Sp_Manual_Vec(results_before_adj,
+  results_after_adj <- Sp_Manual_Vec(data = results_before_adj,
                                      CoefEst = rate_coeff, CoefEst_sev = sev_coeff,
                                      knots = rate_knots, knots_sev = sev_knots,
                                      Boundary_knots = rate_boundary_knots,
                                      Boundary_knots_sev = sev_boundary_knots)
 
+  if (! KeepSGRQ) results_after_adj$SGRQ <- NULL
+  if (! KeepMeds) {
+    results_after_adj$ICS <- NULL
+    results_after_adj$LAMA <- NULL
+    results_after_adj$LABA <- NULL
+  }
+
   return(results_after_adj)
 }
+
+
+
+#' A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.
+#'
+#' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
+#' @param version indicates which version of ACCEPT needs to be called.
+#' @param prediction_interval default is FALSE If set to true, returns prediction intervals of the predictions.
+#' @param ... for other versions of accept.
+#' @return patientData with prediction.
+#'
+#' @importFrom splines ns
+#' @importFrom stats reshape
+#'
+#' @examples
+#' results <- accept(data = samplePatients)
+#' @export
+accept <- function(data, version = "flexccept", prediction_interval = FALSE, ...) {
+
+  if (version == "accept1") {
+    return(accept1(data, ...))
+  }
+  if (version == "accept2") {
+    return(accept2(data, ...))
+  }
+
+  samplePatients_colNames <- c("ID", "male", "age", "smoker", "oxygen",
+                               "statin", "LAMA", "LABA", "ICS", "FEV1",
+                               "BMI", "SGRQ", "LastYrExacCount",
+                               "LastYrSevExacCount", "randomized_azithromycin",
+                               "randomized_statin", "randomized_LAMA",
+                               "randomized_LABA", "randomized_ICS")
+  samplePatients_colNames <- samplePatients_colNames[! grepl("randomized_|Last", samplePatients_colNames)]
+
+  if (! "SGRQ" %in% colnames(data)) {
+    if ("CAT" %in% colnames(data)) {
+      data$SGRQ <- 18.87 + 1.53 * data$CAT
+    }
+    else {
+      if("mMRC" %in% colnames(data)) {
+        data$SGRQ <- 20.43 + 14.77 * data$mMRC
+      }
+    }
+  }
+  if (all(! is.na(data$SGRQ))) {
+    if (! all(c("CAT", "mMRC") %in% colnames(data))) data$CAT <- data$SGRQ / 1.53 - 18.87 / 1.53
+  }
+
+  data_temp <- data[samplePatients_colNames]
+
+  data_colNames <- colnames(data)
+  KeepSGRQ_flag <- TRUE
+  KeepMeds_flag <- TRUE
+  if (any(is.na(data[ , c("LAMA", "LABA", "ICS")]))) {
+    KeepMeds_flag <- FALSE
+    data_colNames <- data_colNames[! data_colNames %in% c("LAMA", "LABA", "ICS")]
+  }
+  if (any(is.na(data$SGRQ))) {
+    KeepSGRQ_flag <- FALSE
+    data_colNames <- data_colNames[data_colNames != "SGRQ"]
+  }
+
+
+  colNames_missing <- sort(colnames(data_temp)[apply(data_temp, 2, function(x) any(is.na(x)))])
+  colNames_complete <- sort(samplePatients_colNames[! samplePatients_colNames %in% c("ID", colNames_missing)])
+  if (any(c("LAMA", "LABA", "ICS", "SGRQ") %in% colNames_missing)) {
+    colNames_missing <- colNames_missing[! colNames_missing %in% c("LAMA", "LABA", "ICS", "SGRQ")]
+  }
+
+  if (length(colNames_missing) > 0) {
+    for (i in 1 : length(colNames_missing)) {
+      res_temp <- colNames_missing[i]
+      model_temp <-
+        model_list[model_list$response == res_temp &
+                     model_list$predictors == paste(colNames_complete, collapse = ",") , ]
+      if (res_temp %in% c("male", "smoker", "oxygen", "statin")) {
+        pred_temp <-
+          cbind(1, as.matrix(data.frame(data_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          matrix(unlist(model_temp$coef), ncol = 1)
+        pred_temp <- as.vector(round(exp(pred_temp) / (1 + exp(pred_temp))))
+      }
+      else {
+        pred_temp <-
+          cbind(1, as.matrix(data.frame(data_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          matrix(unlist(model_temp$coef), ncol = 1)
+        pred_temp <- as.vector(pred_temp)
+      }
+      data_temp[ , res_temp] <- pred_temp
+      colNames_complete <- sort(c(colNames_complete, res_temp))
+    }
+  }
+
+  ## Obtain ACCEPT 2 predictions for each set of imputed dataset
+  if (any(colnames(data) %in% colNames_missing)) {
+    acceptPreds <- data[ , ! (colnames(data) %in% colNames_missing)]
+  }
+  else {
+    acceptPreds <- data
+  }
+  if (length(colNames_missing) > 0) {
+    acceptPreds <- merge(acceptPreds, data_temp[ , c("ID", colNames_missing)],
+                         by = "ID")
+  }
+  acceptPreds <- accept2(patientData = acceptPreds,
+                         KeepSGRQ = KeepSGRQ_flag,
+                         KeepMeds = KeepMeds_flag)
+  if (prediction_interval) {
+    acceptPreds <- acceptPreds[ , c(data_colNames,
+                                    "predicted_exac_probability",
+                                    "predicted_exac_probability_lower_PI", "predicted_exac_probability_upper_PI",
+                                    "predicted_exac_rate",
+                                    "predicted_exac_rate_lower_PI", "predicted_exac_rate_upper_PI",
+                                    "predicted_severe_exac_probability",
+                                    "predicted_severe_exac_probability_lower_PI", "predicted_severe_exac_probability_upper_PI",
+                                    "predicted_severe_exac_rate",
+                                    "predicted_severe_exac_rate_lower_PI", "predicted_severe_exac_rate_upper_PI")]
+  }
+  else {
+    acceptPreds <- acceptPreds[ , c(data_colNames,
+                                    "predicted_exac_probability", "predicted_exac_rate",
+                                    "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
+  }
+  acceptPreds$risk_level <- ifelse(acceptPreds$predicted_exac_probability >= 0.61,
+                                   1, 0)
+  acceptPreds$symptom_level = NA
+
+  if ("CAT" %in% colnames(acceptPreds)) {
+    acceptPreds$symptom_level <- ifelse(acceptPreds$CAT < 10, 0, 1)
+  }
+  if ("mMRC" %in% colnames(acceptPreds)) {
+    acceptPreds$symptom_level <- ifelse(acceptPreds$mMRC <= 1, 0, 1)
+  }
+  if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds)) &
+      all(! is.na(acceptPreds$symptom_level))) {
+    acceptPreds <- merge(acceptPreds, trt_table,
+                         by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
+  }
+  else {
+    acceptPreds$recommended_treatment = NA
+  }
+
+  return(acceptPreds)
+}
+
+
 
 #' Predicts probability of observing n exacerbations in the next year
 #' @param patientResults patient results vector, produced by accept.
 #' @param n how many exacerbations
 #' @param shortened boolean: Shortened results groups into 0, 1, 2, and 3 or more exacerbations
 #' @return a matrix of probabilities with the number of exacerbations as rows and number of severe exacerbations as columns
+#'
 #' @examples
-#' results <- accept(samplePatients[1,])
+#' results <- accept2(samplePatients[1,])
 #' predictCountProb (results)
 #' @export
 predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
@@ -657,27 +822,27 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
   colnames(results) = colNames
   rownames(results) = rowNames
   # i is all exacs, j of them severe
- for (i in 1:n) {
-   for (j in 1:n) {
+  for (i in 1:n) {
+    for (j in 1:n) {
       if (i>=j) {
-       results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) *
-                         dbinom(x= j-1, size = (i-1), prob = patientResults$predicted_severe_exac_probability)
-                         # factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
-                         # patientResults$predicted_severe_exac_probability ^ (j-1) *
-                         # (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
-       }}
- }
- if (shortened) {
-   shortResults <- results
-   shortResults[,4] <- rowSums(results[, 4:10])
-   shortResults[4,] <- colSums(results[4:10, ])
-   shortResults <- shortResults[1:4, 1:4]
-   colnames(shortResults) <- c("none severe", "1 severe", "2 severe", "3 or more severe")
-   rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
+        results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) *
+          dbinom(x= j-1, size = (i-1), prob = patientResults$predicted_severe_exac_probability)
+        # factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
+        # patientResults$predicted_severe_exac_probability ^ (j-1) *
+        # (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
+      }}
+  }
+  if (shortened) {
+    shortResults <- results
+    shortResults[,4] <- rowSums(results[, 4:10])
+    shortResults[4,] <- colSums(results[4:10, ])
+    shortResults <- shortResults[1:4, 1:4]
+    colnames(shortResults) <- c("none severe", "1 severe", "2 severe", "3 or more severe")
+    rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
 
-   results <- shortResults
- }
- return(results)
+    results <- shortResults
+  }
+  return(results)
 }
 
 

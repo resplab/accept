@@ -2,33 +2,25 @@
 % Please edit documentation in R/predict.R
 \name{accept}
 \alias{accept}
-\title{Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)}
+\title{A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.}
 \usage{
-accept(
-  patientData,
-  random_sampling_N = 100,
-  lastYrExacCol = "LastYrExacCount",
-  lastYrSevExacCol = "LastYrSevExacCount",
-  ...
-)
+accept(data, version = "flexccept", prediction_interval = FALSE, ...)
 }
 \arguments{
-\item{patientData}{patient data matrix. Can have one or many patients in it}
+\item{data}{new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.}
 
-\item{random_sampling_N}{number of random sampling. Default is 100.}
+\item{version}{indicates which version of ACCEPT needs to be called.}
 
-\item{lastYrExacCol}{the column specifying last year all exacerbation count}
+\item{prediction_interval}{default is FALSE If set to true, returns prediction intervals of the predictions.}
 
-\item{lastYrSevExacCol}{the column specifying last year severe exacerbation count}
-
-\item{...}{for backward compatibility}
+\item{...}{for other versions of accept.}
 }
 \value{
-patientData with prediction
+patientData with prediction.
 }
 \description{
-Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)
+A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.
 }
 \examples{
-results <- accept(samplePatients)
+results <- accept(data = samplePatients)
 }
