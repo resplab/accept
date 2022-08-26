@@ -765,9 +765,8 @@ accept <- function(data, version = "flexccept", ...) {
   acceptPreds <- acceptPreds[ , c(data_colNames,
                                   "predicted_exac_probability", "predicted_exac_rate",
                                   "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
-  acceptPreds$risk_level <- as.vector(ifelse(acceptPreds$predicted_exac_rate >= 2 |
-                                     acceptPreds$predicted_severe_exac_rate >= 1,
-                                   1, 0))
+  acceptPreds$risk_level <- as.vector(ifelse(acceptPreds$predicted_exac_probability >= 0.61,
+                                             1, 0))
   acceptPreds$symptom_level = NA
 
   if ("CAT" %in% colnames(acceptPreds)) {
@@ -776,7 +775,8 @@ accept <- function(data, version = "flexccept", ...) {
   if ("mMRC" %in% colnames(acceptPreds)) {
     acceptPreds$symptom_level <- ifelse(acceptPreds$mMRC <= 1, 0, 1)
   }
-  if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds))) {
+  if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds)) &
+      all(! is.na(acceptPreds$symptom_level))) {
     acceptPreds <- merge(acceptPreds, trt_table,
                          by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
   }
