@@ -665,7 +665,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param version indicates which version of ACCEPT needs to be called.
 #' @param prediction_interval default is FALSE If set to true, returns prediction intervals of the predictions.
-#' @param TxPathways the treatment path ways file. If null, the package internal treatment pathways data file will be used.
 #' @param ... for other versions of accept.
 #' @return patientData with prediction.
 #'
@@ -675,10 +674,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @examples
 #' results <- accept(data = samplePatients)
 #' @export
-accept <- function(data, version = "flexccept", prediction_interval = FALSE,
-                   TxPathways = NULL, ...) {
-
-  if (! is.null(TxPathways)) trt_table <- TxPathways
+accept <- function(data, version = "flexccept", prediction_interval = FALSE, ...) {
 
   if (version == "accept1") {
     return(accept1(data, ...))
@@ -782,24 +778,6 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE,
     acceptPreds <- acceptPreds[ , c(data_colNames,
                                     "predicted_exac_probability", "predicted_exac_rate",
                                     "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
-  }
-  acceptPreds$risk_level <- ifelse(acceptPreds$predicted_exac_probability >= 0.61,
-                                   1, 0)
-  acceptPreds$symptom_level = NA
-
-  if ("CAT" %in% colnames(acceptPreds)) {
-    acceptPreds$symptom_level <- ifelse(acceptPreds$CAT < 10, 0, 1)
-  }
-  if ("mMRC" %in% colnames(acceptPreds)) {
-    acceptPreds$symptom_level <- ifelse(acceptPreds$mMRC <= 1, 0, 1)
-  }
-  if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds)) &
-      all(! is.na(acceptPreds$symptom_level))) {
-    acceptPreds <- merge(acceptPreds, trt_table,
-                         by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
-  }
-  else {
-    acceptPreds$recommended_treatment = NA
   }
 
   return(acceptPreds)
