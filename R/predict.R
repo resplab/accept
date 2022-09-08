@@ -665,7 +665,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param version indicates which version of ACCEPT needs to be called.
 #' @param prediction_interval default is FALSE If set to true, returns prediction intervals of the predictions.
-#' @param TxPathways the treatment path ways file. If null, the package internal treatment pathways data file will be used.
+#' @param TxPathways_costum the treatment path ways file. If null, the package internal treatment pathways data file will be used.
 #' @param ... for other versions of accept.
 #' @return patientData with prediction.
 #'
@@ -676,9 +676,9 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' results <- accept(data = samplePatients)
 #' @export
 accept <- function(data, version = "flexccept", prediction_interval = FALSE,
-                   TxPathways = NULL, ...) {
+                   TxPathways_costum = NULL, ...) {
 
-  if (! is.null(TxPathways)) trt_table <- TxPathways
+  if (! is.null(TxPathways_costum)) trt_table <- TxPathways_costum
 
   if (version == "accept1") {
     return(accept1(data, ...))
