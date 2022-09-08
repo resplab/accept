@@ -783,6 +783,7 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE,
                                     "predicted_exac_probability", "predicted_exac_rate",
                                     "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
   }
+
   acceptPreds$risk_level <- ifelse(acceptPreds$predicted_exac_probability >= 0.61,
                                    1, 0)
   acceptPreds$symptom_level = NA
