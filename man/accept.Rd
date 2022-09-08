@@ -8,7 +8,7 @@ accept(
   data,
   version = "flexccept",
   prediction_interval = FALSE,
-  TxPathways_costum = NULL,
+  TxPathways_custom = NULL,
   ...
 )
 }
@@ -19,7 +19,7 @@ accept(
 
 \item{prediction_interval}{default is FALSE If set to true, returns prediction intervals of the predictions.}
 
-\item{TxPathways_costum}{the treatment path ways file. If null, the package internal treatment pathways data file will be used.}
+\item{TxPathways_custom}{the treatment path ways file. If null, the package internal treatment pathways data file will be used.}
 
 \item{...}{for other versions of accept.}
 }
