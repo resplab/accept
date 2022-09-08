@@ -12,7 +12,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="The Acute COPD Exacerbation Prediction Tool (ACCEPT)">
-<meta property="og:description" content="Allows clinicians to predict the rate and severity of future acute exacerbation in Chronic Obstructive Pulmonary Disease (COPD) patients, based on the clinical prediction model published in Adibi et al. (2020) &lt;doi:10.1016/S2213-2600(19)30397-2&gt;. ">
+<meta property="og:description" content="Allows clinicians to predict the rate and severity of future acute exacerbation in Chronic Obstructive Pulmonary Disease (COPD) patients, based on the clinical prediction models published in Adibi et al. (2020) &lt;doi:10.1016/S2213-2600(19)30397-2&gt; and Safari et al. (2022) &lt;doi:10.1016/j.eclinm.2022.101574&gt;. ">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">accept</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.9.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.0.999</span>
       </span>
     </div>
 
@@ -64,8 +64,9 @@
 <div class="page-header"><h1 id="accept">accept<a class="anchor" aria-label="anchor" href="#accept"></a>
 </h1></div>
 <p>R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)</p>
-<p>The package includes two main functions <code><a href="reference/accept.html">accept()</a></code> and <code><a href="reference/accept2.html">accept2()</a></code>. <code><a href="reference/accept.html">accept()</a></code> provides predictions of exacerbations for COPD patients per original published manuscript. <code><a href="reference/accept2.html">accept2()</a></code> is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations. Please refer to the published paper for more information:</p>
-<p>Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; <a href="https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext" class="external-link">doi:10.1016/S2213-2600(19)30397-2</a></p>
+<p>The function <code><a href="reference/accept.html">accept()</a></code> provides predictions from the latest version of the <code>accept</code> prediction model. <code><a href="reference/accept1.html">accept1()</a></code> provides predictions of exacerbations for COPD patients per original published manuscript. <code><a href="reference/accept2.html">accept2()</a></code> is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations. Please refer to the published papers for more information:</p>
+<p>Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine, 8(10), pp.1013-1021; <a href="https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext" class="external-link">doi:10.1016/S2213-2600(19)30397-2</a></p>
+<p>Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M. and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally validating the Acute COPD exacerbation prediction tool (ACCEPT). EClinicalMedicine, 51, p.101574. <a href="http://doi/org/10.1016/j.eclinm.2022.101574" class="external-link">doi:10.1016/j.eclinm.2022.101574</a></p>
 <p>The following animation explains the <code>accept</code> model in 90 seconds:</p>
 <p><a href="https://www.youtube.com/watch?v=UuGLN128Z3Y" class="external-link"><img src="https://img.youtube.com/vi/UuGLN128Z3Y/0.jpg" alt="IMAGE ALT TEXT HERE"></a></p>
 <div class="section level2">
@@ -96,9 +97,9 @@
 <h3 id="exacerbation-prediction">Exacerbation Prediction<a class="anchor" aria-label="anchor" href="#exacerbation-prediction"></a>
 </h3>
 <p>To get a prediction for exacerbation rate, you will need to pass in a patient vector:</p>
-<pre><code><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/accept2.html">accept2</a></span><span class="op">(</span><span class="va">samplePatients</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span> <span class="co">#accept2 uses the updated prediction model</span></span>
+<pre><code><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/accept.html">accept</a></span><span class="op">(</span><span class="va">samplePatients</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span> <span class="co">#accept uses the latest updated prediction model</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/t.html" class="external-link">t</a></span><span class="op">(</span><span class="va">results</span><span class="op">)</span><span class="op">)</span></span></code></pre>
-<p>The <strong>accept()</strong> function returns a data frame with the original patient data, along with the predictions for different treatment options.</p>
+<p>The <strong>accept()</strong> function returns a data frame with the patient data used for prediction, along with the predictions for different treatment options.</p>
 <p>To visualize the data, there is a graphing function called <strong>plotExacerbations()</strong>, which creates a Plotly bar graph. You have the option of selecting <strong>probability</strong> or <strong>rate</strong> for which prediction you want to see, and either <strong>CI</strong> or <strong>PI</strong> to select the confidence interval or prediction interval respectively.</p>
 <pre><code><span><span class="fu"><a href="reference/plotExacerbations.html">plotExacerbations</a></span><span class="op">(</span><span class="va">results</span>, type<span class="op">=</span><span class="st">"probability"</span>, interval <span class="op">=</span> <span class="st">"CI"</span><span class="op">)</span></span></code></pre>
 <pre><code><span><span class="fu"><a href="reference/plotExacerbations.html">plotExacerbations</a></span><span class="op">(</span><span class="va">results</span>, type<span class="op">=</span><span class="st">"probability"</span>, interval <span class="op">=</span> <span class="st">"PI"</span><span class="op">)</span></span></code></pre>
@@ -108,7 +109,7 @@
 <h3 id="probability-of-n-exacerbations-poisson">Probability of N Exacerbations (Poisson)<a class="anchor" aria-label="anchor" href="#probability-of-n-exacerbations-poisson"></a>
 </h3>
 <p>We can also calculate the predicted number of exacerbations in a year:</p>
-<pre><code><span><span class="va">patientResults</span> <span class="op">=</span> <span class="fu"><a href="reference/accept.html">accept</a></span><span class="op">(</span><span class="va">samplePatients</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span> <span class="co">#accept uses the original prediction model</span></span>
+<pre><code><span><span class="va">patientResults</span> <span class="op">=</span> <span class="fu"><a href="reference/accept1.html">accept1</a></span><span class="op">(</span><span class="va">samplePatients</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span> <span class="co">#accept uses the original prediction model</span></span>
 <span><span class="va">exacerbationsMatrix</span> <span class="op">=</span> <span class="fu"><a href="reference/predictCountProb.html">predictCountProb</a></span><span class="op">(</span><span class="va">patientResults</span>, n <span class="op">=</span> <span class="fl">10</span>, shortened <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exacerbationsMatrix</span><span class="op">)</span></span></code></pre>
 <p>The shortened parameter groups the probabilities from 3-10 exacerbations into one category, “3 or more exacerbations.” To see all n exacerbation probabilities:</p>
@@ -157,6 +158,7 @@ https://prism.peermodelsnetwork.com/route/accept/run</code></pre>
 </h2>
 <p>Please cite:</p>
 <p>Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; <a href="https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext" class="external-link">doi:10.1016/S2213-2600(19)30397-2</a></p>
+<p>Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M. and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally validating the Acute COPD exacerbation prediction tool (ACCEPT). EClinicalMedicine, 51, p.101574. <a href="http://doi/org/10.1016/j.eclinm.2022.101574" class="external-link">doi:10.1016/j.eclinm.2022.101574</a></p>
 </div>
 </div>
 
@@ -216,7 +218,7 @@ https://prism.peermodelsnetwork.com/route/accept/run</code></pre>
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.6.</p>
 </div>
 
       </footer>
