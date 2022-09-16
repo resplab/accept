@@ -62,6 +62,32 @@ Sp_Manual_Vec <- function(data, CoefEst, CoefEst_sev, knots, knots_sev,
   return(data)
 }
 
+## from fev1 package
+calculateAverage <- function (vari, unconditional_mu, obs, sigmaMatrices) {
+  average = unconditional_mu[1] + sigmaMatrices$sigma_12 %*%
+    solve(sigmaMatrices$sigma_22) %*% (obs - unconditional_mu[-1])
+  return(average)
+}
+calculateSigmaMatrices <- function (constants, t1, vari) {
+  v_t_f <- constants$v_0 + t1^2 * constants$v_t + 2 * t1 *
+    constants$cov1
+  v_t_0 <- constants$v_0 + constants$v_e
+  cov_f_0 <- constants$v_0 + t1 * constants$cov1
+  cov_mat <- rbind(c(v_t_f, cov_f_0), c(cov_f_0, v_t_0))
+  sigma_11 <- as.matrix(cov_mat[1, 1])
+  sigma_12 <- as.matrix(t(cov_mat[1, -1]))
+  sigma_21 <- as.matrix(cov_mat[-1, 1])
+  sigma_22 <- as.matrix(cov_mat[-1, -1])
+  sigmaMatrices = list(sigma_11 = sigma_11, sigma_12 = sigma_12,
+                       sigma_21 = sigma_21, sigma_22 = sigma_22)
+  return(sigmaMatrices)
+}
+calculateVariance <- function (sigmaMatrices) {
+  variance = sigmaMatrices$sigma_11 - sigmaMatrices$sigma_12 %*%
+    solve(sigmaMatrices$sigma_22) %*% sigmaMatrices$sigma_21
+  return(variance)
+}
+
 
 # Predicts COPD exacerbation rate by severity level
 # @param patientData patient data matrix. Can have one or many patients in it
@@ -805,6 +831,83 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE,
 
   return(acceptPreds)
 }
+
+
+#' predict fev1 for the next 15 years
+#'
+#' @param data a data frame with patients characteristics including height and weight
+#'
+#' @return a data frame contains average annual FEV1, its variance, and a 95% CI.
+#'
+#' @examples
+#' data_temp <- cbind(samplePatients,
+#'                    height = 1.7,
+#'                    weight = 70)
+#'results <- fev1_predictor(data = data_temp[1, ])
+#' @export
+fev1_predictor <- function(data) {
+  data$int_effect <- 0
+  allYears <- c(0 : 15)
+  futureYears <- allYears[-1]
+  constants <- data.frame(modelNames = "Model 3",
+                          beta_0 = 1.4258,
+                          beta_t = -0.17950,
+                          beta_t2 = -0.00044,
+                          v_0 = 0.10080,
+                          cov1 = 0.000873,
+                          v_t = 0.000769,
+                          v_e = 0.01703)
+  if (data$smoker == 1) {
+    data$smo <- 1
+    data$int <- 0
+  }
+  else if (data$smoker == 0) {
+    data$smo <- 0
+    data$int <- 0
+  }
+  fev1_avg <- c()
+  vari <- c()
+  obs <- data$FEV1
+  for (year in futureYears) {
+    data$t1 <- year
+    beta_x <- -0.00482 * data$age + 0.4828 * data$male + -0.00041 *
+      data$weight + -1.8759 * data$height + 1.9527 * data$height * data$height +
+      -0.07634 * data$smo + -0.04159 * data$int + -0.00837 * data$age *
+      data$height * data$height + 0.0283 * (1 - data$smo) + data$int_effect
+    beta_t_x <- 0.002358 * data$age * data$t1 + -0.00739 * data$male *
+      data$t1 + 0.000127 * data$weight * data$t1 + 0.0668 * data$height * data$t1 +
+      0.01565 * data$height * data$height * data$t1 + -0.02552 * data$smo *
+      data$t1 + -0.01023 * data$int * data$t1 + -0.00094 * data$age * data$height *
+      data$height * data$t1
+    beta_x_p <- -0.00482 * data$age + 0.4828 * data$male + -0.00041 *
+      data$weight + -1.8759 * data$height + 1.9527 * data$height * data$height +
+      -0.07634 * (1) + -0.04159 * (0) + -0.00837 * data$age *
+      data$height * data$height
+    beta_t_x_p <- 0.002358 * data$age * (-1) + -0.00739 * data$male *
+      (-1) + 0.000127 * data$weight * (-1) + 0.0668 * data$height *
+      (-1) + 0.01565 * data$height * data$height * (-1) + -0.02552 *
+      (1) * (-1) + -0.01023 * (0) * (-1) + -0.00094 * data$age *
+      data$height * data$height * (-1)
+    unconditional_mu <- c(mu_f = constants$beta_0 + beta_x +
+                            beta_t_x + constants$beta_t * data$t1 + constants$beta_t2 *
+                            data$t1 * data$t1, mu_0 = constants$beta_0 + beta_x_p)
+    sigmaMatrices = calculateSigmaMatrices(constants, data$t1, vari)
+    fev1_avg[year] = calculateAverage(vari, unconditional_mu,
+                                      obs, sigmaMatrices)
+    vari[year] = calculateVariance(sigmaMatrices)
+  }
+  fev1_avg <- c(data$FEV1, fev1_avg)
+  vari <- c(0, vari)
+  fev1_up <- fev1_avg + 1.96 * sqrt(vari)
+  fev1_low <- fev1_avg - 1.96 * sqrt(vari)
+  df <- data.frame(allYears, y = fev1_avg, vari, fev1_low,
+                   fev1_up)
+  names(df) <- c("Year", "FEV1", "variance", "FEV1_lower",
+                 "FEV1_upper")
+  res <- df
+  return(res)
+}
+
 
 
 

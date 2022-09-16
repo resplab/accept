@@ -3,6 +3,7 @@
 export(accept)
 export(accept1)
 export(accept2)
+export(fev1_predictor)
 export(plotExacerbations)
 export(plotHeatMap)
 export(predictCountProb)
