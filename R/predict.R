@@ -847,6 +847,7 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE,
 #' @export
 fev1_predictor <- function(data) {
   data$int_effect <- 0
+  data$int <- 0
   allYears <- c(0 : 15)
   futureYears <- allYears[-1]
   constants <- data.frame(modelNames = "Model 3",
@@ -857,19 +858,16 @@ fev1_predictor <- function(data) {
                           cov1 = 0.000873,
                           v_t = 0.000769,
                           v_e = 0.01703)
-  if (data$smoker == 1) {
-    data$smo <- 1
-    data$int <- 0
-  }
-  else if (data$smoker == 0) {
-    data$smo <- 0
-    data$int <- 0
-  }
-  fev1_avg <- c()
-  vari <- c()
+  fev1_avg_sm <- c()
+  vari_sm <- c()
+  fev1_avg_nsm <- c()
+  vari_nsm <- c()
   obs <- data$FEV1
   for (year in futureYears) {
     data$t1 <- year
+
+    ## smoking
+    data$smo <- 1
     beta_x <- -0.00482 * data$age + 0.4828 * data$male + -0.00041 *
       data$weight + -1.8759 * data$height + 1.9527 * data$height * data$height +
       -0.07634 * data$smo + -0.04159 * data$int + -0.00837 * data$age *
@@ -891,19 +889,55 @@ fev1_predictor <- function(data) {
     unconditional_mu <- c(mu_f = constants$beta_0 + beta_x +
                             beta_t_x + constants$beta_t * data$t1 + constants$beta_t2 *
                             data$t1 * data$t1, mu_0 = constants$beta_0 + beta_x_p)
-    sigmaMatrices = calculateSigmaMatrices(constants, data$t1, vari)
-    fev1_avg[year] = calculateAverage(vari, unconditional_mu,
+    sigmaMatrices = calculateSigmaMatrices(constants, data$t1, vari_sm)
+    fev1_avg_sm[year] = calculateAverage(vari_sm, unconditional_mu,
                                       obs, sigmaMatrices)
-    vari[year] = calculateVariance(sigmaMatrices)
+    vari_sm[year] = calculateVariance(sigmaMatrices)
+
+    ## quit smoking
+    data$smo <- 0
+    beta_x <- -0.00482 * data$age + 0.4828 * data$male + -0.00041 *
+      data$weight + -1.8759 * data$height + 1.9527 * data$height * data$height +
+      -0.07634 * data$smo + -0.04159 * data$int + -0.00837 * data$age *
+      data$height * data$height + 0.0283 * (1 - data$smo) + data$int_effect
+    beta_t_x <- 0.002358 * data$age * data$t1 + -0.00739 * data$male *
+      data$t1 + 0.000127 * data$weight * data$t1 + 0.0668 * data$height * data$t1 +
+      0.01565 * data$height * data$height * data$t1 + -0.02552 * data$smo *
+      data$t1 + -0.01023 * data$int * data$t1 + -0.00094 * data$age * data$height *
+      data$height * data$t1
+    beta_x_p <- -0.00482 * data$age + 0.4828 * data$male + -0.00041 *
+      data$weight + -1.8759 * data$height + 1.9527 * data$height * data$height +
+      -0.07634 * (1) + -0.04159 * (0) + -0.00837 * data$age *
+      data$height * data$height
+    beta_t_x_p <- 0.002358 * data$age * (-1) + -0.00739 * data$male *
+      (-1) + 0.000127 * data$weight * (-1) + 0.0668 * data$height *
+      (-1) + 0.01565 * data$height * data$height * (-1) + -0.02552 *
+      (1) * (-1) + -0.01023 * (0) * (-1) + -0.00094 * data$age *
+      data$height * data$height * (-1)
+    unconditional_mu <- c(mu_f = constants$beta_0 + beta_x +
+                            beta_t_x + constants$beta_t * data$t1 + constants$beta_t2 *
+                            data$t1 * data$t1, mu_0 = constants$beta_0 + beta_x_p)
+    sigmaMatrices = calculateSigmaMatrices(constants, data$t1, vari_nsm)
+    fev1_avg_nsm[year] = calculateAverage(vari_nsm, unconditional_mu,
+                                         obs, sigmaMatrices)
+    vari_nsm[year] = calculateVariance(sigmaMatrices)
   }
-  fev1_avg <- c(data$FEV1, fev1_avg)
-  vari <- c(0, vari)
-  fev1_up <- fev1_avg + 1.96 * sqrt(vari)
-  fev1_low <- fev1_avg - 1.96 * sqrt(vari)
-  df <- data.frame(allYears, y = fev1_avg, vari, fev1_low,
-                   fev1_up)
-  names(df) <- c("Year", "FEV1", "variance", "FEV1_lower",
-                 "FEV1_upper")
+  ## smoking
+  fev1_avg_sm <- c(data$FEV1, fev1_avg_sm)
+  vari_sm <- c(0, vari_sm)
+  fev1_up_sm <- fev1_avg_sm + 1.96 * sqrt(vari_sm)
+  fev1_low_sm <- fev1_avg_sm - 1.96 * sqrt(vari_sm)
+  ## quit smoking
+  fev1_avg_nsm <- c(fev1_avg_nsm)
+  fev1_up_nsm <- fev1_avg_nsm + 1.96 * sqrt(vari_nsm)
+  fev1_low_nsm <- fev1_avg_nsm - 1.96 * sqrt(vari_nsm)
+
+  df <- rbind(data.frame(Year = allYears, Scenario = "Smoking",
+                         FEV1 = fev1_avg_sm, variance = vari_sm,
+                         FEV1_lower = fev1_low_sm, FEV1_upper = fev1_up_sm),
+              data.frame(Year = allYears[-1], Scenario = "QuitsSmoking",
+                         FEV1 = fev1_avg_nsm, variance = vari_nsm,
+                         FEV1_lower = fev1_low_nsm, FEV1_upper = fev1_up_nsm))
   res <- df
   return(res)
 }
