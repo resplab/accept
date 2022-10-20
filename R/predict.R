@@ -757,6 +757,7 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE, ...
     acceptPreds <- data
   }
   if (length(colNames_missing) > 0) {
+    warning(paste0("Missing column(s) detected. Imputed the following columns: ", colNames_missing))
     acceptPreds <- merge(acceptPreds, data_temp[ , c("ID", colNames_missing)],
                          by = "ID")
   }
