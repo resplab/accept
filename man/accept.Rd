@@ -2,7 +2,7 @@
 % Please edit documentation in R/predict.R
 \name{accept}
 \alias{accept}
-\title{A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.}
+\title{A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE approach.}
 \usage{
 accept(data, version = "flexccept", prediction_interval = FALSE, ...)
 }
@@ -19,7 +19,7 @@ accept(data, version = "flexccept", prediction_interval = FALSE, ...)
 patientData with prediction.
 }
 \description{
-A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.
+A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE approach.
 }
 \examples{
 results <- accept(data = samplePatients)

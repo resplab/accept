@@ -1,8 +1,13 @@
+# accept 1.0.0
+
+## New features
+* `accept` now automatically calls latest version of prediction model available, while giving the user an option to choose which version to call,
+* Now handles missing columns and missing values. 
+
 # accept 0.9.1
 
 ## Bug fixes
 * A bug that prevented reduced models with `accept2` to execute properly has now been fixed. 
-
 
 
 # accept 0.9.0
