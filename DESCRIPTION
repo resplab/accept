@@ -17,5 +17,7 @@ Imports:
     reldist,
     splines
 Suggests:
-    plotly
-RoxygenNote: 7.2.1
+    plotly,
+    spelling
+RoxygenNote: 7.2.3
+Language: en-US

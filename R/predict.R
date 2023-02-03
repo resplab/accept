@@ -660,7 +660,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 
 
 
-#' A flexible version of ACCEPT 2.0 model, where the missing covairates will be imputed by using MICE approach.
+#' A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE approach.
 #'
 #' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param version indicates which version of ACCEPT needs to be called.
@@ -757,7 +757,7 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE, ...
     acceptPreds <- data
   }
   if (length(colNames_missing) > 0) {
-    warning(paste0("Missing column(s) detected. Imputed the following columns: ", colNames_missing))
+    warning(paste0("Missing column(s) detected. Imputing the following columns: ", colNames_missing))
     acceptPreds <- merge(acceptPreds, data_temp[ , c("ID", colNames_missing)],
                          by = "ID")
   }

@@ -1,5 +1,6 @@
 <!-- badges: start -->
 [![R build status](https://github.com/resplab/accept/workflows/R-CMD-check/badge.svg)](https://github.com/resplab/accept/actions)
+[![R-CMD-check](https://github.com/resplab/accept/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/resplab/accept/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/accept)](https://cran.r-project.org/package=accept)
 [![metacran downloads](https://cranlogs.r-pkg.org/badges/accept)](https://cran.r-project.org/package=accept)
