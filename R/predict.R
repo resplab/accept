@@ -693,10 +693,12 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE, ...
 
   if (! "SGRQ" %in% colnames(data)) {
     if ("CAT" %in% colnames(data)) {
+      warning("SGRQ score not found. Using CAT score instead of SGRQ")
       data$SGRQ <- 18.87 + 1.53 * data$CAT
     }
     else {
       if("mMRC" %in% colnames(data)) {
+        message("SGRQ score not found. Using mMRC score instead of SGRQ")
         data$SGRQ <- 20.43 + 14.77 * data$mMRC
       }
     }
