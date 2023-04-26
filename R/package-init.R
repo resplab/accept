@@ -2,6 +2,7 @@
 #' @importFrom stats dpois quantile rpois dbinom weighted.mean
 #' @importFrom reldist wtd.quantile
 #' @importFrom splines bs
+#' @importFrom tibble is_tibble
 NULL
 
 #' Sample Patient Characteristics Inputs
