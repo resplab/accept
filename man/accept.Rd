@@ -4,10 +4,18 @@
 \alias{accept}
 \title{A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE approach.}
 \usage{
-accept(data, version = "flexccept", prediction_interval = FALSE, ...)
+accept(
+  data,
+  format = "tibble",
+  version = "flexccept",
+  prediction_interval = FALSE,
+  ...
+)
 }
 \arguments{
 \item{data}{new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.}
+
+\item{format}{default is "tibble". Can also be set to "json".}
 
 \item{version}{indicates which version of ACCEPT needs to be called.}
 
