@@ -14,21 +14,19 @@ A dataset containing sample patient characteristics to run the prediction model
 \details{
 \itemize{
   \item ID. A unique character string identifying a patients
-  \item male. whether the patient is male (0,1)
+  \item male. whether the patient is male
   \item age. the age of the patient (40--90)
-  \item smoker. whether the patient is currently a smoker (0,1)
+  \item smoker. whether the patient is currently a smoker
   \item oxygen. whether the patient has had supplemental oxygen therapy within the past year (0,1)
-  \item FEV1. forced expiratory volume in 1 second in L (0--5)
+  \item FEV1. forced expiratory volume in 1 second in percent predicted
   \item BMI. body mass index (10--60)
   \item SGRQ. St. George’s Respiratory Questionnaire score (0--100)
-  \item statin. whether the patient is taking statins due to cardiovascular conditions (0,1)
-  \item LAMA. whether the patient is on long acting muscarinic antagonist (0,1)
-  \item LABA. whether the patient is on long acting beta agonist (0,1)
-  \item ICS. whether the patient is on inhaled corticosteroids (0,1)
-  \item randomizedLAMA. whether the patient was randomized to receivelong acting muscarinic antagonist. Should be 0 for prediction.(0,1)
-  \item randomizedLABA. whether the patient was randomized to receive on long acting beta agonist. Should be 0 for prediction (0,1)
-  \item randomizedICS. whether the patient was randomized to receive on inhaled corticosteroids. Should be 0 for prediction (0,1)
-  \item randomizedAzithromycin. whether the patient was was randomized to receive long-term azithromycin therapy. Should be 0 for prediction (0,1)
+  \item statin. whether the patient is taking statins due to cardiovascular conditions
+  \item LAMA. whether the patient is on long acting muscarinic antagonist
+  \item LABA. whether the patient is on long acting beta agonist
+  \item ICS. whether the patient is on inhaled corticosteroids
+  \item LastYrExacCount. total number of exacerbations in the previous year
+  \item LastYrSevExacCount. number of severe exacerbations in the previous year
 }
 }
 \keyword{datasets}
