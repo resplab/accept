@@ -12,6 +12,7 @@ downloads](https://cranlogs.r-pkg.org/badges/accept)](https://cran.r-project.org
 [![Project Status: Active – The project has reached a stable, usable
 state and is being actively
 developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
 <!-- badges: end -->
 
 R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)
@@ -93,12 +94,15 @@ interval or prediction interval respectively.
 
 ``` r
 results <- accept2(samplePatients[1,])
-plotExacerbations(results, type="probability", interval = "CI")
 
-plotExacerbations(results, type="probability", interval = "PI")
+plotExacerbations(results, type="probability")
 
-plotExacerbations(results, type="rate", interval = "CI")
+plotExacerbations(results, type="rate")
 ```
+
+![](./man/figures/newplot1.png)
+
+![](./man/figures/newplot3.png)
 
 ### Probability of N Exacerbations (Poisson)
 
@@ -164,10 +168,14 @@ To visualize the matrix as a heatmap, we can use the function
 plotHeatMap(results, shortened = FALSE)
 ```
 
+![](./man/figures/newplot4.png)
+
 ## Web App for ACCEPT
 
 ACCEPT is also available as web app, accessible at
 <http://resp.core.ubc.ca/ipress/accept>
+
+![](./man/figures/accept_shiny.png)
 
 ## API using vetiver and plumber
 
