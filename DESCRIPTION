@@ -17,7 +17,8 @@ Imports:
     reldist,
     splines,
     jsonlite,
-    tibble
+    tibble,
+    vetiver (>= 0.2.1)
 Suggests:
     jsonlite,
     plotly,

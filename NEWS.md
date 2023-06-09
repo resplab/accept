@@ -1,3 +1,8 @@
+# accept 1.0.1
+* 'accept' now compatible with the `predict` method from `stats`
+* 'accept' now compatible with `vetiver` for deployment and monitoring
+
+
 # accept 1.0.0
 
 ## New features
