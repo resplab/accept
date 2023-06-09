@@ -665,7 +665,8 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param format default is "tibble". Can also be set to "json".
 #' @param version indicates which version of ACCEPT needs to be called.
-#' @param prediction_interval default is FALSE If set to true, returns prediction intervals of the predictions.
+#' @param prediction_interval default is FALSE. If set to TRUE, returns prediction intervals of the predictions.
+#' @param return_predictors default is FALSE. IF set to TRUE, returns the predictors along with prediction results.
 #' @param ... for other versions of accept.
 #' @return patientData with prediction.
 #'
@@ -675,7 +676,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @examples
 #' results <- accept(data = samplePatients)
 #' @export
-accept <- function(data, format="tibble",  version = "flexccept", prediction_interval = FALSE, ...) {
+accept <- function(data, format="tibble",  version = "flexccept", prediction_interval = FALSE, return_predictors = FALSE, ...) {
 
   if (format=="json") {
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
@@ -697,9 +698,8 @@ accept <- function(data, format="tibble",  version = "flexccept", prediction_int
   samplePatients_colNames <- c("ID", "male", "age", "smoker", "oxygen",
                                "statin", "LAMA", "LABA", "ICS", "FEV1",
                                "BMI", "SGRQ", "LastYrExacCount",
-                               "LastYrSevExacCount", "randomized_azithromycin",
-                               "randomized_statin", "randomized_LAMA",
-                               "randomized_LABA", "randomized_ICS")
+                               "LastYrSevExacCount")
+
   samplePatients_colNames <- samplePatients_colNames[! grepl("randomized_|Last", samplePatients_colNames)]
 
   if (! "SGRQ" %in% colnames(data)) {
@@ -792,6 +792,10 @@ accept <- function(data, format="tibble",  version = "flexccept", prediction_int
     acceptPreds <- acceptPreds[ , c(data_colNames,
                                     "predicted_exac_probability", "predicted_exac_rate",
                                     "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
+  }
+
+  if (!return_predictors) {
+    acceptPreds <- acceptPreds %>% select(starts_with("predicted_"))
   }
 
   return(acceptPreds)

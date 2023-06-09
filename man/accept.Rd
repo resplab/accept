@@ -9,6 +9,7 @@ accept(
   format = "tibble",
   version = "flexccept",
   prediction_interval = FALSE,
+  return_predictors = FALSE,
   ...
 )
 }
@@ -19,7 +20,9 @@ accept(
 
 \item{version}{indicates which version of ACCEPT needs to be called.}
 
-\item{prediction_interval}{default is FALSE If set to true, returns prediction intervals of the predictions.}
+\item{prediction_interval}{default is FALSE. If set to TRUE, returns prediction intervals of the predictions.}
+
+\item{return_predictors}{default is FALSE. IF set to TRUE, returns the predictors along with prediction results.}
 
 \item{...}{for other versions of accept.}
 }
