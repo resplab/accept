@@ -8,6 +8,8 @@ vetiver_ptype.accept_model(model, ...)
 }
 \arguments{
 \item{model}{a vetiver model object}
+
+\item{...}{any other inputs}
 }
 \value{
 A `vetiver_ptype` method returns a zero-row dataframe, and

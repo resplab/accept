@@ -16,9 +16,10 @@ Imports:
     dplyr,
     reldist,
     splines,
-    jsonlite,
     tibble,
-    vetiver (>= 0.2.1)
+    vetiver (>= 0.2.1),
+    hardhat,
+    vctrs
 Suggests:
     jsonlite,
     plotly,

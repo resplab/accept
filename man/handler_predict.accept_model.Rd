@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{vetiver_model}{A deployable [vetiver_model()] object}
+
+\item{...}{any other inputs}
 }
 \value{
 A `handler_startup` function should return invisibly, while a

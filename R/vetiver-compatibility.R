@@ -20,6 +20,7 @@ vetiver_create_description.accept_model <- function(model) {
 #' Create a vetiver input data prototype
 #'
 #' @param model a vetiver model object
+#' @param ... any other inputs
 #' @return A `vetiver_ptype` method returns a zero-row dataframe, and
 #' `vetiver_create_ptype()` returns either such a zero-row dataframe, `NULL`,
 #' or the dataframe passed to `save_prototype`.
@@ -47,6 +48,7 @@ vetiver_ptype.accept_model <- function(model, ...) {
 #'
 #' Useful for supporting accept_model class in vetiver
 #' @param vetiver_model A deployable [vetiver_model()] object
+#' @param ... any other inputs
 #' @return A `handler_startup` function should return invisibly, while a
 #' `handler_predict` function should return a function with the signature
 #' `function(req)`. The request body (`req$body`) consists of the new data

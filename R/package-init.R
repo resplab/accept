@@ -1,13 +1,11 @@
-#' @keywords internal
-"_PACKAGE"
-
-
 #' @import dplyr
-#' @importFrom stats dpois quantile rpois dbinom weighted.mean
+#' @importFrom stats dpois quantile rpois dbinom weighted.mean predict
 #' @importFrom reldist wtd.quantile
 #' @importFrom splines bs
-#' @importFrom tibble is_tibble
+#' @importFrom tibble is_tibble tibble
 #' @importFrom vetiver vetiver_create_description vetiver_create_ptype handler_startup handler_predict vetiver_create_meta
+#' @importFrom hardhat scream
+#' @importFrom vctrs vec_ptype
 NULL
 
 #' Sample Patient Characteristics Inputs
