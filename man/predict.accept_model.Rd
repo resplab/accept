@@ -4,12 +4,12 @@
 \alias{predict.accept_model}
 \title{Model predictions}
 \usage{
-\method{predict}{accept_model}(object, newdata)
+\method{predict}{accept_model}(object, ...)
 }
 \arguments{
 \item{object}{a model object}
 
-\item{newdata}{new data for which the prediction is needed}
+\item{...}{new data for which the prediction is needed}
 }
 \value{
 prediction results from ACCEPT model

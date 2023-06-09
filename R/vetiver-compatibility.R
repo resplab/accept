@@ -1,10 +1,10 @@
 #' Model predictions
 #'
 #' @param object a model object
-#' @param newdata new data for which the prediction is needed
+#' @param ... new data for which the prediction is needed
 #' @return prediction results from ACCEPT model
 #' @export
-predict.accept_model <- function(object, newdata) {
+predict.accept_model <- function(object, ...) {
   accept(newdata)
 }
 
