@@ -5,7 +5,7 @@
 #' @return prediction results from ACCEPT model
 #' @export
 predict.accept_model <- function(object, ...) {
-  accept(newdata)
+  accept(...)
 }
 
 #' Create a vetiver model object description

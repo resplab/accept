@@ -13,13 +13,14 @@ Encoding: UTF-8
 LazyData: true
 Imports:
     stats,
+    tidyselect(>= 1.2.0),
     dplyr,
     reldist,
     splines,
     tibble,
-    vetiver (>= 0.2.1),
     hardhat,
-    vctrs
+    vctrs,
+    vetiver (>= 0.2.1)
 Suggests:
     jsonlite,
     plotly,

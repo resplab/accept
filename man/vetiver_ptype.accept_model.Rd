@@ -4,7 +4,7 @@
 \alias{vetiver_ptype.accept_model}
 \title{Create a vetiver input data prototype}
 \usage{
-vetiver_ptype.accept_model(model, ...)
+\method{vetiver_ptype}{accept_model}(model, ...)
 }
 \arguments{
 \item{model}{a vetiver model object}

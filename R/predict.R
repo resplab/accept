@@ -274,7 +274,7 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 
 
   patientData <- patientData %>%
-    select(-.data$log_alpha, -.data$c_lin) %>%
+    select(-"log_alpha", -"c_lin") %>%
     mutate(predicted_exac_probability                 = risk_at_least_one_exac,
            predicted_exac_probability_lower_PI        = risk_at_least_one_exac_lower_PI,
            predicted_exac_probability_upper_PI        = risk_at_least_one_exac_upper_PI,
