@@ -1,4 +1,5 @@
 #' @import dplyr
+#' @import tidyselect
 #' @importFrom stats dpois quantile rpois dbinom weighted.mean predict
 #' @importFrom reldist wtd.quantile
 #' @importFrom splines bs

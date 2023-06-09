@@ -1,3 +1,6 @@
+class(accept) <- c("accept_model", class(accept))
+
+
 #' Model predictions
 #'
 #' @param object a model object
