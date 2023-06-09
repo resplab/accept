@@ -662,7 +662,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 
 #' A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE approach.
 #'
-#' @param data new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
+#' @param newdata new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param format default is "tibble". Can also be set to "json".
 #' @param version indicates which version of ACCEPT needs to be called.
 #' @param prediction_interval default is FALSE. If set to TRUE, returns prediction intervals of the predictions.
@@ -674,25 +674,25 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @importFrom stats reshape
 #'
 #' @examples
-#' results <- accept(data = samplePatients)
+#' results <- accept(newdata = samplePatients)
 #' @export
-accept <- function(data, format="tibble",  version = "flexccept", prediction_interval = FALSE, return_predictors = FALSE, ...) {
+accept <- function(newdata, format="tibble",  version = "flexccept", prediction_interval = FALSE, return_predictors = FALSE, ...) {
 
   if (format=="json") {
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
       stop("Package \"jsonlite\" needed for this function to work. Please install it.",
            call. = FALSE)
     }
-    data<-as_tibble(jsonlite::fromJSON(data))
+    newdata<-as_tibble(jsonlite::fromJSON(newdata))
   }
 
-  if (!is_tibble(data)) {stop("Wrong input format. Only `tibble` and `json` formats are supported. Make sure format is set to 'json' if the input data is in json.")}
+  if (!is_tibble(newdata)) {stop("Wrong input format. Only `tibble` and `json` formats are supported. Make sure format is set to 'json' if the input data is in json.")}
 
   if (version == "accept1") {
-    return(accept1(data, ...))
+    return(accept1(newdata, ...))
   }
   if (version == "accept2") {
-    return(accept2(data, ...))
+    return(accept2(newdata, ...))
   }
 
   samplePatients_colNames <- c("ID", "male", "age", "smoker", "oxygen",
@@ -702,38 +702,38 @@ accept <- function(data, format="tibble",  version = "flexccept", prediction_int
 
   samplePatients_colNames <- samplePatients_colNames[! grepl("randomized_|Last", samplePatients_colNames)]
 
-  if (! "SGRQ" %in% colnames(data)) {
-    if ("CAT" %in% colnames(data)) {
+  if (! "SGRQ" %in% colnames(newdata)) {
+    if ("CAT" %in% colnames(newdata)) {
       warning("SGRQ score not found. Using CAT score instead of SGRQ")
-      data$SGRQ <- 18.87 + 1.53 * data$CAT
+      newdata$SGRQ <- 18.87 + 1.53 * newdata$CAT
     }
     else {
-      if("mMRC" %in% colnames(data)) {
+      if("mMRC" %in% colnames(newdata)) {
         message("SGRQ score not found. Using mMRC score instead of SGRQ")
-        data$SGRQ <- 20.43 + 14.77 * data$mMRC
+        newdata$SGRQ <- 20.43 + 14.77 * newdata$mMRC
       }
     }
   }
-  if (all(! is.na(data$SGRQ))) {
-    if (! all(c("CAT", "mMRC") %in% colnames(data))) data$CAT <- data$SGRQ / 1.53 - 18.87 / 1.53
+  if (all(! is.na(newdata$SGRQ))) {
+    if (! all(c("CAT", "mMRC") %in% colnames(newdata))) newdata$CAT <- newdata$SGRQ / 1.53 - 18.87 / 1.53
   }
 
-  data_temp <- data[samplePatients_colNames]
+  newdata_temp <- newdata[samplePatients_colNames]
 
-  data_colNames <- colnames(data)
+  newdata_colNames <- colnames(newdata)
   KeepSGRQ_flag <- TRUE
   KeepMeds_flag <- TRUE
-  if (any(is.na(data[ , c("LAMA", "LABA", "ICS")]))) {
+  if (any(is.na(newdata[ , c("LAMA", "LABA", "ICS")]))) {
     KeepMeds_flag <- FALSE
-    data_colNames <- data_colNames[! data_colNames %in% c("LAMA", "LABA", "ICS")]
+    newdata_colNames <- newdata_colNames[! newdata_colNames %in% c("LAMA", "LABA", "ICS")]
   }
-  if (any(is.na(data$SGRQ))) {
+  if (any(is.na(newdata$SGRQ))) {
     KeepSGRQ_flag <- FALSE
-    data_colNames <- data_colNames[data_colNames != "SGRQ"]
+    newdata_colNames <- newdata_colNames[newdata_colNames != "SGRQ"]
   }
 
 
-  colNames_missing <- sort(colnames(data_temp)[apply(data_temp, 2, function(x) any(is.na(x)))])
+  colNames_missing <- sort(colnames(newdata_temp)[apply(newdata_temp, 2, function(x) any(is.na(x)))])
   colNames_complete <- sort(samplePatients_colNames[! samplePatients_colNames %in% c("ID", colNames_missing)])
   if (any(c("LAMA", "LABA", "ICS", "SGRQ") %in% colNames_missing)) {
     colNames_missing <- colNames_missing[! colNames_missing %in% c("LAMA", "LABA", "ICS", "SGRQ")]
@@ -747,38 +747,38 @@ accept <- function(data, format="tibble",  version = "flexccept", prediction_int
                      model_list$predictors == paste(colNames_complete, collapse = ",") , ]
       if (res_temp %in% c("male", "smoker", "oxygen", "statin")) {
         pred_temp <-
-          cbind(1, as.matrix(data.frame(data_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          cbind(1, as.matrix(data.frame(newdata_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
           matrix(unlist(model_temp$coef), ncol = 1)
         pred_temp <- as.vector(round(exp(pred_temp) / (1 + exp(pred_temp))))
       }
       else {
         pred_temp <-
-          cbind(1, as.matrix(data.frame(data_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          cbind(1, as.matrix(data.frame(newdata_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
           matrix(unlist(model_temp$coef), ncol = 1)
         pred_temp <- as.vector(pred_temp)
       }
-      data_temp[ , res_temp] <- pred_temp
+      newdata_temp[ , res_temp] <- pred_temp
       colNames_complete <- sort(c(colNames_complete, res_temp))
     }
   }
 
   ## Obtain ACCEPT 2 predictions for each set of imputed dataset
-  if (any(colnames(data) %in% colNames_missing)) {
-    acceptPreds <- data[ , ! (colnames(data) %in% colNames_missing)]
+  if (any(colnames(newdata) %in% colNames_missing)) {
+    acceptPreds <- newdata[ , ! (colnames(newdata) %in% colNames_missing)]
   }
   else {
-    acceptPreds <- data
+    acceptPreds <- newdata
   }
   if (length(colNames_missing) > 0) {
     warning(paste0("Missing column(s) detected. Imputing the following columns: ", colNames_missing))
-    acceptPreds <- merge(acceptPreds, data_temp[ , c("ID", colNames_missing)],
+    acceptPreds <- merge(acceptPreds, newdata_temp[ , c("ID", colNames_missing)],
                          by = "ID")
   }
   acceptPreds <- accept2(patientData = acceptPreds,
                          KeepSGRQ = KeepSGRQ_flag,
                          KeepMeds = KeepMeds_flag)
   if (prediction_interval) {
-    acceptPreds <- acceptPreds[ , c(data_colNames,
+    acceptPreds <- acceptPreds[ , c(newdata_colNames,
                                     "predicted_exac_probability",
                                     "predicted_exac_probability_lower_PI", "predicted_exac_probability_upper_PI",
                                     "predicted_exac_rate",
@@ -789,7 +789,7 @@ accept <- function(data, format="tibble",  version = "flexccept", prediction_int
                                     "predicted_severe_exac_rate_lower_PI", "predicted_severe_exac_rate_upper_PI")]
   }
   else {
-    acceptPreds <- acceptPreds[ , c(data_colNames,
+    acceptPreds <- acceptPreds[ , c(newdata_colNames,
                                     "predicted_exac_probability", "predicted_exac_rate",
                                     "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
   }
