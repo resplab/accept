@@ -1,0 +1,164 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# accept
+
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/resplab/accept/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/resplab/accept/actions/workflows/R-CMD-check.yaml)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/accept)](https://cran.r-project.org/package=accept)
+[![metacran downloads](https://cranlogs.r-pkg.org/badges/accept)](https://cran.r-project.org/package=accept)
+[![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+<!-- badges: end -->
+
+R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)
+
+ACCEPT is a prediction model for predicting probability, rate, and severity of exacerbations (also known as lung attacks) in patients with Chronic Obstructive Pulmonary Disease. 
+
+ACCEPT has been developed by researchers at the University of British Columbia. Please refer to the published papers for more information: 
+
+Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine, 8(10), pp.1013-1021; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
+
+Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M. and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally validating the Acute COPD exacerbation prediction tool (ACCEPT). EClinicalMedicine, 51, p.101574. [doi:10.1016/j.eclinm.2022.101574](http://doi.org/10.1016/j.eclinm.2022.101574)
+
+The following animation explains the `accept` model in 90 seconds:
+
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/UuGLN128Z3Y/0.jpg)](https://www.youtube.com/watch?v=UuGLN128Z3Y)
+
+
+## Installation
+
+The latest stable version can be downloaded from CRAN:  
+
+`install.packages('accept')`
+
+You can install the development version of accept from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("pak")
+pak::pak("resplab/accept")
+```
+## Usage
+
+The function `accept()` provides predictions from the latest version of the `accept` prediction model. `accept1()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations.
+
+## Example
+
+### Exacerbation Prediction
+
+To get a prediction for exacerbation rate, you will need to pass in a patient vector. The accept package comes with a sample patient data tibble called `samplePatients`:
+
+```{r}
+library(accept)
+accept(samplePatients) #accept uses the latest updated prediction model
+```
+
+**accept2()** and **accept1()** functions return a more detailed dataframe with the predictions for different treatment options with measures of uncertainty. 
+
+To visualize the data, there is a graphing function called **plotExacerbations()**, which creates a Plotly bar graph. You have the option of selecting **probability** or **rate** for which prediction you want to see, and either **CI** or **PI** to select the confidence interval or prediction interval respectively.
+
+```{r, eval=FALSE}
+results <- accept2(samplePatients[1,])
+plotExacerbations(results, type="probability", interval = "CI")
+
+plotExacerbations(results, type="probability", interval = "PI")
+
+plotExacerbations(results, type="rate", interval = "CI")
+```
+
+### Probability of N Exacerbations (Poisson)
+
+You can also calculate the predicted number of exacerbations in a year:
+```{r}
+results <- accept2(samplePatients[1,]) 
+exacerbationsMatrix <- predictCountProb(results, n = 10, shortened = TRUE)
+print(exacerbationsMatrix)
+```
+
+The shortened parameter groups the probabilities from 3-10 exacerbations into one category, "3 or more exacerbations." To see all n exacerbation probabilities:
+
+```{r}
+exacerbationsMatrix <- predictCountProb(results, n = 10, shortened = FALSE)
+print(exacerbationsMatrix)
+```
+
+
+To visualize the matrix as a heatmap, we can use the function **plotHeatMap**:
+
+```{r, eval=F}
+plotHeatMap(results, shortened = FALSE)
+```
+## Web App for ACCEPT 
+
+ACCEPT is also available as web app, accessible at [http://resp.core.ubc.ca/ipress/accept](http://resp.core.ubc.ca/ipress/accept)
+
+
+## API using vetiver and plumber 
+
+You can use vetiver and plumber packages to create, deploy, and monitor an API for ACCEPT:
+
+```{r}
+library(vetiver)
+v_accept <- vetiver_model(accept, 
+                   "accept-model")
+
+```
+
+To test to API locally, you can use
+```{r, eval=FALSE}
+library(plumber)
+pr() |> 
+    vetiver_api(v_accept) |>
+  pr_run()
+```
+
+
+## Cloud-based API Access through Peer Models Network
+
+The [Peer Models Network](https://www.peermodelsnetwork.com) allows users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can be used to interact with the model and see the results. To download the PRISM Excel template file for ACCEPT, please refer to the [Peer Models Network model repository](https://models.peermodelsnetwork.com).
+
+#### Python
+```
+import json
+import requests
+url = 'https://prism.peermodelsnetwork.com/route/accept/run'
+headers = {'x-prism-auth-user': YOUR_API_KEY}
+model_run = requests.post(url, headers=headers,
+json = {"func":["prism_model_run"],"model_input":[{"ID": "10001","male": 1,"age": 57,"smoker": 0,"oxygen": 0,"statin": 0,"LAMA": 1,"LABA": 1,"ICS": 1,"FEV1": 51,"BMI": 18,"SGRQ": 63,"LastYrExacCount": 2,"LastYrSevExacCount": 1,"randomized_azithromycin": 0,"randomized_statin": 0,"randomized_LAMA": 0,"randomized_LABA": 0,"randomized_ICS": 0, "random_sampling_N" : 100,  "calculate_CIs" : "TRUE"}]})
+print(model_run)
+results = json.loads(model_run.text)
+print(results)
+```
+
+#### Linux Bash
+
+In Ubuntu, you can call the API with `curl`:
+
+```
+curl \
+-X POST \
+-H "x-prism-auth-user: REPLACE_WITH_API_KEY" \
+-H "Content-Type: application/json" \
+-d '{"func":["prism_model_run"],"model_input":[{"ID": "10001","male": 1,"age": 57,"smoker": 0,"oxygen": 0,"statin": 0,"LAMA": 1,"LABA": 1,"ICS": 1,"FEV1": 51,"BMI": 18,"SGRQ": 63,"LastYrExacCount": 2,"LastYrSevExacCount": 1,"randomized_azithromycin": 0,"randomized_statin": 0,"randomized_LAMA": 0,"randomized_LABA": 0,"randomized_ICS": 0, "random_sampling_N" : 100, 
+"calculate_CIs" : "TRUE"}]}' \
+https://prism.peermodelsnetwork.com/route/accept/run
+```
+
+## Citation
+
+Please cite:
+
+Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM, Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a modelling study. The Lancet Respiratory Medicine. Published Online First 2020 March 13th; [doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
+
+Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M. and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally validating the Acute COPD exacerbation prediction tool (ACCEPT). EClinicalMedicine, 51, p.101574. [doi:10.1016/j.eclinm.2022.101574](http://doi.org/10.1016/j.eclinm.2022.101574)
