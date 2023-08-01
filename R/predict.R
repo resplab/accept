@@ -704,7 +704,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 accept <- function(data, version = "flexccept", prediction_interval = FALSE,
                    TxPathways_custom = NULL, ...) {
 
-  if (! is.null(TxPathways_custom)) trt_table <- TxPathways_custom
+  if (! is.null(TxPathways_custom)) trt_table_2023 <- TxPathways_custom
 
   if (version == "accept1") {
     return(accept1(data, ...))
@@ -814,16 +814,20 @@ accept <- function(data, version = "flexccept", prediction_interval = FALSE,
                                    1, 0)
   acceptPreds$symptom_level = NA
 
+
   if ("CAT" %in% colnames(acceptPreds)) {
     acceptPreds$symptom_level <- ifelse(acceptPreds$CAT < 10, 0, 1)
   }
   if ("mMRC" %in% colnames(acceptPreds)) {
     acceptPreds$symptom_level <- ifelse(acceptPreds$mMRC <= 1, 0, 1)
   }
+
+  acceptPreds$lung_level <- ifelse(acceptPreds$FEV1<80, 1 ,0)
+
   if (all(c("LAMA", "LABA", "ICS") %in% colnames(acceptPreds)) &
       all(! is.na(acceptPreds$symptom_level))) {
-    acceptPreds <- merge(acceptPreds, trt_table,
-                         by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level"))
+    acceptPreds <- merge(acceptPreds, trt_table_2023,
+                         by = c("LAMA", "LABA", "ICS", "symptom_level", "risk_level", "lung_level"))
   }
   else {
     acceptPreds$recommended_treatment = NA

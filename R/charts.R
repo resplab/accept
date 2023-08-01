@@ -122,28 +122,31 @@ plotExacerbations <- function(patientResults, type="rate", interval = "PI",
 #' @export
 plotFEV1 <- function(data)
 {
-  x_offset <- 0.05
-  x_shrink <- 0.55
+  x_offset <- 0.029
+  x_shrink <- 0.54
   y_offset <- 0
   y_shrink <- 1
 
+
   require(png)
-  ima <- readPNG(paste(path.package("accept"),"/extdata/bg.png",sep=""))
-  plot(0:1, 0:1, xlab="", ylab="", axes = F)
+  ima <- readPNG(paste(path.package("accept"),"/extdata/bg2.png",sep=""))
+  plot(0:1, c(-.04,1.06), xlab="", ylab="", axes = F)
   #Get the plot information so the image will fill the plot box, and draw it
   lim <- par()
   par(mar=c(0,0,0,0))
   rasterImage(ima, lim$usr[1], lim$usr[3], lim$usr[2], lim$usr[4])
 
+  data$FEV1 <- data$FEV1/100*4
   preds <- fev1_predictor(data)
+  preds$FEV1 <- preds$FEV1/4*100
   years <- unique(preds$Year)
 
   xy <- preds[which(preds$Scenario=="Smoking"),c('Year','FEV1')]
-  lines(x_offset+xy[,1]/15*x_shrink,y_offset+xy[,2]/100, type='l', col='red', lwd=3)
+  lines(x_offset+xy[,1]/15*x_shrink,y_offset+xy[,2]/100*y_shrink, type='l', col='red', lwd=3)
+  text(x_offset+xy[10,1]/15*x_shrink,y_offset+xy[10,2]/100*y_shrink-0.1, "Keep smoking", col='red')
 
-  xy <- preds[which(preds$Scenario=="QuitsSmoking"),c('Year','FEV1')]
-  lines(x_offset+xy[,1]/15*x_shrink,y_offset+xy[,2]/100, type='l', col='blue', lwd=3)
-
-
+  xy <- rbind(xy[1,], preds[which(preds$Scenario=="QuitsSmoking"),c('Year','FEV1')])
+  lines(x_offset+xy[,1]/15*x_shrink,y_offset+xy[,2]/100*y_shrink, type='l', col='blue', lwd=3)
+  text(x_offset+xy[7,1]/15*x_shrink,y_offset+xy[7,2]/100*y_shrink+0.05, "Quit smoking", col='blue')
 }
 
