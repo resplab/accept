@@ -664,7 +664,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #'
 #' @param newdata new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param format default is "tibble". Can also be set to "json".
-#' @param version indicates which version of ACCEPT needs to be called.
+#' @param version indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", and "flexccept"
 #' @param prediction_interval default is FALSE. If set to TRUE, returns prediction intervals of the predictions.
 #' @param return_predictors default is FALSE. IF set to TRUE, returns the predictors along with prediction results.
 #' @param ... for other versions of accept.
@@ -676,7 +676,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @examples
 #' results <- accept(newdata = samplePatients)
 #' @export
-accept <- function(newdata, format="tibble",  version = "flexccept", prediction_interval = FALSE, return_predictors = FALSE, ...) {
+accept <- function(newdata, format="tibble",  version = "accept2", prediction_interval = FALSE, return_predictors = FALSE, ...) {
 
   if (format=="json") {
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
@@ -687,6 +687,7 @@ accept <- function(newdata, format="tibble",  version = "flexccept", prediction_
   }
 
   if (!is_tibble(newdata)) {stop("Wrong input format. Only `tibble` and `json` formats are supported. Make sure format is set to 'json' if the input data is in json.")}
+  if (any(newdata$FEV1>=120) | any(newdata$FEV1<10)) warning("Unusually high or low FEV1 values detected. Ensure you are passing percent predicted values between 10 to 110 ")
 
   if (version == "accept1") {
     return(accept1(newdata, ...))

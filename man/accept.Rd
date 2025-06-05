@@ -7,7 +7,7 @@
 accept(
   newdata,
   format = "tibble",
-  version = "flexccept",
+  version = "accept2",
   prediction_interval = FALSE,
   return_predictors = FALSE,
   ...
@@ -18,7 +18,7 @@ accept(
 
 \item{format}{default is "tibble". Can also be set to "json".}
 
-\item{version}{indicates which version of ACCEPT needs to be called.}
+\item{version}{indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", and "flexccept"}
 
 \item{prediction_interval}{default is FALSE. If set to TRUE, returns prediction intervals of the predictions.}
 
