@@ -26,8 +26,9 @@ Columbia. Please refer to the published papers for more information:
 
 Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM,
 Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a
-modelling study. The Lancet Respiratory Medicine, 8(10), pp.1013-1021;
-[doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
+modelling study. The Lancet Respiratory Medicine, Volume 8, Issue 10,
+1013 - 1021;
+[doi:10.1016/S2213-2600(19)30397-2](https://doi.org/10.1016/S2213-2600(19)30397-2)
 
 Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M.
 and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally
@@ -74,12 +75,60 @@ tibble called `samplePatients`:
 ``` r
 library(accept)
 accept(samplePatients) #accept uses the latest updated prediction model
-#>   predicted_exac_probability predicted_exac_rate
-#> 1                  0.8327888           1.7884977
-#> 2                  0.4366622           0.5738758
-#>   predicted_severe_exac_probability predicted_severe_exac_rate
-#> 1                         0.6026383                  0.9229084
-#> 2                         0.1085515                  0.1149076
+#>      ID  male age smoker oxygen statin LAMA LABA   ICS FEV1 BMI SGRQ
+#> 1 10001  TRUE  70   TRUE   TRUE   TRUE TRUE TRUE  TRUE   33  25   50
+#> 2 10002 FALSE  42  FALSE   TRUE  FALSE TRUE TRUE FALSE   40  35   40
+#>   LastYrExacCount LastYrSevExacCount predicted_exac_probability
+#> 1               2                  1                  0.8327888
+#> 2               0                  0                  0.4366622
+#>   predicted_exac_probability_lower_PI predicted_exac_probability_upper_PI
+#> 1                           0.1929329                           0.9924159
+#> 2                           0.0000000                           0.8998712
+#>   predicted_exac_rate predicted_exac_rate_lower_PI predicted_exac_rate_upper_PI
+#> 1           1.7884977                    0.2143485                     4.881703
+#> 2           0.5738758                    0.0000000                     2.301298
+#>   predicted_severe_exac_probability predicted_severe_exac_probability_lower_PI
+#> 1                         0.6026383                                 0.09371195
+#> 2                         0.1085515                                 0.02547523
+#>   predicted_severe_exac_probability_upper_PI predicted_severe_exac_rate
+#> 1                                  0.9575906                  0.9229084
+#> 2                                  0.4784134                  0.1149076
+#>   predicted_severe_exac_rate_lower_PI predicted_severe_exac_rate_upper_PI
+#> 1                          0.09839809                            3.160385
+#> 2                          0.02580535                            0.650880
+#>   azithromycin_predicted_exac_probability
+#> 1                               0.7633086
+#> 2                               0.3291975
+#>   azithromycin_predicted_exac_probability_lower_PI
+#> 1                                        0.1286904
+#> 2                                        0.0000000
+#>   azithromycin_predicted_exac_probability_upper_PI
+#> 1                                        0.9793698
+#> 2                                        0.8524301
+#>   azithromycin_predicted_exac_rate azithromycin_predicted_exac_rate_lower_PI
+#> 1                        1.4409981                                 0.1377579
+#> 2                        0.3992806                                 0.0000000
+#>   azithromycin_predicted_exac_rate_upper_PI
+#> 1                                  3.880998
+#> 2                                  1.913453
+#>   azithromycin_predicted_severe_exac_probability
+#> 1                                     0.51103045
+#> 2                                     0.08544925
+#>   azithromycin_predicted_severe_exac_probability_lower_PI
+#> 1                                              0.07570494
+#> 2                                              0.02469734
+#>   azithromycin_predicted_severe_exac_probability_upper_PI
+#> 1                                               0.9221162
+#> 2                                               0.3567065
+#>   azithromycin_predicted_severe_exac_rate
+#> 1                              0.71545506
+#> 2                              0.08932232
+#>   azithromycin_predicted_severe_exac_rate_lower_PI
+#> 1                                       0.07872393
+#> 2                                       0.02500744
+#>   azithromycin_predicted_severe_exac_rate_upper_PI
+#> 1                                        2.5525368
+#> 2                                        0.4411541
 ```
 
 **accept2()** and **accept1()** functions return a more detailed
@@ -199,7 +248,7 @@ pr() |>
 
 ## Cloud-based API Access through Peer Models Network
 
-The [Peer Models Network](https://www.peermodelsnetwork.com) allows
+The [Peer Models Network](https://resp.core.ubc.ca/show/pmnintro) allows
 users to access ACCEPT through the cloud. A MACRO-enabled Excel-file can
 be used to interact with the model and see the results. To download the
 PRISM Excel template file for ACCEPT, please refer to the [Peer Models
@@ -235,9 +284,9 @@ Please cite:
 
 Adibi A, Sin DD, Safari A, Jonhson KM, Aaron SD, FitzGerald JM,
 Sadatsafavi M. The Acute COPD Exacerbation Prediction Tool (ACCEPT): a
-modelling study. The Lancet Respiratory Medicine. Published Online First
-2020 March 13th;
-[doi:10.1016/S2213-2600(19)30397-2](https://www.thelancet.com/journals/lanres/article/PIIS2213-2600%2819%2930397-2/fulltext)
+modelling study. The Lancet Respiratory Medicine. Volume 8, Issue 10,
+1013 - 1021
+[doi:10.1016/S2213-2600(19)30397-2](https://doi.org/10.1016/S2213-2600(19)30397-2)
 
 Safari, A., Adibi, A., Sin, D.D., Lee, T.Y., Ho, J.K., Sadatsafavi, M.
 and IMPACT study team, 2022. ACCEPT 2· 0: Recalibrating and externally
