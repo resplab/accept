@@ -1,0 +1,22 @@
+<urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
+<url><loc>/404.html</loc></url>
+<url><loc>/authors.html</loc></url>
+<url><loc>/index.html</loc></url>
+<url><loc>/news/index.html</loc></url>
+<url><loc>/reference/accept.html</loc></url>
+<url><loc>/reference/accept1.html</loc></url>
+<url><loc>/reference/accept2.html</loc></url>
+<url><loc>/reference/handler_predict.accept_model.html</loc></url>
+<url><loc>/reference/index.html</loc></url>
+<url><loc>/reference/plotExacerbations.html</loc></url>
+<url><loc>/reference/plotHeatMap.html</loc></url>
+<url><loc>/reference/predict.accept_model.html</loc></url>
+<url><loc>/reference/predictCountProb.html</loc></url>
+<url><loc>/reference/samplePatients.html</loc></url>
+<url><loc>/reference/set_openai_api_key.html</loc></url>
+<url><loc>/reference/show_openai_api_key.html</loc></url>
+<url><loc>/reference/vetiver_create_description.accept_model.html</loc></url>
+<url><loc>/reference/vetiver_create_meta.accept_model.html</loc></url>
+<url><loc>/reference/vetiver_ptype.accept_model.html</loc></url>
+</urlset>
+
