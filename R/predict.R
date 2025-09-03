@@ -701,7 +701,44 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
     return(accept1(newdata, ...))
   }
   if (version == "accept2") {
-    return(accept2(newdata, ...))
+    # Check if country_recalibration is requested
+    if (country_recalibration) {
+      if (!"obs_risk" %in% colnames(newdata)) {
+        stop("Country recalibration requires 'obs_risk' column in newdata. This should contain the average observed risk of exacerbation in the target population.")
+      }
+      # Get standard accept2 results first, then apply recalibration
+      acceptPreds <- accept2(newdata, ...)
+      
+      # Apply country-level recalibration for each patient
+      for (i in 1:nrow(acceptPreds)) {
+        # Extract obs_risk for this patient using row index
+        obs_risk_val <- newdata$obs_risk[i]
+        
+        # Apply recalibration formula
+        predicted_prob <- acceptPreds$predicted_exac_probability[i]
+        cll <- log(-log(1 - predicted_prob))
+        re <- 3.064 * obs_risk_val - 0.858
+        slope <- 0.9205
+        recal_lp <- re + (slope * cll)
+        cum_basehaz <- 0.2989
+        recal_risk <- 1 - exp(-cum_basehaz * exp(recal_lp))
+        
+        # Update the predicted probability with recalibrated value
+        acceptPreds$predicted_exac_probability[i] <- recal_risk
+        
+        # Also recalibrate severe exacerbation probability if needed
+        predicted_sev_prob <- acceptPreds$predicted_severe_exac_probability[i]
+        if (predicted_sev_prob > 0 && predicted_sev_prob < 1) {
+          cll_sev <- log(-log(1 - predicted_sev_prob))
+          recal_lp_sev <- re + (slope * cll_sev)
+          recal_risk_sev <- 1 - exp(-cum_basehaz * exp(recal_lp_sev))
+          acceptPreds$predicted_severe_exac_probability[i] <- recal_risk_sev
+        }
+      }
+      return(acceptPreds)
+    } else {
+      return(accept2(newdata, ...))
+    }
   }
   if (version == "accept2_re") {
     # Use country-level random effects version
@@ -737,7 +774,8 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
       
       results_list[[i]] <- data.frame(
         ID = patient$ID,
-        predicted_exac_probability_recalibrated = result$updated_risk
+        predicted_exac_probability = result$updated_risk,
+        predicted_severe_exac_probability = NA  # Will be calculated separately if needed
       )
     }
     
@@ -748,7 +786,7 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
     if (return_predictors) {
       return(merge(newdata, recalibrated_results, by = "ID"))
     } else {
-      return(recalibrated_results[, c("predicted_exac_probability_recalibrated"), drop = FALSE])
+      return(recalibrated_results[, c("ID", "predicted_exac_probability"), drop = FALSE])
     }
   }
 
@@ -843,15 +881,15 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
     
     # Apply country-level recalibration for each patient
     for (i in 1:nrow(acceptPreds)) {
-      # Extract obs_risk for this patient (should be the same for all patients from the same country)
-      obs_risk_val <- newdata$obs_risk[newdata$ID == acceptPreds$ID[i]]
+      # Extract obs_risk for this patient using row index
+      obs_risk_val <- newdata$obs_risk[i]
       
       # Apply recalibration formula from predict_accept2_re
       predicted_prob <- acceptPreds$predicted_exac_probability[i]
       cll <- log(-log(1 - predicted_prob))
       re <- 3.064 * obs_risk_val - 0.858
       slope <- 0.9205
-      recal_lp <- re + (slope * log(-log(1 - predicted_prob)))
+      recal_lp <- re + (slope * cll)
       cum_basehaz <- 0.2989
       recal_risk <- 1 - exp(-cum_basehaz * exp(recal_lp))
       
@@ -863,7 +901,7 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
       predicted_sev_prob <- acceptPreds$predicted_severe_exac_probability[i]
       if (predicted_sev_prob > 0 && predicted_sev_prob < 1) {
         cll_sev <- log(-log(1 - predicted_sev_prob))
-        recal_lp_sev <- re + (slope * log(-log(1 - predicted_sev_prob)))
+        recal_lp_sev <- re + (slope * cll_sev)
         recal_risk_sev <- 1 - exp(-cum_basehaz * exp(recal_lp_sev))
         acceptPreds$predicted_severe_exac_probability[i] <- recal_risk_sev
       }
@@ -930,13 +968,16 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
 #' 
 #' @export
 predict_accept2_re <- function(ID, age, male, BMI, smoker, mMRC, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, oxygen, obs_risk) {
-  df <- data.frame(ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, mMRC = mMRC, statin = CVD, ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount, FEV1 = FEV1, oxygen = oxygen, obs_risk = obs_risk)
-  model_accept2 <- accept(newdata=df, version="flexccept", format = "tibble")
+  # Convert mMRC to SGRQ if needed
+  SGRQ <- 20.43 + 14.77 * mMRC
+  
+  df <- tibble::tibble(ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, SGRQ = SGRQ, statin = CVD, ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount, FEV1 = FEV1, oxygen = oxygen, obs_risk = obs_risk)
+  model_accept2 <- accept(newdata=df, version="accept2", format = "tibble")
   df$predicted_exac_probability <- model_accept2$predicted_exac_probability
   df$cll <- log(-log(1 - df$predicted_exac_probability))
   df$re <- 3.064* df$obs_risk - 0.858
   slope <- 0.9205  
-  df$recal_lp <- df$re + (slope*log(-log(1-df$predicted_exac_probability)))
+  df$recal_lp <- df$re + (slope*df$cll)
   cum_basehaz <- 0.2989 
   df$recal_risk <- 1-exp(-cum_basehaz*exp(df$recal_lp))
   return(list(updated_risk = df$recal_risk))
