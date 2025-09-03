@@ -23,7 +23,7 @@ knitr::opts_chunk$set(
 
 R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)
 
-ACCEPT is a prediction model for predicting probability, rate, and severity of exacerbations (also known as lung attacks) in patients with Chronic Obstructive Pulmonary Disease.
+ACCEPT is a prediction model for predicting probability, rate, and severity of exacerbations (also known as lung attacks) in patients with Chronic Obstructive Pulmonary Disease. The package now includes country-level random effects recalibration to improve prediction accuracy for different populations and healthcare systems.
 
 ACCEPT has been developed by researchers at the University of British Columbia. Please refer to the published papers for more information:
 
@@ -52,6 +52,43 @@ pak::pak("resplab/accept")
 
 The function `accept()` provides predictions from the latest version of the `accept` prediction model. `accept1()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations.
 
+### Country-Level Random Effects
+
+ACCEPT now supports country-level random effects recalibration to improve prediction accuracy for different populations. This feature adjusts the baseline risk predictions based on the observed exacerbation risk in your target population/country.
+
+To use country-level random effects, you have two options:
+
+1. Use the `country_recalibration` parameter:
+
+```{r, eval=FALSE}
+# Add observed risk for your population
+your_data <- samplePatients
+your_data$obs_risk <- 0.25  # 25% observed annual exacerbation risk in your population
+
+# Apply country recalibration
+results <- accept(newdata = your_data, country_recalibration = TRUE)
+```
+
+2. Use the dedicated `accept2_re` version:
+
+```{r, eval=FALSE}
+# Using the specialized country random effects version
+results <- accept(newdata = your_data, version = "accept2_re")
+```
+
+Both methods require an `obs_risk` column in your data that represents the average observed risk of exacerbation in your target population. This value should be based on real-world data from your healthcare system or population of interest.
+
+#### Parameters for `accept()` function:
+
+- `newdata`: Patient data in tibble or data frame format
+- `format`: Input format ("tibble" or "json")
+- `version`: Model version ("accept1", "accept2", "accept2_re", or "flexccept")  
+- `prediction_interval`: Whether to return prediction intervals (default: FALSE)
+- `return_predictors`: Whether to return input predictors with results (default: FALSE)
+- `country_recalibration`: Whether to apply country-level recalibration (default: FALSE)
+
+When using country recalibration (`country_recalibration = TRUE` or `version = "accept2_re"`), the `obs_risk` column is required in your input data.
+
 ## Example
 
 ### Exacerbation Prediction
@@ -64,6 +101,51 @@ accept(samplePatients) #accept uses the latest updated prediction model
 ```
 
 **accept2()** and **accept1()** functions return a more detailed dataframe with the predictions for different treatment options with measures of uncertainty.
+
+### Country-Level Recalibration Example
+
+To use country-level random effects recalibration:
+
+```{r, eval=FALSE}
+# Create sample data with observed risk
+data_with_obs_risk <- samplePatients
+data_with_obs_risk$obs_risk <- 0.30  # 30% observed annual risk in your population
+
+# Method 1: Using country_recalibration parameter
+results_recal <- accept(newdata = data_with_obs_risk, 
+                       country_recalibration = TRUE, 
+                       return_predictors = TRUE)
+
+# Method 2: Using accept2_re version
+results_re <- accept(newdata = data_with_obs_risk, 
+                    version = "accept2_re", 
+                    return_predictors = TRUE)
+
+# Compare with standard predictions
+results_standard <- accept(newdata = samplePatients)
+
+# View recalibrated vs standard predictions
+print("Standard predictions:")
+print(results_standard[, c("predicted_exac_probability")])
+
+print("Recalibrated predictions:")
+print(results_recal[, c("predicted_exac_probability")])
+```
+
+#### Technical Details for Country Recalibration
+
+The country-level random effects recalibration uses the following approach:
+
+1. Computes standard ACCEPT predictions for the patient
+2. Applies a recalibration formula using:
+   - Slope parameter: 0.9205
+   - Cumulative baseline hazard: 0.2989  
+   - Random effect: 3.064 × obs_risk - 0.858
+3. Returns recalibrated risk estimates via complementary log-log transformation
+
+This method has been validated to improve prediction accuracy when the baseline risk in your population differs from the original ACCEPT development cohorts.
+
+### Visualization
 
 To visualize the data, there is a graphing function called **plotExacerbations()**, which creates a Plotly bar graph. You have the option of selecting **probability** or **rate** for which prediction you want to see, and either **CI** or **PI** to select the confidence interval or prediction interval respectively.
 

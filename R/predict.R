@@ -664,9 +664,10 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #'
 #' @param newdata new patient data with missing values to be imputed before prediction with the same format as accept samplePatients.
 #' @param format default is "tibble". Can also be set to "json".
-#' @param version indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", and "flexccept"
+#' @param version indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", "accept2_re", and "flexccept"
 #' @param prediction_interval default is FALSE. If set to TRUE, returns prediction intervals of the predictions.
 #' @param return_predictors default is FALSE. IF set to TRUE, returns the predictors along with prediction results.
+#' @param country_recalibration default is FALSE. If set to TRUE, applies country-level random effects recalibration. Requires obs_risk column in newdata.
 #' @param ... for other versions of accept.
 #' @return patientData with prediction.
 #'
@@ -675,8 +676,15 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #'
 #' @examples
 #' results <- accept(newdata = samplePatients)
+#' # With country recalibration (requires obs_risk column)
+#' # newdata_with_obs_risk <- samplePatients
+#' # newdata_with_obs_risk$obs_risk <- 0.3  # example observed risk
+#' # results_recal <- accept(newdata = newdata_with_obs_risk, country_recalibration = TRUE)
+#' # 
+#' # Or use the dedicated country-level random effects version:
+#' # results_re <- accept(newdata = newdata_with_obs_risk, version = "accept2_re")
 #' @export
-accept <- function(newdata, format="tibble",  version = "accept2", prediction_interval = FALSE, return_predictors = FALSE, ...) {
+accept <- function(newdata, format="tibble",  version = "accept2", prediction_interval = FALSE, return_predictors = FALSE, country_recalibration = FALSE, ...) {
 
   if (format=="json") {
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
@@ -694,6 +702,54 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
   }
   if (version == "accept2") {
     return(accept2(newdata, ...))
+  }
+  if (version == "accept2_re") {
+    # Use country-level random effects version
+    if (!"obs_risk" %in% colnames(newdata)) {
+      stop("Version 'accept2_re' requires 'obs_risk' column in newdata. This should contain the average observed risk of exacerbation in the target population.")
+    }
+    
+    # Apply predict_accept2_re to each patient
+    results_list <- list()
+    for (i in 1:nrow(newdata)) {
+      patient <- newdata[i, ]
+      
+      # Convert mMRC to match expected parameter name
+      mMRC_val <- if ("mMRC" %in% colnames(patient)) patient$mMRC else if ("SGRQ" %in% colnames(patient)) (patient$SGRQ - 20.43) / 14.77 else 0
+      
+      result <- predict_accept2_re(
+        ID = patient$ID,
+        age = patient$age,
+        male = patient$male,
+        BMI = patient$BMI,
+        smoker = patient$smoker,
+        mMRC = mMRC_val,
+        CVD = patient$statin,  # statin used as CVD indicator
+        ICS = patient$ICS,
+        LABA = patient$LABA,
+        LAMA = patient$LAMA,
+        LastYrExacCount = patient$LastYrExacCount,
+        LastYrSevExacCount = patient$LastYrSevExacCount,
+        FEV1 = patient$FEV1,
+        oxygen = patient$oxygen,
+        obs_risk = patient$obs_risk
+      )
+      
+      results_list[[i]] <- data.frame(
+        ID = patient$ID,
+        predicted_exac_probability_recalibrated = result$updated_risk
+      )
+    }
+    
+    # Combine results
+    recalibrated_results <- do.call(rbind, results_list)
+    
+    # Merge with original data if return_predictors is TRUE
+    if (return_predictors) {
+      return(merge(newdata, recalibrated_results, by = "ID"))
+    } else {
+      return(recalibrated_results[, c("predicted_exac_probability_recalibrated"), drop = FALSE])
+    }
   }
 
   samplePatients_colNames <- c("ID", "male", "age", "smoker", "oxygen",
@@ -778,6 +834,41 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
   acceptPreds <- accept2(patientData = acceptPreds,
                          KeepSGRQ = KeepSGRQ_flag,
                          KeepMeds = KeepMeds_flag)
+  
+  # Apply country-level random effects recalibration if requested
+  if (country_recalibration) {
+    if (!"obs_risk" %in% colnames(newdata)) {
+      stop("Country recalibration requires 'obs_risk' column in newdata. This should contain the average observed risk of exacerbation in the target population.")
+    }
+    
+    # Apply country-level recalibration for each patient
+    for (i in 1:nrow(acceptPreds)) {
+      # Extract obs_risk for this patient (should be the same for all patients from the same country)
+      obs_risk_val <- newdata$obs_risk[newdata$ID == acceptPreds$ID[i]]
+      
+      # Apply recalibration formula from predict_accept2_re
+      predicted_prob <- acceptPreds$predicted_exac_probability[i]
+      cll <- log(-log(1 - predicted_prob))
+      re <- 3.064 * obs_risk_val - 0.858
+      slope <- 0.9205
+      recal_lp <- re + (slope * log(-log(1 - predicted_prob)))
+      cum_basehaz <- 0.2989
+      recal_risk <- 1 - exp(-cum_basehaz * exp(recal_lp))
+      
+      # Update the predicted probability with recalibrated value
+      acceptPreds$predicted_exac_probability[i] <- recal_risk
+      
+      # Also recalibrate severe exacerbation probability if needed
+      # (using the same recalibration approach)
+      predicted_sev_prob <- acceptPreds$predicted_severe_exac_probability[i]
+      if (predicted_sev_prob > 0 && predicted_sev_prob < 1) {
+        cll_sev <- log(-log(1 - predicted_sev_prob))
+        recal_lp_sev <- re + (slope * log(-log(1 - predicted_sev_prob)))
+        recal_risk_sev <- 1 - exp(-cum_basehaz * exp(recal_lp_sev))
+        acceptPreds$predicted_severe_exac_probability[i] <- recal_risk_sev
+      }
+    }
+  }
   if (prediction_interval) {
     acceptPreds <- acceptPreds[ , c(newdata_colNames,
                                     "predicted_exac_probability",
@@ -800,6 +891,55 @@ accept <- function(newdata, format="tibble",  version = "accept2", prediction_in
   }
 
   return(acceptPreds)
+}
+
+#' Recalibrates ACCEPT 2.0 predictions for country-level random effects
+#' 
+#' This function applies country-level random effects recalibration to improve
+#' prediction accuracy for different populations by adjusting baseline risk
+#' based on observed exacerbation risk in the target population.
+#' 
+#' @param ID patient ID
+#' @param age age in years
+#' @param male male gender (1) or female (0)
+#' @param BMI body mass index
+#' @param smoker smoking status (1) or non-smoker (0)
+#' @param mMRC modified Medical Research Council dyspnea scale (0-4)
+#' @param CVD cardiovascular disease (1) or no (0)
+#' @param ICS inhaled corticosteroids (1) or no (0)
+#' @param LABA long-acting beta-agonists (1) or no (0)
+#' @param LAMA long-acting muscarinic antagonists (1) or no (0)
+#' @param LastYrExacCount number of exacerbations in the last year
+#' @param LastYrSevExacCount number of severe exacerbations in the last year
+#' @param FEV1 forced expiratory volume in 1 second (percent predicted)
+#' @param oxygen oxygen therapy (1) or no (0)
+#' @param obs_risk average observed risk of exacerbation in the target population
+#' 
+#' @return A list containing the updated risk after recalibration
+#' 
+#' @examples
+#' \dontrun{
+#' # Example with country recalibration
+#' result <- predict_accept2_re(
+#'   ID = "10001", age = 65, male = 1, BMI = 25, smoker = 0, mMRC = 2,
+#'   CVD = 1, ICS = 1, LABA = 1, LAMA = 1, LastYrExacCount = 2, 
+#'   LastYrSevExacCount = 1, FEV1 = 45, oxygen = 0, obs_risk = 0.25
+#' )
+#' print(result$updated_risk)
+#' }
+#' 
+#' @export
+predict_accept2_re <- function(ID, age, male, BMI, smoker, mMRC, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, oxygen, obs_risk) {
+  df <- data.frame(ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, mMRC = mMRC, statin = CVD, ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount, FEV1 = FEV1, oxygen = oxygen, obs_risk = obs_risk)
+  model_accept2 <- accept(newdata=df, version="flexccept", format = "tibble")
+  df$predicted_exac_probability <- model_accept2$predicted_exac_probability
+  df$cll <- log(-log(1 - df$predicted_exac_probability))
+  df$re <- 3.064* df$obs_risk - 0.858
+  slope <- 0.9205  
+  df$recal_lp <- df$re + (slope*log(-log(1-df$predicted_exac_probability)))
+  cum_basehaz <- 0.2989 
+  df$recal_risk <- 1-exp(-cum_basehaz*exp(df$recal_lp))
+  return(list(updated_risk = df$recal_risk))
 }
 
 

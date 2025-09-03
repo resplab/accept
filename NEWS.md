@@ -1,3 +1,17 @@
+# accept 1.1.0
+
+## New features
+* Added country-level random effects recalibration functionality
+* New `country_recalibration` parameter in `accept()` function enables country-specific model adjustments
+* New `accept2_re` version available for country-level random effects predictions
+* New `predict_accept2_re()` function for standalone country recalibration
+* Enhanced documentation with comprehensive country recalibration examples
+
+## Improvements
+* Better handling of prediction models with country-specific adjustments
+* Improved model flexibility for international use cases
+* Updated README with detailed country recalibration methodology
+
 # accept 1.0.2
 * 'accept' now defaults to `accept2`. 
 * 'accept' now checks `FEV1` range.

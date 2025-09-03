@@ -10,6 +10,7 @@ accept(
   version = "accept2",
   prediction_interval = FALSE,
   return_predictors = FALSE,
+  country_recalibration = FALSE,
   ...
 )
 }
@@ -18,11 +19,13 @@ accept(
 
 \item{format}{default is "tibble". Can also be set to "json".}
 
-\item{version}{indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", and "flexccept"}
+\item{version}{indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", "accept2_re", and "flexccept"}
 
 \item{prediction_interval}{default is FALSE. If set to TRUE, returns prediction intervals of the predictions.}
 
 \item{return_predictors}{default is FALSE. IF set to TRUE, returns the predictors along with prediction results.}
+
+\item{country_recalibration}{default is FALSE. If set to TRUE, applies country-level random effects recalibration. Requires obs_risk column in newdata.}
 
 \item{...}{for other versions of accept.}
 }
@@ -34,4 +37,11 @@ A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE appr
 }
 \examples{
 results <- accept(newdata = samplePatients)
+# With country recalibration (requires obs_risk column)
+# newdata_with_obs_risk <- samplePatients
+# newdata_with_obs_risk$obs_risk <- 0.3  # example observed risk
+# results_recal <- accept(newdata = newdata_with_obs_risk, country_recalibration = TRUE)
+# 
+# Or use the dedicated country-level random effects version:
+# results_re <- accept(newdata = newdata_with_obs_risk, version = "accept2_re")
 }
