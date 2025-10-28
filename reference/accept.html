@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">accept</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.0.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.0</span>
       </span>
     </div>
 
@@ -50,9 +50,10 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">accept</span><span class="op">(</span></span>
 <span>  <span class="va">newdata</span>,</span>
 <span>  format <span class="op">=</span> <span class="st">"tibble"</span>,</span>
-<span>  version <span class="op">=</span> <span class="st">"accept2"</span>,</span>
+<span>  version <span class="op">=</span> <span class="st">"accept3"</span>,</span>
 <span>  prediction_interval <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  return_predictors <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  country <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -70,7 +71,7 @@
 
 
 <dt id="arg-version">version<a class="anchor" aria-label="anchor" href="#arg-version"></a></dt>
-<dd><p>indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", and "flexccept"</p></dd>
+<dd><p>indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", "accept3" (default).</p></dd>
 
 
 <dt id="arg-prediction-interval">prediction_interval<a class="anchor" aria-label="anchor" href="#arg-prediction-interval"></a></dt>
@@ -79,6 +80,10 @@
 
 <dt id="arg-return-predictors">return_predictors<a class="anchor" aria-label="anchor" href="#arg-return-predictors"></a></dt>
 <dd><p>default is FALSE. IF set to TRUE, returns the predictors along with prediction results.</p></dd>
+
+
+<dt id="arg-country">country<a class="anchor" aria-label="anchor" href="#arg-country"></a></dt>
+<dd><p>Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For unsupported countries, provide obs_modsev_risk in the data.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -92,7 +97,14 @@
 
     <div id="ref-examples">
     <h2>Examples</h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">accept</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">samplePatients</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">accept</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">samplePatients</span>, country <span class="op">=</span> <span class="st">"CAN"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ACCEPT v3 is recalibrated using a Cox model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
+<span class="r-in"><span><span class="va">results_us</span> <span class="op">&lt;-</span> <span class="fu">accept</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">samplePatients</span>, country <span class="op">=</span> <span class="st">"USA"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> ACCEPT v3 is recalibrated using a Cox model</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
 </code></pre></div>
     </div>
   </div>
