@@ -707,7 +707,7 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
     message("ACCEPT v3 is recalibrated using a Cox model")
     
     # Validate that country is provided
-    if (is.null(country)) {
+    if (is.null(country) & is.null(obs_modsev_risk)) {
       stop("The 'country' parameter is required for accept3. Please provide a three-letter ISO country code (e.g., 'CAN', 'USA', 'GBR') or provide 'obs_modsev_risk' in your data for unsupported countries.")
     }
     
