@@ -63,7 +63,6 @@
 </h1></div>
 <!-- badges: start -->
 
-<!-- badges: end -->
 <p>R package for the ACute COPD Exacerbation Prediction Tool (ACCEPT)</p>
 <p>ACCEPT is a prediction model for predicting probability, rate, and severity of exacerbations (also known as lung attacks) in patients with Chronic Obstructive Pulmonary Disease.</p>
 <p>ACCEPT has been developed by researchers at the University of British Columbia. Please refer to the published papers for more information:</p>
@@ -85,6 +84,34 @@
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
 <p>The function <code><a href="reference/accept.html">accept()</a></code> provides predictions from the latest version of the <code>accept</code> prediction model. <code><a href="reference/accept1.html">accept1()</a></code> provides predictions of exacerbations for COPD patients per original published manuscript. <code><a href="reference/accept2.html">accept2()</a></code> is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations.</p>
+<div class="section level3">
+<h3 id="country-specific-calibration-in-accept-v3-accept3">Country-Specific Calibration in ACCEPT v3 (accept3)<a class="anchor" aria-label="anchor" href="#country-specific-calibration-in-accept-v3-accept3"></a>
+</h3>
+<p>ACCEPT v3 (exposed via <code>accept(..., version = "accept3")</code> or the default <code><a href="reference/accept.html">accept()</a></code> when a <code>country</code> is specified) provides country-specific recalibrated predictions based on the NOVELTY study. Important notes:</p>
+<ul>
+<li>The <code>country</code> parameter is required for <code>accept3</code> and must be a three-letter ISO country code (for example, <code>"CAN"</code>, <code>"USA"</code>, <code>"GBR"</code>). For countries not in the supported list you should provide an observed moderate-to-severe risk via the <code>obs_modsev_risk</code> column in your input data.</li>
+<li>When <code>accept3</code> is called a message is printed to inform the user of the underlying method: <code>ACCEPT v3 is recalibrated using a Cox model</code>.</li>
+<li>
+<code>accept3</code> returns the same core prediction columns as <code>accept2</code>: <code>predicted_exac_probability</code>, <code>predicted_exac_rate</code>, <code>predicted_severe_exac_probability</code>, and <code>predicted_severe_exac_rate</code>.</li>
+<li>Rates are derived from the returned probabilities using the transformation <code>rate = -log(1 - p)</code>.</li>
+</ul>
+<p>Example:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># explicit country is required for accept3</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">accept</span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/accept.html">accept</a></span><span class="op">(</span><span class="va">samplePatients</span>, country <span class="op">=</span> <span class="st">"CAN"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ACCEPT v3 is recalibrated using a Cox model</span></span>
+<span><span class="co">#&gt; SGRQ score not found. Using mMRC score instead of SGRQ</span></span>
+<span><span class="co">#&gt; SGRQ score not found. Using mMRC score instead of SGRQ</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span><span class="co">#&gt;   ID    predicted_exac_probability predicted_exac_rate predicted_severe_exac_p…¹</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                      &lt;dbl&gt;               &lt;dbl&gt;                     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 10001                      0.245               0.281                     0.245</span></span>
+<span><span class="co">#&gt; 2 10002                      0.253               0.292                     0.253</span></span>
+<span><span class="co">#&gt; # ℹ abbreviated name: ¹​predicted_severe_exac_probability</span></span>
+<span><span class="co">#&gt; # ℹ 1 more variable: predicted_severe_exac_rate &lt;dbl&gt;</span></span></code></pre></div>
+<p>ACCEPT v3 manuscript is currently under review.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
@@ -93,66 +120,22 @@
 <h3 id="exacerbation-prediction">Exacerbation Prediction<a class="anchor" aria-label="anchor" href="#exacerbation-prediction"></a>
 </h3>
 <p>To get a prediction for exacerbation rate, you will need to pass in a patient vector. The accept package comes with a sample patient data tibble called <code>samplePatients</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va">accept</span><span class="op">)</span></span>
-<span><span class="fu"><a href="reference/accept.html">accept</a></span><span class="op">(</span><span class="va">samplePatients</span><span class="op">)</span> <span class="co">#accept uses the latest updated prediction model</span></span>
-<span><span class="co">#&gt;      ID  male age smoker oxygen statin LAMA LABA   ICS FEV1 BMI SGRQ</span></span>
-<span><span class="co">#&gt; 1 10001  TRUE  70   TRUE   TRUE   TRUE TRUE TRUE  TRUE   33  25   50</span></span>
-<span><span class="co">#&gt; 2 10002 FALSE  42  FALSE   TRUE  FALSE TRUE TRUE FALSE   40  35   40</span></span>
-<span><span class="co">#&gt;   LastYrExacCount LastYrSevExacCount predicted_exac_probability</span></span>
-<span><span class="co">#&gt; 1               2                  1                  0.8327888</span></span>
-<span><span class="co">#&gt; 2               0                  0                  0.4366622</span></span>
-<span><span class="co">#&gt;   predicted_exac_probability_lower_PI predicted_exac_probability_upper_PI</span></span>
-<span><span class="co">#&gt; 1                           0.1929329                           0.9924159</span></span>
-<span><span class="co">#&gt; 2                           0.0000000                           0.8998712</span></span>
-<span><span class="co">#&gt;   predicted_exac_rate predicted_exac_rate_lower_PI predicted_exac_rate_upper_PI</span></span>
-<span><span class="co">#&gt; 1           1.7884977                    0.2143485                     4.881703</span></span>
-<span><span class="co">#&gt; 2           0.5738758                    0.0000000                     2.301298</span></span>
-<span><span class="co">#&gt;   predicted_severe_exac_probability predicted_severe_exac_probability_lower_PI</span></span>
-<span><span class="co">#&gt; 1                         0.6026383                                 0.09371195</span></span>
-<span><span class="co">#&gt; 2                         0.1085515                                 0.02547523</span></span>
-<span><span class="co">#&gt;   predicted_severe_exac_probability_upper_PI predicted_severe_exac_rate</span></span>
-<span><span class="co">#&gt; 1                                  0.9575906                  0.9229084</span></span>
-<span><span class="co">#&gt; 2                                  0.4784134                  0.1149076</span></span>
-<span><span class="co">#&gt;   predicted_severe_exac_rate_lower_PI predicted_severe_exac_rate_upper_PI</span></span>
-<span><span class="co">#&gt; 1                          0.09839809                            3.160385</span></span>
-<span><span class="co">#&gt; 2                          0.02580535                            0.650880</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_exac_probability</span></span>
-<span><span class="co">#&gt; 1                               0.7633086</span></span>
-<span><span class="co">#&gt; 2                               0.3291975</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_exac_probability_lower_PI</span></span>
-<span><span class="co">#&gt; 1                                        0.1286904</span></span>
-<span><span class="co">#&gt; 2                                        0.0000000</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_exac_probability_upper_PI</span></span>
-<span><span class="co">#&gt; 1                                        0.9793698</span></span>
-<span><span class="co">#&gt; 2                                        0.8524301</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_exac_rate azithromycin_predicted_exac_rate_lower_PI</span></span>
-<span><span class="co">#&gt; 1                        1.4409981                                 0.1377579</span></span>
-<span><span class="co">#&gt; 2                        0.3992806                                 0.0000000</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_exac_rate_upper_PI</span></span>
-<span><span class="co">#&gt; 1                                  3.880998</span></span>
-<span><span class="co">#&gt; 2                                  1.913453</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_severe_exac_probability</span></span>
-<span><span class="co">#&gt; 1                                     0.51103045</span></span>
-<span><span class="co">#&gt; 2                                     0.08544925</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_severe_exac_probability_lower_PI</span></span>
-<span><span class="co">#&gt; 1                                              0.07570494</span></span>
-<span><span class="co">#&gt; 2                                              0.02469734</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_severe_exac_probability_upper_PI</span></span>
-<span><span class="co">#&gt; 1                                               0.9221162</span></span>
-<span><span class="co">#&gt; 2                                               0.3567065</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_severe_exac_rate</span></span>
-<span><span class="co">#&gt; 1                              0.71545506</span></span>
-<span><span class="co">#&gt; 2                              0.08932232</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_severe_exac_rate_lower_PI</span></span>
-<span><span class="co">#&gt; 1                                       0.07872393</span></span>
-<span><span class="co">#&gt; 2                                       0.02500744</span></span>
-<span><span class="co">#&gt;   azithromycin_predicted_severe_exac_rate_upper_PI</span></span>
-<span><span class="co">#&gt; 1                                        2.5525368</span></span>
-<span><span class="co">#&gt; 2                                        0.4411541</span></span></code></pre></div>
+<span><span class="fu"><a href="reference/accept.html">accept</a></span><span class="op">(</span><span class="va">samplePatients</span>, country<span class="op">=</span><span class="st">"CAN"</span><span class="op">)</span> <span class="co">#accept uses the latest updated prediction model</span></span>
+<span><span class="co">#&gt; ACCEPT v3 is recalibrated using a Cox model</span></span>
+<span><span class="co">#&gt; SGRQ score not found. Using mMRC score instead of SGRQ</span></span>
+<span><span class="co">#&gt; SGRQ score not found. Using mMRC score instead of SGRQ</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span><span class="co">#&gt;   ID    predicted_exac_probability predicted_exac_rate predicted_severe_exac_p…¹</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;                      &lt;dbl&gt;               &lt;dbl&gt;                     &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 10001                      0.245               0.281                     0.245</span></span>
+<span><span class="co">#&gt; 2 10002                      0.253               0.292                     0.253</span></span>
+<span><span class="co">#&gt; # ℹ abbreviated name: ¹​predicted_severe_exac_probability</span></span>
+<span><span class="co">#&gt; # ℹ 1 more variable: predicted_severe_exac_rate &lt;dbl&gt;</span></span></code></pre></div>
 <p><strong>accept2()</strong> and <strong>accept1()</strong> functions return a more detailed dataframe with the predictions for different treatment options with measures of uncertainty.</p>
 <p>To visualize the data, there is a graphing function called <strong>plotExacerbations()</strong>, which creates a Plotly bar graph. You have the option of selecting <strong>probability</strong> or <strong>rate</strong> for which prediction you want to see, and either <strong>CI</strong> or <strong>PI</strong> to select the confidence interval or prediction interval respectively.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/accept2.html">accept2</a></span><span class="op">(</span><span class="va">samplePatients</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="reference/plotExacerbations.html">plotExacerbations</a></span><span class="op">(</span><span class="va">results</span>, type<span class="op">=</span><span class="st">"probability"</span><span class="op">)</span></span>
@@ -165,7 +148,7 @@
 <h3 id="probability-of-n-exacerbations-poisson">Probability of N Exacerbations (Poisson)<a class="anchor" aria-label="anchor" href="#probability-of-n-exacerbations-poisson"></a>
 </h3>
 <p>You can also calculate the predicted number of exacerbations in a year:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/accept2.html">accept2</a></span><span class="op">(</span><span class="va">samplePatients</span><span class="op">[</span><span class="fl">1</span>,<span class="op">]</span><span class="op">)</span> </span>
 <span><span class="va">exacerbationsMatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/predictCountProb.html">predictCountProb</a></span><span class="op">(</span><span class="va">results</span>, n <span class="op">=</span> <span class="fl">10</span>, shortened <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exacerbationsMatrix</span><span class="op">)</span></span>
@@ -175,7 +158,7 @@
 <span><span class="co">#&gt; 2 exacerbations          0.04222640 0.12808103 0.09712378       0.00000000</span></span>
 <span><span class="co">#&gt; 3 or more exacerbations  0.01206628 0.05851757 0.10055944       0.07102149</span></span></code></pre></div>
 <p>The shortened parameter groups the probabilities from 3-10 exacerbations into one category, “3 or more exacerbations.” To see all n exacerbation probabilities:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">exacerbationsMatrix</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/predictCountProb.html">predictCountProb</a></span><span class="op">(</span><span class="va">results</span>, n <span class="op">=</span> <span class="fl">10</span>, shortened <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">exacerbationsMatrix</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                       0 severe     1 severe     2 severe     3 severe</span></span>
@@ -212,7 +195,7 @@
 <span><span class="co">#&gt; 8 exacerbation(s) 7.552761e-06 0.000000e+00</span></span>
 <span><span class="co">#&gt; 9 exacerbation(s) 5.367600e-06 9.044996e-07</span></span></code></pre></div>
 <p>To visualize the matrix as a heatmap, we can use the function <strong>plotHeatMap</strong>:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/plotHeatMap.html">plotHeatMap</a></span><span class="op">(</span><span class="va">results</span>, shortened <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="./reference/figures/newplot4.png"></p>
 </div>
@@ -227,12 +210,12 @@
 <h2 id="api-using-vetiver-and-plumber">API using vetiver and plumber<a class="anchor" aria-label="anchor" href="#api-using-vetiver-and-plumber"></a>
 </h2>
 <p>You can use vetiver and plumber packages to create, deploy, and monitor an API for ACCEPT:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://vetiver.posit.co" class="external-link">vetiver</a></span><span class="op">)</span></span>
 <span><span class="va">v_accept</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rstudio.github.io/vetiver-r/reference/vetiver_model.html" class="external-link">vetiver_model</a></span><span class="op">(</span><span class="va">accept</span>, </span>
 <span>                   <span class="st">"accept-model"</span><span class="op">)</span></span></code></pre></div>
 <p>To test to API locally, you can use</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.rplumber.io" class="external-link">plumber</a></span><span class="op">)</span></span>
 <span><span class="fu">pr</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> </span>
 <span>    <span class="fu"><a href="https://rstudio.github.io/vetiver-r/reference/vetiver_api.html" class="external-link">vetiver_api</a></span><span class="op">(</span><span class="va">v_accept</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -245,27 +228,27 @@
 <div class="section level4">
 <h4 id="python">Python<a class="anchor" aria-label="anchor" href="#python"></a>
 </h4>
-<div class="sourceCode" id="cb9"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>import json</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>import requests</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>url <span class="ot">=</span> <span class="st">'https://prism.peermodelsnetwork.com/route/accept/run'</span></span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>headers <span class="ot">=</span> {<span class="st">'x-prism-auth-user'</span><span class="sc">:</span> YOUR_API_KEY}</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>model_run <span class="ot">=</span> <span class="fu">requests.post</span>(url, <span class="at">headers=</span>headers,</span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="at">json =</span> {<span class="st">"func"</span><span class="sc">:</span>[<span class="st">"prism_model_run"</span>],<span class="st">"model_input"</span><span class="sc">:</span>[{<span class="st">"ID"</span><span class="sc">:</span> <span class="st">"10001"</span>,<span class="st">"male"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"age"</span><span class="sc">:</span> <span class="dv">57</span>,<span class="st">"smoker"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"oxygen"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"statin"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"LAMA"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"LABA"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"ICS"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"FEV1"</span><span class="sc">:</span> <span class="dv">51</span>,<span class="st">"BMI"</span><span class="sc">:</span> <span class="dv">18</span>,<span class="st">"SGRQ"</span><span class="sc">:</span> <span class="dv">63</span>,<span class="st">"LastYrExacCount"</span><span class="sc">:</span> <span class="dv">2</span>,<span class="st">"LastYrSevExacCount"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"randomized_azithromycin"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_statin"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_LAMA"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_LABA"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_ICS"</span><span class="sc">:</span> <span class="dv">0</span>, <span class="st">"random_sampling_N"</span> <span class="sc">:</span> <span class="dv">100</span>,  <span class="st">"calculate_CIs"</span> <span class="sc">:</span> <span class="st">"TRUE"</span>}]})</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="fu">print</span>(model_run)</span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">json.loads</span>(model_run.text)</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="fu">print</span>(results)</span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>import json</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>import requests</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>url <span class="ot">=</span> <span class="st">'https://prism.peermodelsnetwork.com/route/accept/run'</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>headers <span class="ot">=</span> {<span class="st">'x-prism-auth-user'</span><span class="sc">:</span> YOUR_API_KEY}</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>model_run <span class="ot">=</span> <span class="fu">requests.post</span>(url, <span class="at">headers=</span>headers,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="at">json =</span> {<span class="st">"func"</span><span class="sc">:</span>[<span class="st">"prism_model_run"</span>],<span class="st">"model_input"</span><span class="sc">:</span>[{<span class="st">"ID"</span><span class="sc">:</span> <span class="st">"10001"</span>,<span class="st">"male"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"age"</span><span class="sc">:</span> <span class="dv">57</span>,<span class="st">"smoker"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"oxygen"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"statin"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"LAMA"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"LABA"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"ICS"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"FEV1"</span><span class="sc">:</span> <span class="dv">51</span>,<span class="st">"BMI"</span><span class="sc">:</span> <span class="dv">18</span>,<span class="st">"SGRQ"</span><span class="sc">:</span> <span class="dv">63</span>,<span class="st">"LastYrExacCount"</span><span class="sc">:</span> <span class="dv">2</span>,<span class="st">"LastYrSevExacCount"</span><span class="sc">:</span> <span class="dv">1</span>,<span class="st">"randomized_azithromycin"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_statin"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_LAMA"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_LABA"</span><span class="sc">:</span> <span class="dv">0</span>,<span class="st">"randomized_ICS"</span><span class="sc">:</span> <span class="dv">0</span>, <span class="st">"random_sampling_N"</span> <span class="sc">:</span> <span class="dv">100</span>,  <span class="st">"calculate_CIs"</span> <span class="sc">:</span> <span class="st">"TRUE"</span>}]})</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="fu">print</span>(model_run)</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>results <span class="ot">=</span> <span class="fu">json.loads</span>(model_run.text)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="fu">print</span>(results)</span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="linux-bash">Linux Bash<a class="anchor" aria-label="anchor" href="#linux-bash"></a>
 </h4>
 <p>In Ubuntu, you can call the API with <code>curl</code>:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>curl \</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="sc">-</span>X POST \</span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="sc">-</span>H <span class="st">"x-prism-auth-user: REPLACE_WITH_API_KEY"</span> \</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="sc">-</span>H <span class="st">"Content-Type: application/json"</span> \</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="sc">-</span>d <span class="st">'{"func":["prism_model_run"],"model_input":[{"ID": "10001","male": 1,"age": 57,"smoker": 0,"oxygen": 0,"statin": 0,"LAMA": 1,"LABA": 1,"ICS": 1,"FEV1": 51,"BMI": 18,"SGRQ": 63,"LastYrExacCount": 2,"LastYrSevExacCount": 1,"randomized_azithromycin": 0,"randomized_statin": 0,"randomized_LAMA": 0,"randomized_LABA": 0,"randomized_ICS": 0, "random_sampling_N" : 100, </span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="st">"calculate_CIs" : "TRUE"}]}'</span> \</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>https<span class="sc">:</span><span class="er">//</span>prism.peermodelsnetwork.com<span class="sc">/</span>route<span class="sc">/</span>accept<span class="sc">/</span>run</span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>curl \</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="sc">-</span>X POST \</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="sc">-</span>H <span class="st">"x-prism-auth-user: REPLACE_WITH_API_KEY"</span> \</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="sc">-</span>H <span class="st">"Content-Type: application/json"</span> \</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="sc">-</span>d <span class="st">'{"func":["prism_model_run"],"model_input":[{"ID": "10001","male": 1,"age": 57,"smoker": 0,"oxygen": 0,"statin": 0,"LAMA": 1,"LABA": 1,"ICS": 1,"FEV1": 51,"BMI": 18,"SGRQ": 63,"LastYrExacCount": 2,"LastYrSevExacCount": 1,"randomized_azithromycin": 0,"randomized_statin": 0,"randomized_LAMA": 0,"randomized_LABA": 0,"randomized_ICS": 0, "random_sampling_N" : 100, </span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="st">"calculate_CIs" : "TRUE"}]}'</span> \</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>https<span class="sc">:</span><span class="er">//</span>prism.peermodelsnetwork.com<span class="sc">/</span>route<span class="sc">/</span>accept<span class="sc">/</span>run</span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
