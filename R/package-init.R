@@ -3,7 +3,7 @@
 #' @importFrom stats dpois quantile rpois dbinom weighted.mean predict
 #' @importFrom reldist wtd.quantile
 #' @importFrom splines bs
-#' @importFrom tibble is_tibble tibble
+#' @importFrom tibble is_tibble tibble tibble_row as_tibble
 #' @importFrom vetiver vetiver_create_description vetiver_ptype vetiver_create_ptype handler_startup handler_predict vetiver_create_meta vetiver_type_convert vetiver_meta
 #' @importFrom hardhat scream
 #' @importFrom vctrs vec_ptype

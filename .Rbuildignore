@@ -7,4 +7,5 @@
 ^\.github$
 ^CRAN-SUBMISSION$
 ^README\.Rmd$
+^\.lintr$
 ^revdep$

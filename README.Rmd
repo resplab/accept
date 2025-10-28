@@ -52,6 +52,24 @@ pak::pak("resplab/accept")
 
 The function `accept()` provides predictions from the latest version of the `accept` prediction model. `accept1()` provides predictions of exacerbations for COPD patients per original published manuscript. `accept2()` is an updated version of ACCEPT that is fine tuned for improved predictions in patients who do not have a prior history of exacerbations.
 
+### Country-Specific Calibration in ACCEPT v3 (accept3)
+
+ACCEPT v3 (exposed via `accept(..., version = "accept3")` or the default `accept()` when a `country` is specified) provides country-specific recalibrated predictions based on the NOVELTY study. Important notes:
+
+- The `country` parameter is required for `accept3` and must be a three-letter ISO country code (for example, `"CAN"`, `"USA"`, `"GBR"`). For countries not in the supported list you should provide an observed moderate-to-severe risk via the `obs_modsev_risk` column in your input data.
+- When `accept3` is called a message is printed to inform the user of the underlying method: `ACCEPT v3 is recalibrated using a Cox model`.
+- `accept3` returns the same core prediction columns as `accept2`: `predicted_exac_probability`, `predicted_exac_rate`, `predicted_severe_exac_probability`, and `predicted_severe_exac_rate`.
+- Rates are derived from the returned probabilities using the transformation `rate = -log(1 - p)`.
+
+Example:
+
+```{r}
+# explicit country is required for accept3
+library(accept)
+accept(samplePatients, country = "CAN")
+```
+ACCEPT v3 manuscript is currently under review. 
+
 ## Example
 
 ### Exacerbation Prediction

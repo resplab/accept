@@ -7,9 +7,10 @@
 accept(
   newdata,
   format = "tibble",
-  version = "accept2",
+  version = "accept3",
   prediction_interval = FALSE,
   return_predictors = FALSE,
+  country = NULL,
   ...
 )
 }
@@ -18,11 +19,13 @@ accept(
 
 \item{format}{default is "tibble". Can also be set to "json".}
 
-\item{version}{indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", and "flexccept"}
+\item{version}{indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", "accept3" (default).}
 
 \item{prediction_interval}{default is FALSE. If set to TRUE, returns prediction intervals of the predictions.}
 
 \item{return_predictors}{default is FALSE. IF set to TRUE, returns the predictors along with prediction results.}
+
+\item{country}{Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For unsupported countries, provide obs_modsev_risk in the data.}
 
 \item{...}{for other versions of accept.}
 }
@@ -33,5 +36,6 @@ patientData with prediction.
 A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE approach.
 }
 \examples{
-results <- accept(newdata = samplePatients)
+results <- accept(newdata = samplePatients, country = "CAN")
+results_us <- accept(newdata = samplePatients, country = "USA")
 }
