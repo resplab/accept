@@ -757,26 +757,19 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
       )
     })
     
-    # accept3 returns a character string, so we need to parse it
-    # Format: "Recalibrated moderate-to-severe exacerbation risk = X; Recalibrated severe exacerbation risk = Y"
+    # accept3 now returns a list with values directly
     parsed_results <- lapply(seq_along(result), function(i) {
-      str <- result[[i]]
-      # Extract the two risk values
-      modsev_match <- regmatches(str, regexpr("moderate-to-severe exacerbation risk = [0-9.]+", str))
-      sev_match <- regmatches(str, regexpr("severe exacerbation risk = [0-9.]+", str))
-      
-      modsev_risk <- as.numeric(sub(".*= ", "", modsev_match))
-      sev_risk <- as.numeric(sub(".*= ", "", sev_match))
+      res <- result[[i]]
       
       # Calculate rates from probabilities: rate = -log(1-p)
-      modsev_rate <- -log(1 - modsev_risk)
-      sev_rate <- -log(1 - sev_risk)
+      modsev_rate <- -log(1 - res$predicted_exac_probability)
+      sev_rate <- -log(1 - res$predicted_severe_exac_probability)
       
       list(
-        ID = newdata[i, "ID"],
-        predicted_exac_probability = modsev_risk,
+        ID = res$ID,
+        predicted_exac_probability = res$predicted_exac_probability,
         predicted_exac_rate = modsev_rate,
-        predicted_severe_exac_probability = sev_risk,
+        predicted_severe_exac_probability = res$predicted_severe_exac_probability,
         predicted_severe_exac_rate = sev_rate
       )
     })
@@ -978,12 +971,15 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #' @param obs_modsev_risk Observed moderate-to-severe exacerbation risk in the local population. 
 #'   Only used for countries not in the supported list. If NA, country-specific intercept is used.
 #' 
-#' @return When called directly, returns a character string with recalibrated risks. 
-#'   When called through \code{accept()} with version="accept3", returns a tibble with:
+#' @return Returns a list containing:
 #'   \itemize{
+#'     \item \code{ID}: Patient identifier
 #'     \item \code{predicted_exac_probability}: Recalibrated probability of moderate-to-severe exacerbation
-#'     \item \code{predicted_exac_rate}: Recalibrated rate of moderate-to-severe exacerbation (calculated as -log(1-p))
 #'     \item \code{predicted_severe_exac_probability}: Recalibrated probability of severe exacerbation
+#'   }
+#'   When called through \code{accept()} with version="accept3", returns a tibble that also includes:
+#'   \itemize{
+#'     \item \code{predicted_exac_rate}: Recalibrated rate of moderate-to-severe exacerbation (calculated as -log(1-p))
 #'     \item \code{predicted_severe_exac_rate}: Recalibrated rate of severe exacerbation (calculated as -log(1-p))
 #'   }
 #' 
@@ -1031,6 +1027,12 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC, CVD, ICS, LABA, L
   slope_sev <- 0.9626
   df$recal_modsev_risk <- round(1-exp(-0.2978*exp(df$re*(model_accept2$predicted_exac_rate^slope_modsev))), 4)
   df$recal_sev_risk <- round(1-exp(-0.0672*exp(df$re*(model_accept2$predicted_severe_exac_rate^slope_sev))), 4)
-  return(paste0("Recalibrated moderate-to-severe exacerbation risk = ", df$recal_modsev_risk,"; Recalibrated severe exacerbation risk = ", df$recal_sev_risk))
+  
+  # Return a list with the ID and risk values
+  return(list(
+    ID = df$ID,
+    predicted_exac_probability = df$recal_modsev_risk,
+    predicted_severe_exac_probability = df$recal_sev_risk
+  ))
 }
 
