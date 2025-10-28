@@ -78,7 +78,7 @@ To get a prediction for exacerbation rate, you will need to pass in a patient ve
 
 ```{r}
 library(accept)
-accept(samplePatients) #accept uses the latest updated prediction model
+accept(samplePatients, country="CAN") #accept uses the latest updated prediction model
 ```
 
 **accept2()** and **accept1()** functions return a more detailed dataframe with the predictions for different treatment options with measures of uncertainty.
