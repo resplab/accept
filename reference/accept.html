@@ -99,10 +99,12 @@
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">results</span> <span class="op">&lt;-</span> <span class="fu">accept</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">samplePatients</span>, country <span class="op">=</span> <span class="st">"CAN"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ACCEPT v3 is recalibrated using a Cox model</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in accept(newdata = samplePatients, country = "CAN"):</span> object 'obs_modsev_risk' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
 <span class="r-in"><span><span class="va">results_us</span> <span class="op">&lt;-</span> <span class="fu">accept</span><span class="op">(</span>newdata <span class="op">=</span> <span class="va">samplePatients</span>, country <span class="op">=</span> <span class="st">"USA"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> ACCEPT v3 is recalibrated using a Cox model</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in accept(newdata = samplePatients, country = "USA"):</span> object 'obs_modsev_risk' not found</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SGRQ score not found. Using mMRC score instead of SGRQ</span>
 </code></pre></div>
     </div>
   </div>
