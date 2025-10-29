@@ -667,7 +667,8 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @param version indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", "accept3" (default).
 #' @param prediction_interval default is FALSE. If set to TRUE, returns prediction intervals of the predictions.
 #' @param return_predictors default is FALSE. IF set to TRUE, returns the predictors along with prediction results.
-#' @param country Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For unsupported countries, provide obs_modsev_risk in the data.
+#' @param country Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For unsupported countries, provide obs_modsev_risk parameter or add it as a column in the data.
+#' @param obs_modsev_risk Observed moderate-to-severe exacerbation risk for unsupported countries. Can be provided as a parameter or as a column in newdata.
 #' @param ... for other versions of accept.
 #' @return patientData with prediction.
 #'
@@ -677,8 +678,10 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @examples
 #' results <- accept(newdata = samplePatients, country = "CAN")
 #' results_us <- accept(newdata = samplePatients, country = "USA")
+#' # For unsupported country with obs_modsev_risk parameter
+#' results_custom <- accept(newdata = samplePatients, country = "XXX", obs_modsev_risk = 0.2)
 #' @export
-accept <- function(newdata, format="tibble", version = "accept3", prediction_interval = FALSE, return_predictors = FALSE, country = NULL, ...) {
+accept <- function(newdata, format="tibble", version = "accept3", prediction_interval = FALSE, return_predictors = FALSE, country = NULL, obs_modsev_risk = NULL, ...) {
 
   if (format=="json") {
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
@@ -707,16 +710,21 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
     message("ACCEPT v3 is recalibrated using a Cox model")
     
     # Validate that country is provided
-    if (is.null(country) & is.null(obs_modsev_risk)) {
-      stop("The 'country' parameter is required for accept3. Please provide a three-letter ISO country code (e.g., 'CAN', 'USA', 'GBR') or provide 'obs_modsev_risk' in your data for unsupported countries.")
+    if (is.null(country) && is.null(obs_modsev_risk) && !"obs_modsev_risk" %in% colnames(newdata)) {
+      stop("The 'country' parameter is required for accept3. Please provide a three-letter ISO country code (e.g., 'CAN', 'USA', 'GBR') or provide 'obs_modsev_risk' as a parameter or column in your data for unsupported countries.")
+    }
+    
+    # If country is not provided but obs_modsev_risk is, use a placeholder country
+    if (is.null(country) && (!is.null(obs_modsev_risk) || "obs_modsev_risk" %in% colnames(newdata))) {
+      country <- "XXX"  # Placeholder for unsupported country
     }
     
     # Validate and normalize country code
     country <- toupper(country)
     supported_countries <- c("ARG", "AUS", "BRA", "CAN", "COL", "DEU", "DNK", "ESP", "FRA", "GBR", "ITA", "JPN", "KOR", "MEX", "NLD", "NOR", "SWE", "USA")
     
-    if (!country %in% supported_countries) {
-      warning(paste0("Country '", country, "' not in supported list. Using observed moderate-to-severe risk for recalibration. Supported countries: ", paste(supported_countries, collapse = ", ")))
+    if (!country %in% supported_countries && country != "XXX") {
+      message(paste0("Note: Country not in supported list. Using provided obs_modsev_risk for recalibration. Supported countries: ", paste(supported_countries, collapse = ", ")))
     }
     
     # Add mMRC if not present - convert from SGRQ
@@ -727,6 +735,11 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
       } else {
         stop("Either mMRC or SGRQ must be provided for accept3")
       }
+    }
+    
+    # Add obs_modsev_risk column if provided as parameter
+    if (!is.null(obs_modsev_risk) && !"obs_modsev_risk" %in% colnames(newdata)) {
+      newdata$obs_modsev_risk <- obs_modsev_risk
     }
     
     # Add obs_modsev_risk if not present and not in supported countries
