@@ -34,10 +34,41 @@ test_that("accept3 requires country parameter", {
   expect_error(accept(samplePatients), "country.*required")
 })
 
+test_that("accept2 reduced model without SGRQ works", {
+  # Create test data with missing SGRQ
+  test_data <- samplePatients
+  test_data$SGRQ <- NA
+  result <- accept(test_data, version="accept2")
+  expect_true("predicted_exac_probability" %in% names(result))
+  expect_true("predicted_exac_rate" %in% names(result))
+  expect_equal(nrow(result), 2)
+})
+
+test_that("accept2 reduced model without medications works", {
+  # Create test data with missing medications
+  test_data <- samplePatients
+  test_data$LAMA <- NA
+  test_data$LABA <- NA
+  test_data$ICS <- NA
+  result <- accept(test_data, version="accept2")
+  expect_true("predicted_exac_probability" %in% names(result))
+  expect_true("predicted_exac_rate" %in% names(result))
+  expect_equal(nrow(result), 2)
+})
+
+test_that("accept1 predictions work", {
+  result <- accept(samplePatients, version="accept1")
+  expect_true("predicted_exac_probability" %in% names(result))
+  expect_true("predicted_exac_rate" %in% names(result))
+  expect_true("predicted_severe_exac_probability" %in% names(result))
+  expect_true("predicted_severe_exac_rate" %in% names(result))
+  expect_equal(nrow(result), 2)
+})
+
 test_that("accept1 and accept2 warn when country parameter is provided", {
-  expect_warning(accept(samplePatients[1,], version="accept1", country="CAN"), 
+  expect_warning(accept(samplePatients[1,], version="accept1", country="CAN"),
                  "not used by accept1.*ignored")
-  expect_warning(accept(samplePatients[1,], version="accept2", country="USA"), 
+  expect_warning(accept(samplePatients[1,], version="accept2", country="USA"),
                  "not used by accept2.*ignored")
 })
 
