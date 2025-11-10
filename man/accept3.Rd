@@ -11,7 +11,7 @@ accept3(
   male,
   BMI,
   smoker,
-  mMRC,
+  mMRC = NA,
   CVD,
   ICS,
   LABA,
@@ -20,7 +20,8 @@ accept3(
   LastYrSevExacCount,
   FEV1,
   oxygen,
-  obs_modsev_risk
+  obs_modsev_risk,
+  SGRQ = NA
 )
 }
 \arguments{
@@ -60,12 +61,15 @@ For unsupported countries, observed moderate-to-severe risk is used for recalibr
 Only used for countries not in the supported list. If NA, country-specific intercept is used.}
 }
 \value{
-When called directly, returns a character string with recalibrated risks. 
-  When called through \code{accept()} with version="accept3", returns a tibble with:
+Returns a list containing:
   \itemize{
+    \item \code{ID}: Patient identifier
     \item \code{predicted_exac_probability}: Recalibrated probability of moderate-to-severe exacerbation
-    \item \code{predicted_exac_rate}: Recalibrated rate of moderate-to-severe exacerbation (calculated as -log(1-p))
     \item \code{predicted_severe_exac_probability}: Recalibrated probability of severe exacerbation
+  }
+  When called through \code{accept()} with version="accept3", returns a tibble that also includes:
+  \itemize{
+    \item \code{predicted_exac_rate}: Recalibrated rate of moderate-to-severe exacerbation (calculated as -log(1-p))
     \item \code{predicted_severe_exac_rate}: Recalibrated rate of severe exacerbation (calculated as -log(1-p))
   }
 }

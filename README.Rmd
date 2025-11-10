@@ -81,6 +81,31 @@ library(accept)
 accept(samplePatients, country="CAN") #accept uses the latest updated prediction model
 ```
 
+Here's another example with a specific patient profile:
+
+```{r}
+# Create a patient tibble with specific properties
+patient <- tibble::tibble(
+  ID = "10003",
+  age = 65,
+  male = 1,
+  BMI = 25.5,
+  smoker = 1,  # 0=never, 1=former, 2=current
+  FEV1 = 45.0,  # % predicted
+  SGRQ = 45.0,
+  oxygen = 0,
+  LastYrExacCount = 2,
+  LastYrSevExacCount = 1,
+  statin = 1,
+  LAMA = 1,
+  LABA = 1,
+  ICS = 1
+)
+
+# Get predictions for this patient
+accept(patient, country="CAN")
+```
+
 **accept2()** and **accept1()** functions return a more detailed dataframe with the predictions for different treatment options with measures of uncertainty.
 
 To visualize the data, there is a graphing function called **plotExacerbations()**, which creates a Plotly bar graph. You have the option of selecting **probability** or **rate** for which prediction you want to see, and either **CI** or **PI** to select the confidence interval or prediction interval respectively.

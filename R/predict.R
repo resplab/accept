@@ -694,6 +694,20 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
   if (!is_tibble(newdata)) {stop("Wrong input format. Only `tibble` and `json` formats are supported. Make sure format is set to 'json' if the input data is in json.")}
   if (any(newdata$FEV1>=120) || any(newdata$FEV1<10)) warning("Unusually high or low FEV1 values detected. Ensure you are passing percent predicted values between 10 to 110 ")
 
+  # Convert CAT or mMRC to SGRQ if SGRQ is not provided (applies to all versions)
+  if (! "SGRQ" %in% colnames(newdata)) {
+    if ("CAT" %in% colnames(newdata)) {
+      warning("SGRQ score not found. Using CAT score instead of SGRQ")
+      newdata$SGRQ <- 18.87 + 1.53 * newdata$CAT
+    }
+    else {
+      if("mMRC" %in% colnames(newdata)) {
+        message("SGRQ score not found. Using mMRC score instead of SGRQ")
+        newdata$SGRQ <- 20.43 + 14.77 * newdata$mMRC
+      }
+    }
+  }
+
   if (version == "accept1") {
     if (!is.null(country)) {
       warning("The 'country' parameter is not used by accept1 and will be ignored. Country-specific recalibration is only available in accept3.")
@@ -727,14 +741,9 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
       message(paste0("Note: Country not in supported list. Using provided obs_modsev_risk for recalibration. Supported countries: ", paste(supported_countries, collapse = ", ")))
     }
     
-    # Add mMRC if not present - convert from SGRQ
-    if (!"mMRC" %in% colnames(newdata)) {
-      if ("SGRQ" %in% colnames(newdata)) {
-        newdata$mMRC <- round((newdata$SGRQ - 20.43) / 14.77)
-        newdata$mMRC <- pmax(0, pmin(4, newdata$mMRC))  # Clamp to 0-4 range
-      } else {
-        stop("Either mMRC or SGRQ must be provided for accept3")
-      }
+    # Check that either mMRC or SGRQ is provided
+    if (!"mMRC" %in% colnames(newdata) && !"SGRQ" %in% colnames(newdata)) {
+      stop("Either mMRC or SGRQ must be provided for accept3")
     }
     
     # Add obs_modsev_risk column if provided as parameter
@@ -757,7 +766,7 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
         male = row$male,
         BMI = row$BMI,
         smoker = row$smoker,
-        mMRC = row$mMRC,
+        mMRC = if("mMRC" %in% colnames(row)) row$mMRC else NA,
         CVD = row$statin, # Using statin as proxy for CVD
         ICS = row$ICS,
         LABA = row$LABA,
@@ -766,7 +775,8 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
         LastYrSevExacCount = row$LastYrSevExacCount,
         FEV1 = row$FEV1,
         oxygen = row$oxygen,
-        obs_modsev_risk = if("obs_modsev_risk" %in% colnames(row)) row$obs_modsev_risk else NA
+        obs_modsev_risk = if("obs_modsev_risk" %in% colnames(row)) row$obs_modsev_risk else NA,
+        SGRQ = if("SGRQ" %in% colnames(row)) row$SGRQ else NA
       )
     })
     
@@ -1025,10 +1035,19 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #' @seealso \code{\link{accept}}, \code{\link{accept2}}, \code{\link{accept1}}
 #' 
 #' @export
-accept3 <- function(country, ID, age, male, BMI, smoker, mMRC, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, oxygen, obs_modsev_risk) {
-  df <- tibble(country = country, ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, mMRC = mMRC, statin = CVD,
+accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, oxygen, obs_modsev_risk, SGRQ = NA) {
+  # Create base tibble
+  df <- tibble(country = country, ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, statin = CVD,
                    ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount,
                    FEV1 = FEV1, oxygen = oxygen, obs_modsev_risk = obs_modsev_risk)
+
+  # Add SGRQ or mMRC depending on what's available
+  if (!is.na(SGRQ)) {
+    df$SGRQ <- SGRQ
+  } else if (!is.na(mMRC)) {
+    df$mMRC <- mMRC
+  }
+
   model_accept2 <- accept(newdata=df, version="flexccept", format = "tibble")
   df$predicted_exac_rate <- model_accept2$predicted_exac_rate
   df$predicted_severe_exac_rate <- model_accept2$predicted_severe_exac_rate

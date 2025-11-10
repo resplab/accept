@@ -89,13 +89,11 @@ Example:
 library(accept)
 accept(samplePatients, country = "CAN")
 #> ACCEPT v3 is recalibrated using a Cox model
-#> SGRQ score not found. Using mMRC score instead of SGRQ
-#> SGRQ score not found. Using mMRC score instead of SGRQ
 #> # A tibble: 2 × 5
 #>   ID    predicted_exac_probability predicted_exac_rate predicted_severe_exac_p…¹
 #>   <chr>                      <dbl>               <dbl>                     <dbl>
-#> 1 10001                      0.245               0.281                     0.245
-#> 2 10002                      0.253               0.292                     0.253
+#> 1 10001                      0.245               0.281                    0.0631
+#> 2 10002                      0.253               0.292                    0.0647
 #> # ℹ abbreviated name: ¹​predicted_severe_exac_probability
 #> # ℹ 1 more variable: predicted_severe_exac_rate <dbl>
 ```
@@ -114,13 +112,43 @@ tibble called `samplePatients`:
 library(accept)
 accept(samplePatients, country="CAN") #accept uses the latest updated prediction model
 #> ACCEPT v3 is recalibrated using a Cox model
-#> SGRQ score not found. Using mMRC score instead of SGRQ
-#> SGRQ score not found. Using mMRC score instead of SGRQ
 #> # A tibble: 2 × 5
 #>   ID    predicted_exac_probability predicted_exac_rate predicted_severe_exac_p…¹
 #>   <chr>                      <dbl>               <dbl>                     <dbl>
-#> 1 10001                      0.245               0.281                     0.245
-#> 2 10002                      0.253               0.292                     0.253
+#> 1 10001                      0.245               0.281                    0.0631
+#> 2 10002                      0.253               0.292                    0.0647
+#> # ℹ abbreviated name: ¹​predicted_severe_exac_probability
+#> # ℹ 1 more variable: predicted_severe_exac_rate <dbl>
+```
+
+Here’s another example with a specific patient profile:
+
+``` r
+# Create a patient tibble with specific properties
+patient <- tibble::tibble(
+  ID = "10003",
+  age = 65,
+  male = 1,
+  BMI = 25.5,
+  smoker = 1,  # 0=never, 1=former, 2=current
+  FEV1 = 45.0,  # % predicted
+  SGRQ = 45.0,
+  oxygen = 0,
+  LastYrExacCount = 2,
+  LastYrSevExacCount = 1,
+  statin = 1,
+  LAMA = 1,
+  LABA = 1,
+  ICS = 1
+)
+
+# Get predictions for this patient
+accept(patient, country="CAN")
+#> ACCEPT v3 is recalibrated using a Cox model
+#> # A tibble: 1 × 5
+#>   ID    predicted_exac_probability predicted_exac_rate predicted_severe_exac_p…¹
+#>   <chr>                      <dbl>               <dbl>                     <dbl>
+#> 1 10003                      0.247               0.284                    0.0637
 #> # ℹ abbreviated name: ¹​predicted_severe_exac_probability
 #> # ℹ 1 more variable: predicted_severe_exac_rate <dbl>
 ```

@@ -5,3 +5,4 @@
 .travis.yml
 cran-comments.md
 .lintr
+.DS_Store

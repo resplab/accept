@@ -11,6 +11,7 @@ accept(
   prediction_interval = FALSE,
   return_predictors = FALSE,
   country = NULL,
+  obs_modsev_risk = NULL,
   ...
 )
 }
@@ -25,7 +26,9 @@ accept(
 
 \item{return_predictors}{default is FALSE. IF set to TRUE, returns the predictors along with prediction results.}
 
-\item{country}{Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For unsupported countries, provide obs_modsev_risk in the data.}
+\item{country}{Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For unsupported countries, provide obs_modsev_risk parameter or add it as a column in the data.}
+
+\item{obs_modsev_risk}{Observed moderate-to-severe exacerbation risk for unsupported countries. Can be provided as a parameter or as a column in newdata.}
 
 \item{...}{for other versions of accept.}
 }
@@ -38,4 +41,6 @@ A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE appr
 \examples{
 results <- accept(newdata = samplePatients, country = "CAN")
 results_us <- accept(newdata = samplePatients, country = "USA")
+# For unsupported country with obs_modsev_risk parameter
+results_custom <- accept(newdata = samplePatients, country = "XXX", obs_modsev_risk = 0.2)
 }
