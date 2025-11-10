@@ -58,7 +58,7 @@ healthcare systems, diagnostic practices, and baseline risk across 18 countries.
 <span>  <span class="va">male</span>,</span>
 <span>  <span class="va">BMI</span>,</span>
 <span>  <span class="va">smoker</span>,</span>
-<span>  <span class="va">mMRC</span>,</span>
+<span>  mMRC <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  <span class="va">CVD</span>,</span>
 <span>  <span class="va">ICS</span>,</span>
 <span>  <span class="va">LABA</span>,</span>
@@ -67,7 +67,8 @@ healthcare systems, diagnostic practices, and baseline risk across 18 countries.
 <span>  <span class="va">LastYrSevExacCount</span>,</span>
 <span>  <span class="va">FEV1</span>,</span>
 <span>  <span class="va">oxygen</span>,</span>
-<span>  <span class="va">obs_modsev_risk</span></span>
+<span>  <span class="va">obs_modsev_risk</span>,</span>
+<span>  SGRQ <span class="op">=</span> <span class="cn">NA</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -144,10 +145,10 @@ Only used for countries not in the supported list. If NA, country-specific inter
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>When called directly, returns a character string with recalibrated risks.
-  When called through <code><a href="accept.html">accept()</a></code> with version="accept3", returns a tibble with:</p><ul><li><p><code>predicted_exac_probability</code>: Recalibrated probability of moderate-to-severe exacerbation</p></li>
-<li><p><code>predicted_exac_rate</code>: Recalibrated rate of moderate-to-severe exacerbation (calculated as -log(1-p))</p></li>
+    <p>Returns a list containing:</p><ul><li><p><code>ID</code>: Patient identifier</p></li>
+<li><p><code>predicted_exac_probability</code>: Recalibrated probability of moderate-to-severe exacerbation</p></li>
 <li><p><code>predicted_severe_exac_probability</code>: Recalibrated probability of severe exacerbation</p></li>
+</ul><p>When called through <code><a href="accept.html">accept()</a></code> with version="accept3", returns a tibble that also includes:</p><ul><li><p><code>predicted_exac_rate</code>: Recalibrated rate of moderate-to-severe exacerbation (calculated as -log(1-p))</p></li>
 <li><p><code>predicted_severe_exac_rate</code>: Recalibrated rate of severe exacerbation (calculated as -log(1-p))</p></li>
 </ul></div>
     <div id="details">
@@ -198,7 +199,7 @@ exacerbations and 0.9626 for severe exacerbations.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
       </footer></div>
