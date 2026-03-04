@@ -694,6 +694,17 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
   if (!is_tibble(newdata)) {stop("Wrong input format. Only `tibble` and `json` formats are supported. Make sure format is set to 'json' if the input data is in json.")}
   if (any(newdata$FEV1>=120) || any(newdata$FEV1<10)) warning("Unusually high or low FEV1 values detected. Ensure you are passing percent predicted values between 10 to 110 ")
 
+  # Validate that severe exacerbation count does not exceed total exacerbation count
+  if ("LastYrExacCount" %in% colnames(newdata) && "LastYrSevExacCount" %in% colnames(newdata)) {
+    invalid_rows <- which(newdata$LastYrSevExacCount > newdata$LastYrExacCount)
+    if (length(invalid_rows) > 0) {
+      invalid_ids <- if ("ID" %in% colnames(newdata)) newdata$ID[invalid_rows] else invalid_rows
+      stop(paste0("LastYrSevExacCount exceeds LastYrExacCount for patient(s) with ID(s): ",
+                   paste(invalid_ids, collapse = ", "),
+                   ". Severe exacerbation count cannot be greater than total exacerbation count."))
+    }
+  }
+
   # Convert CAT or mMRC to SGRQ if SGRQ is not provided (applies to all versions)
   if (! "SGRQ" %in% colnames(newdata)) {
     if ("CAT" %in% colnames(newdata)) {
