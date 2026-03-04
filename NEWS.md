@@ -1,3 +1,7 @@
+# accept 1.1.0
+* 'accept' now defaults to the newly added country-specific `accept3`
+* 'accept' now checks consistency of exacerbation counts in the previous year.
+
 # accept 1.0.2
 * 'accept' now defaults to `accept2`. 
 * 'accept' now checks `FEV1` range.

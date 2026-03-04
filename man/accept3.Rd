@@ -19,9 +19,9 @@ accept3(
   LastYrExacCount,
   LastYrSevExacCount,
   FEV1,
+  SGRQ = NA,
   oxygen,
-  obs_modsev_risk,
-  SGRQ = NA
+  obs_modsev_risk
 )
 }
 \arguments{
@@ -54,6 +54,8 @@ For unsupported countries, observed moderate-to-severe risk is used for recalibr
 \item{LastYrSevExacCount}{Number of severe exacerbations in the previous year}
 
 \item{FEV1}{Forced expiratory volume in 1 second in percent predicted (10-120)}
+
+\item{SGRQ}{St. George's Respiratory Questionnaire score (0-100). Either this or mMRC should be provided.}
 
 \item{oxygen}{Whether the patient has had supplemental oxygen therapy within the past year (TRUE/FALSE)}
 

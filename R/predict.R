@@ -1001,6 +1001,7 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #' @param LastYrExacCount Total number of exacerbations in the previous year
 #' @param LastYrSevExacCount Number of severe exacerbations in the previous year
 #' @param FEV1 Forced expiratory volume in 1 second in percent predicted (10-120)
+#' @param SGRQ St. George's Respiratory Questionnaire score (0-100). Either this or mMRC should be provided.
 #' @param oxygen Whether the patient has had supplemental oxygen therapy within the past year (TRUE/FALSE)
 #' @param obs_modsev_risk Observed moderate-to-severe exacerbation risk in the local population. 
 #'   Only used for countries not in the supported list. If NA, country-specific intercept is used.
@@ -1046,7 +1047,7 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #' @seealso \code{\link{accept}}, \code{\link{accept2}}, \code{\link{accept1}}
 #' 
 #' @export
-accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, oxygen, obs_modsev_risk, SGRQ = NA) {
+accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, SGRQ = NA, oxygen, obs_modsev_risk) {
   # Create base tibble
   df <- tibble(country = country, ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, statin = CVD,
                    ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount,
