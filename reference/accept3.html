@@ -66,9 +66,9 @@ healthcare systems, diagnostic practices, and baseline risk across 18 countries.
 <span>  <span class="va">LastYrExacCount</span>,</span>
 <span>  <span class="va">LastYrSevExacCount</span>,</span>
 <span>  <span class="va">FEV1</span>,</span>
+<span>  SGRQ <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  <span class="va">oxygen</span>,</span>
-<span>  <span class="va">obs_modsev_risk</span>,</span>
-<span>  SGRQ <span class="op">=</span> <span class="cn">NA</span></span>
+<span>  <span class="va">obs_modsev_risk</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -132,6 +132,10 @@ For unsupported countries, observed moderate-to-severe risk is used for recalibr
 
 <dt id="arg-fev-">FEV1<a class="anchor" aria-label="anchor" href="#arg-fev-"></a></dt>
 <dd><p>Forced expiratory volume in 1 second in percent predicted (10-120)</p></dd>
+
+
+<dt id="arg-sgrq">SGRQ<a class="anchor" aria-label="anchor" href="#arg-sgrq"></a></dt>
+<dd><p>St. George's Respiratory Questionnaire score (0-100). Either this or mMRC should be provided.</p></dd>
 
 
 <dt id="arg-oxygen">oxygen<a class="anchor" aria-label="anchor" href="#arg-oxygen"></a></dt>
