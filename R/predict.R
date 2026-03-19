@@ -733,40 +733,40 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
   }
   if (version == "accept3") {
     message("ACCEPT v3 is recalibrated using a Cox model")
-    
+
     # Validate that country is provided
     if (is.null(country) && is.null(obs_modsev_risk) && !"obs_modsev_risk" %in% colnames(newdata)) {
       stop("The 'country' parameter is required for accept3. Please provide a three-letter ISO country code (e.g., 'CAN', 'USA', 'GBR') or provide 'obs_modsev_risk' as a parameter or column in your data for unsupported countries.")
     }
-    
+
     # If country is not provided but obs_modsev_risk is, use a placeholder country
     if (is.null(country) && (!is.null(obs_modsev_risk) || "obs_modsev_risk" %in% colnames(newdata))) {
       country <- "XXX"  # Placeholder for unsupported country
     }
-    
+
     # Validate and normalize country code
     country <- toupper(country)
     supported_countries <- c("ARG", "AUS", "BRA", "CAN", "COL", "DEU", "DNK", "ESP", "FRA", "GBR", "ITA", "JPN", "KOR", "MEX", "NLD", "NOR", "SWE", "USA")
-    
+
     if (!country %in% supported_countries && country != "XXX") {
       message(paste0("Note: Country not in supported list. Using provided obs_modsev_risk for recalibration. Supported countries: ", paste(supported_countries, collapse = ", ")))
     }
-    
+
     # Check that either mMRC or SGRQ is provided
     if (!"mMRC" %in% colnames(newdata) && !"SGRQ" %in% colnames(newdata)) {
       stop("Either mMRC or SGRQ must be provided for accept3")
     }
-    
+
     # Add obs_modsev_risk column if provided as parameter
     if (!is.null(obs_modsev_risk) && !"obs_modsev_risk" %in% colnames(newdata)) {
       newdata$obs_modsev_risk <- obs_modsev_risk
     }
-    
+
     # Add obs_modsev_risk if not present and not in supported countries
     if (!"obs_modsev_risk" %in% colnames(newdata) && !all(country %in% supported_countries)) {
       newdata$obs_modsev_risk <- NA
     }
-    
+
     # Convert newdata to accept3 format and call accept3 for each row
     result <- lapply(seq_len(nrow(newdata)), function(i) {
       row <- newdata[i,]
@@ -790,15 +790,15 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
         SGRQ = if("SGRQ" %in% colnames(row)) row$SGRQ else NA
       )
     })
-    
+
     # accept3 now returns a list with values directly
     parsed_results <- lapply(seq_along(result), function(i) {
       res <- result[[i]]
-      
+
       # Calculate rates from probabilities: rate = -log(1-p)
       modsev_rate <- -log(1 - res$predicted_exac_probability)
       sev_rate <- -log(1 - res$predicted_severe_exac_probability)
-      
+
       list(
         ID = res$ID,
         predicted_exac_probability = res$predicted_exac_probability,
@@ -807,19 +807,19 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
         predicted_severe_exac_rate = sev_rate
       )
     })
-    
+
     # Combine into a data frame
     result_df <- do.call(rbind, lapply(parsed_results, as.data.frame))
-    
+
     # Add predictor columns if requested
     if (return_predictors) {
-      result_df <- cbind(newdata, result_df[, c("predicted_exac_probability", "predicted_exac_rate", 
+      result_df <- cbind(newdata, result_df[, c("predicted_exac_probability", "predicted_exac_rate",
                                                   "predicted_severe_exac_probability", "predicted_severe_exac_rate")])
     }
-    
+
     return(as_tibble(result_df))
   }
-  
+
   # Handle flexccept version (flexible accept with imputation) - used internally by accept3
   if (version == "flexccept") {
     version <- "accept2"  # flexccept uses accept2 with imputation
@@ -979,13 +979,13 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 
 
 #' Predicts country-specific COPD exacerbation risk based on ACCEPT 3.0 model with external recalibration
-#' 
+#'
 #' @description
-#' This function provides country-specific exacerbation risk predictions by applying 
-#' recalibration adjustments to the ACCEPT 2.0 model. It accounts for differences in 
+#' This function provides country-specific exacerbation risk predictions by applying
+#' recalibration adjustments to the ACCEPT 2.0 model. It accounts for differences in
 #' healthcare systems, diagnostic practices, and baseline risk across 18 countries.
-#' 
-#' @param country Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). 
+#'
+#' @param country Three-letter ISO country code (e.g., "CAN", "USA", "GBR").
 #'   Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA.
 #'   For unsupported countries, observed moderate-to-severe risk is used for recalibration.
 #' @param ID A unique character string identifying the patient
@@ -1003,9 +1003,9 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #' @param FEV1 Forced expiratory volume in 1 second in percent predicted (10-120)
 #' @param SGRQ St. George's Respiratory Questionnaire score (0-100). Either this or mMRC should be provided.
 #' @param oxygen Whether the patient has had supplemental oxygen therapy within the past year (TRUE/FALSE)
-#' @param obs_modsev_risk Observed moderate-to-severe exacerbation risk in the local population. 
+#' @param obs_modsev_risk Observed moderate-to-severe exacerbation risk in the local population.
 #'   Only used for countries not in the supported list. If NA, country-specific intercept is used.
-#' 
+#'
 #' @return Returns a list containing:
 #'   \itemize{
 #'     \item \code{ID}: Patient identifier
@@ -1017,16 +1017,16 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #'     \item \code{predicted_exac_rate}: Recalibrated rate of moderate-to-severe exacerbation (calculated as -log(1-p))
 #'     \item \code{predicted_severe_exac_rate}: Recalibrated rate of severe exacerbation (calculated as -log(1-p))
 #'   }
-#' 
+#'
 #' @details
-#' ACCEPT 3.0 builds upon ACCEPT 2.0 by adding country-specific recalibration to improve 
-#' prediction accuracy across diverse healthcare settings. The model uses empirically-derived 
-#' country-specific intercepts for 18 countries. For other countries, users can provide 
+#' ACCEPT 3.0 builds upon ACCEPT 2.0 by adding country-specific recalibration to improve
+#' prediction accuracy across diverse healthcare settings. The model uses empirically-derived
+#' country-specific intercepts for 18 countries. For other countries, users can provide
 #' observed local risk data for recalibration.
-#' 
-#' The recalibration applies transformation slopes of 0.9162 for moderate-to-severe 
+#'
+#' The recalibration applies transformation slopes of 0.9162 for moderate-to-severe
 #' exacerbations and 0.9626 for severe exacerbations.
-#' 
+#'
 #' @examples
 #' # Single patient prediction for Canada
 #' result <- accept3(
@@ -1035,7 +1035,7 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #'   LastYrExacCount = 1, LastYrSevExacCount = 0, FEV1 = 45, oxygen = FALSE,
 #'   obs_modsev_risk = NA
 #' )
-#' 
+#'
 #' # For unsupported country with local risk data
 #' result <- accept3(
 #'   country = "CHN", ID = "P002", age = 70, male = FALSE, BMI = 22,
@@ -1043,9 +1043,9 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #'   LastYrExacCount = 2, LastYrSevExacCount = 1, FEV1 = 35, oxygen = TRUE,
 #'   obs_modsev_risk = 0.35
 #' )
-#' 
+#'
 #' @seealso \code{\link{accept}}, \code{\link{accept2}}, \code{\link{accept1}}
-#' 
+#'
 #' @export
 accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, SGRQ = NA, oxygen, obs_modsev_risk) {
   # Create base tibble
@@ -1064,14 +1064,15 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
   df$predicted_exac_rate <- model_accept2$predicted_exac_rate
   df$predicted_severe_exac_rate <- model_accept2$predicted_severe_exac_rate
   re_novelty <- data.frame(country = c("ARG", "AUS", "BRA", "CAN", "COL", "DEU", "DNK", "ESP", "FRA", "GBR", "ITA", "JPN", "KOR", "MEX", "NLD", "NOR", "SWE", "USA"),
-                           int = c(-0.1184, -0.1200, -0.3274, -0.0337, -0.1165, -0.4735, 0.0409, 0.3034, -0.1859, 0.5697, 0.3114, -0.4069, -0.5942, -0.2885, 0.4651, 0.3277, -0.0326, -0.2881)
-  )
-  df$re <- ifelse(df$country %in% re_novelty$country, re_novelty[re_novelty$country==df$country,]$int, 3.102*df$obs_modsev_risk - 0.867)
-  slope_modsev <- 0.9162
-  slope_sev <- 0.9626
-  df$recal_modsev_risk <- round(1-exp(-0.2978*exp(df$re*(model_accept2$predicted_exac_rate^slope_modsev))), 4)
-  df$recal_sev_risk <- round(1-exp(-0.0672*exp(df$re*(model_accept2$predicted_severe_exac_rate^slope_sev))), 4)
-  
+                           int = c(-0.1207, -0.1188, -0.3257, -0.0283, -0.1147, -0.4771, 0.0452, 0.2979, -0.1866, 0.5661, 0.3174, -0.4145, -0.5843, -0.2905, 0.4627, 0.3340, -0.0385, -0.2902))
+
+  df$re <- ifelse(df$country %in% re_novelty$country, re_novelty[re_novelty$country==df$country,]$int, 3.106*df$obs_modsev_risk - 0.868)
+  slope_modsev <- 0.9120058
+  slope_sev <- 0.963143
+  df$recal_modsev_risk <- round(1-exp(-exp(-0.8107 + df$re + slope_modsev*log(model_accept2$predicted_exac_rate))), 4)
+  df$recal_sev_risk <- round(1-exp(-exp(-0.8304 + df$re + slope_sev*log(model_accept2$predicted_severe_exac_rate))), 4)
+
+
   # Return a list with the ID and risk values
   return(list(
     ID = df$ID,
@@ -1079,4 +1080,5 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
     predicted_severe_exac_probability = df$recal_sev_risk
   ))
 }
+
 
