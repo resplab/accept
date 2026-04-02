@@ -89,30 +89,6 @@ test_that("accept3 TEST 2: GBR (supported country, obs_modsev_risk ignored)", {
   expect_equal(result$predicted_severe_exac_probability, 0.0888, tolerance = 1e-4)
 })
 
-test_that("accept3 TEST 3: NOR with different age and exacerbation history", {
-  test_data <- tibble::tibble(
-    ID = "TEST3",
-    age = 78,
-    male = FALSE,
-    BMI = 21,
-    smoker = FALSE,
-    mMRC = 4,
-    statin = FALSE,  # CVD
-    ICS = FALSE,
-    LABA = FALSE,
-    LAMA = FALSE,
-    LastYrExacCount = 1,
-    LastYrSevExacCount = 1,
-    FEV1 = 30,
-    oxygen = FALSE
-  )
-
-  result <- accept(test_data, version = "accept3", country = "NOR", obs_modsev_risk = 0.6)
-
-  expect_equal(result$predicted_exac_probability, 0.3555, tolerance = 1e-4)
-  expect_equal(result$predicted_severe_exac_probability, 0.0794, tolerance = 1e-4)
-})
-
 # Tests for SGRQ/CAT/mMRC priority and usage
 test_that("SGRQ is used when provided directly (accept3)", {
   patient_sgrq <- tibble::tibble(

@@ -25,7 +25,7 @@ accept3(
 )
 }
 \arguments{
-\item{country}{Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). 
+\item{country}{Three-letter ISO country code (e.g., "CAN", "USA", "GBR").
 Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA.
 For unsupported countries, observed moderate-to-severe risk is used for recalibration.}
 
@@ -59,7 +59,7 @@ For unsupported countries, observed moderate-to-severe risk is used for recalibr
 
 \item{oxygen}{Whether the patient has had supplemental oxygen therapy within the past year (TRUE/FALSE)}
 
-\item{obs_modsev_risk}{Observed moderate-to-severe exacerbation risk in the local population. 
+\item{obs_modsev_risk}{Observed moderate-to-severe exacerbation risk in the local population.
 Only used for countries not in the supported list. If NA, country-specific intercept is used.}
 }
 \value{
@@ -76,17 +76,17 @@ Returns a list containing:
   }
 }
 \description{
-This function provides country-specific exacerbation risk predictions by applying 
-recalibration adjustments to the ACCEPT 2.0 model. It accounts for differences in 
+This function provides country-specific exacerbation risk predictions by applying
+recalibration adjustments to the ACCEPT 2.0 model. It accounts for differences in
 healthcare systems, diagnostic practices, and baseline risk across 18 countries.
 }
 \details{
-ACCEPT 3.0 builds upon ACCEPT 2.0 by adding country-specific recalibration to improve 
-prediction accuracy across diverse healthcare settings. The model uses empirically-derived 
-country-specific intercepts for 18 countries. For other countries, users can provide 
+ACCEPT 3.0 builds upon ACCEPT 2.0 by adding country-specific recalibration to improve
+prediction accuracy across diverse healthcare settings. The model uses empirically-derived
+country-specific intercepts for 18 countries. For other countries, users can provide
 observed local risk data for recalibration.
 
-The recalibration applies transformation slopes of 0.9162 for moderate-to-severe 
+The recalibration applies transformation slopes of 0.9162 for moderate-to-severe
 exacerbations and 0.9626 for severe exacerbations.
 }
 \examples{
