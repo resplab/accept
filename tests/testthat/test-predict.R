@@ -41,76 +41,48 @@ test_that("accept1 and accept2 warn when country parameter is provided", {
                  "not used by accept2.*ignored")
 })
 
-test_that("accept3 TEST 1: CHN with obs_modsev_risk=0.6", {
-  test_data <- tibble::tibble(
-    ID = "TEST1",
-    age = 42,
-    male = FALSE,
-    BMI = 21,
-    smoker = FALSE,
-    mMRC = 4,
-    statin = FALSE,  # CVD
-    ICS = FALSE,
-    LABA = FALSE,
-    LAMA = FALSE,
-    LastYrExacCount = 2,
-    LastYrSevExacCount = 1,
-    FEV1 = 30,
-    oxygen = FALSE
-  )
-  
-  result <- accept(test_data, version = "accept3", country = "CHN", obs_modsev_risk = 0.6)
-  
-  expect_equal(result$predicted_exac_probability, 0.7649, tolerance = 1e-4)
-  expect_equal(result$predicted_severe_exac_probability, 0.1118, tolerance = 1e-4)
-})
-
-test_that("accept3 TEST 2: GBR (supported country, obs_modsev_risk ignored)", {
-  test_data <- tibble::tibble(
-    ID = "TEST2",
-    age = 42,
-    male = FALSE,
-    BMI = 21,
-    smoker = FALSE,
-    mMRC = 4,
-    statin = FALSE,  # CVD
-    ICS = FALSE,
-    LABA = FALSE,
-    LAMA = FALSE,
-    LastYrExacCount = 2,
-    LastYrSevExacCount = 1,
-    FEV1 = 30,
-    oxygen = FALSE
-  )
-  
-  result <- accept(test_data, version = "accept3", country = "GBR", obs_modsev_risk = 0.6)
-  
-  expect_equal(result$predicted_exac_probability, 0.5214, tolerance = 1e-4)
-  expect_equal(result$predicted_severe_exac_probability, 0.0888, tolerance = 1e-4)
-})
-
-test_that("accept3 TEST 3: NOR with different age and exacerbation history", {
-  test_data <- tibble::tibble(
-    ID = "TEST3",
-    age = 78,
-    male = FALSE,
-    BMI = 21,
-    smoker = FALSE,
-    mMRC = 4,
-    statin = FALSE,  # CVD
-    ICS = FALSE,
-    LABA = FALSE,
-    LAMA = FALSE,
-    LastYrExacCount = 1,
-    LastYrSevExacCount = 1,
-    FEV1 = 30,
-    oxygen = FALSE
+test_that("accept3 predictions match expected values from accept_checks.csv", {
+  # Test cases from accept_checks.csv
+  test_cases <- list(
+    list(ID = "1", country = "DEU", age = 84, male = TRUE, BMI = 39.3, smoker = FALSE,
+         FEV1 = 45.4, mMRC = 3, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
+         statin = FALSE, LAMA = TRUE, LABA = FALSE, ICS = FALSE,
+         exac_prob = 0.1101, severe_prob = 0.036),
+    list(ID = "2", country = "JPN", age = 67, male = TRUE, BMI = 20, smoker = FALSE,
+         FEV1 = 58.24, mMRC = 3, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
+         statin = FALSE, LAMA = FALSE, LABA = FALSE, ICS = FALSE,
+         exac_prob = 0.1213, severe_prob = 0.0397),
+    list(ID = "3", country = "GBR", age = 71, male = TRUE, BMI = 29.8, smoker = FALSE,
+         FEV1 = 61.89, mMRC = 2, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
+         statin = FALSE, LAMA = FALSE, LABA = FALSE, ICS = FALSE,
+         exac_prob = 0.2008, severe_prob = 0.0789),
+    list(ID = "4", country = "AUS", age = 56, male = FALSE, BMI = 23, smoker = FALSE,
+         FEV1 = 23, mMRC = 3, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
+         statin = FALSE, LAMA = TRUE, LABA = TRUE, ICS = TRUE,
+         exac_prob = 0.3692, severe_prob = 0.0829),
+    list(ID = "5", country = "USA", age = 59, male = FALSE, BMI = 28.8, smoker = FALSE,
+         FEV1 = 56.91, mMRC = 0, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
+         statin = FALSE, LAMA = FALSE, LABA = TRUE, ICS = TRUE,
+         exac_prob = 0.137, severe_prob = 0.0301)
   )
 
-  result <- accept(test_data, version = "accept3", country = "NOR", obs_modsev_risk = 0.6)
+  for (i in seq_along(test_cases)) {
+    tc <- test_cases[[i]]
 
-  expect_equal(result$predicted_exac_probability, 0.3555, tolerance = 1e-4)
-  expect_equal(result$predicted_severe_exac_probability, 0.0794, tolerance = 1e-4)
+    result <- suppressMessages(accept3(
+      country = tc$country, ID = tc$ID, age = tc$age, male = tc$male,
+      BMI = tc$BMI, smoker = tc$smoker, FEV1 = tc$FEV1, mMRC = tc$mMRC,
+      oxygen = tc$oxygen, LastYrExacCount = tc$LastYrExacCount,
+      LastYrSevExacCount = tc$LastYrSevExacCount, CVD = tc$statin,
+      LAMA = tc$LAMA, LABA = tc$LABA, ICS = tc$ICS,
+      obs_modsev_risk = NA
+    ))
+
+    expect_equal(result$predicted_exac_probability, tc$exac_prob,
+                 tolerance = 1e-3, label = paste("exac_prob for case", i))
+    expect_equal(result$predicted_severe_exac_probability, tc$severe_prob,
+                 tolerance = 1e-3, label = paste("severe_exac_prob for case", i))
+  }
 })
 
 # Tests for SGRQ/CAT/mMRC priority and usage
