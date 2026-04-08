@@ -1133,7 +1133,7 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' Missing optional predictors are imputed sequentially (triangular matrix):
 #' LABA -> oxygen -> ICS -> LAMA -> statin -> BMI -> smoker.
 #' Each model uses mandatory predictors (age, male, mMRC, FEV1,
-#' LastYrSevExacCount, LastYrModExacCount) plus any previously imputed
+#' LastYrSevExacCount, LastYrExacCount) plus any previously imputed
 #' optional predictors. Binary variables are imputed with logistic regression
 #' (probability rounded to 0/1); BMI with linear regression.
 #'
@@ -1152,7 +1152,7 @@ accept3_uk <- function(patientData,
     stop("patientData must be a tibble. Use as_tibble() to convert.")
   }
 
-  # -- 0. Convert mMRC -> SGRQ if needed------------------
+  # 1. Convert mMRC -> SGRQ if needed
   if (!"SGRQ" %in% colnames(patientData)) {
     if ("CAT" %in% colnames(patientData)) {
       warning("SGRQ not found. Using CAT score instead.")
@@ -1165,40 +1165,40 @@ accept3_uk <- function(patientData,
     }
   }
 
-  # 1. UK-specific optional-predictor imputation
+  # 2. UK-specific optional-predictor imputation
   # Intercepts and coefficients from Table A3 of the ACCEPT 3.0-UK manuscript.
   # Column order in each coef vector:
   #   (Intercept), age, male, mMRC, FEV1, LastYrSevExacCount,
-  #   LastYrModExacCount [, LABA [, oxygen [, ICS [, LAMA [, statin [, BMI]]]]]]
+  #   LastYrExacCount [, LABA [, oxygen [, ICS [, LAMA [, statin [, BMI]]]]]]
 
   uk_imp <- list(
 
     LABA = list(
       binary = TRUE,
-      coef   = c(0.418, -0.013, 0.009, 0.438, -0.004, 0.270, 0.333)
+      coef   = c(0.418, -0.013, 0.009, 0.438, -0.004, -0.063, 0.333)
     ),
 
     oxygen = list(
       binary = TRUE,
-      coef   = c(-7.600, 0.006, -0.197, 0.942, -0.005, 0.228, 0.040,
+      coef   = c(-7.600, 0.006, -0.197, 0.942, -0.005, 0.188, 0.040,
                  0.556)                                     # +LABA
     ),
 
     ICS = list(
       binary = TRUE,
-      coef   = c(-1.430, -0.004, -0.157, 0.085, -0.002, 0.138, 0.168,
+      coef   = c(-1.430, -0.004, -0.157, 0.085, -0.002, -0.030, 0.168,
                  3.372, 0.409)                              # +LABA, oxygen
     ),
 
     LAMA = list(
       binary = TRUE,
-      coef   = c(-0.586, -0.007, 0.089, 0.337, -0.003, 0.153, 0.153,
+      coef   = c(-0.586, -0.007, 0.089, 0.337, -0.003, 0.000, 0.153,
                  1.545, 0.203, -0.632)                     # +LABA, oxygen, ICS
     ),
 
     statin = list(
       binary = TRUE,
-      coef   = c(-2.711, 0.015, 0.200, -0.004, 0.001, -0.023, 0.009,
+      coef   = c(-2.711, 0.015, 0.200, -0.004, 0.001, -0.032, 0.009,
                  0.180, -0.196, -0.259, 0.207)             # +LABA, oxygen, ICS, LAMA
     ),
 
@@ -1206,13 +1206,13 @@ accept3_uk <- function(patientData,
       binary    = FALSE,
       clamp_low = 10,
       clamp_hi  = 70,
-      coef      = c(28.944, -0.074, 0.195, 0.421, 0.027, -0.517, 0.010,
+      coef      = c(28.944, -0.074, 0.195, 0.421, 0.027, -0.527, 0.010,
                     0.451, -0.093, -0.051, -0.105, 1.629) # +LABA, oxygen, ICS, LAMA, statin
     ),
 
     smoker = list(
       binary = TRUE,
-      coef   = c(5.449, -0.061, -0.099, 0.123, 0.000, 0.022, -0.017,
+      coef   = c(5.449, -0.061, -0.099, 0.123, 0.000, 0.039, -0.017,
                  -0.056, -0.648, -0.246, 0.069, 0.031, -0.058) # all optional
     )
   )
@@ -1220,22 +1220,13 @@ accept3_uk <- function(patientData,
   # Sequential imputation order matches the triangular matrix
   optional_order <- c("LABA", "oxygen", "ICS", "LAMA", "statin", "BMI", "smoker")
 
-  # Rename LastYrModExacCount alias if only total count is present
-  if (!"LastYrModExacCount" %in% colnames(patientData) &&
-      "LastYrExacCount"    %in% colnames(patientData) &&
-      "LastYrSevExacCount" %in% colnames(patientData)) {
-    patientData$LastYrModExacCount <-
-      patientData$LastYrExacCount - patientData$LastYrSevExacCount
-  }
-
   # Use mMRC if available, otherwise back-transform from SGRQ
   if (!"mMRC" %in% colnames(patientData) && "SGRQ" %in% colnames(patientData)) {
     patientData$mMRC <- (patientData$SGRQ - 20.43) / 14.77
   }
 
   mandatory_preds <- c("age", "male", "mMRC", "FEV1",
-                       "LastYrSevExacCount", "LastYrModExacCount")
-
+                       "LastYrSevExacCount", "LastYrExacCount")
   imputed_vars <- character(0)
 
   for (vname in optional_order) {
@@ -1245,8 +1236,8 @@ accept3_uk <- function(patientData,
       spec      <- uk_imp[[vname]]
       pred_cols <- c(mandatory_preds, imputed_vars)
 
-      X <- as.matrix(cbind(1, patientData[, pred_cols]))
-      X <- matrix(as.numeric(X), nrow = nrow(X), ncol = ncol(X))
+      X  <- as.matrix(cbind(1, patientData[, pred_cols]))
+      X  <- matrix(as.numeric(X), nrow = nrow(X), ncol = ncol(X))
       lp <- as.vector(X %*% spec$coef)
 
       if (spec$binary) {
@@ -1269,24 +1260,24 @@ accept3_uk <- function(patientData,
       }
     }
 
-    # Always track available optional variables for subsequent models
+    # Always track all optional variables for subsequent models
+    # regardless of whether they needed imputation
     if (vname %in% colnames(patientData)) {
       imputed_vars <- c(imputed_vars, vname)
     }
   }
-
-  # 2. ACCEPT 2.0 predictions
+  # 3. ACCEPT 2.0 predictions
   accept2_preds <- accept2(patientData = patientData)
 
   p2_modsev <- accept2_preds$predicted_exac_probability
   p2_sev    <- accept2_preds$predicted_severe_exac_probability
 
-  # 3. UK recalibration
+  # 4. UK recalibration
   # Optimism-corrected parameters from CPRD bootstrap:
   #   Moderate-to-severe: Baseline Hazard H0 = 0.676 (95% CI 0.671-0.681)
   #                       Slope beta         = 0.986 (95% CI 0.977-0.995)
-  #   Severe:             Baseline Hazard H0 = 1.124 (95% CI 1.107-1.142)
-  #                       Slope beta         = 0.482 (95% CI 0.472-0.495)
+  #   Severe:             Baseline Hazard H0 = 0.482 (95% CI 0.472-0.495)
+  #                       Slope beta         = 1.124 (95% CI 1.107-1.142)
 
   H0_modsev   <- 0.676
   beta_modsev <- 0.986
