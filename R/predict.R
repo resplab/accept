@@ -700,8 +700,8 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
     if (length(invalid_rows) > 0) {
       invalid_ids <- if ("ID" %in% colnames(newdata)) newdata$ID[invalid_rows] else invalid_rows
       stop(paste0("LastYrSevExacCount exceeds LastYrExacCount for patient(s) with ID(s): ",
-                   paste(invalid_ids, collapse = ", "),
-                   ". Severe exacerbation count cannot be greater than total exacerbation count."))
+                  paste(invalid_ids, collapse = ", "),
+                  ". Severe exacerbation count cannot be greater than total exacerbation count."))
     }
   }
 
@@ -814,7 +814,7 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
     # Add predictor columns if requested
     if (return_predictors) {
       result_df <- cbind(newdata, result_df[, c("predicted_exac_probability", "predicted_exac_rate",
-                                                  "predicted_severe_exac_probability", "predicted_severe_exac_rate")])
+                                                "predicted_severe_exac_probability", "predicted_severe_exac_rate")])
     }
 
     return(as_tibble(result_df))
@@ -1050,8 +1050,8 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, SGRQ = NA, oxygen, obs_modsev_risk) {
   # Create base tibble
   df <- tibble(country = country, ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, statin = CVD,
-                   ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount,
-                   FEV1 = FEV1, oxygen = oxygen, obs_modsev_risk = obs_modsev_risk)
+               ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount,
+               FEV1 = FEV1, oxygen = oxygen, obs_modsev_risk = obs_modsev_risk)
 
   # Add SGRQ or mMRC depending on what's available
   if (!is.na(SGRQ)) {
@@ -1082,3 +1082,231 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 }
 
 
+
+
+#' Predicts COPD exacerbation risk for UK patients using ACCEPT 3.0-UK
+#'
+#' @description
+#' ACCEPT 3.0-UK is a UK-specific recalibration of ACCEPT 2.0 derived from the
+#' CPRD (Clinical Practice Research Datalink) primary-care dataset. It applies
+#' two Cox-model recalibration parameters: an optimism-corrected baseline
+#' hazard (H0) and slope (beta), separately for moderate-to-severe and severe
+#' exacerbations.
+#'
+#' When optional predictors (LABA, oxygen, ICS, LAMA, statin/CVD, BMI, smoker)
+#' are missing, a UK-specific sequential triangular regression imputation model
+#' fills them in before prediction.
+#'
+#' @param patientData A tibble of patients in the same format as
+#'   \code{samplePatients}. Mandatory columns: \code{ID}, \code{age},
+#'   \code{male}, \code{FEV1}, \code{LastYrExacCount},
+#'   \code{LastYrSevExacCount}, and either \code{mMRC} or \code{SGRQ}.
+#'   Optional columns: \code{LABA}, \code{oxygen}, \code{ICS}, \code{LAMA},
+#'   \code{statin}, \code{BMI}, \code{smoker}.
+#' @param prediction_interval Logical. If \code{TRUE}, also returns lower/upper
+#'   80\% prediction intervals. Default \code{FALSE}.
+#' @param return_predictors Logical. If \code{TRUE}, the input predictors are
+#'   returned alongside predictions. Default \code{FALSE}.
+#'
+#' @return A tibble with columns:
+#'   \itemize{
+#'     \item \code{predicted_exac_probability}        — recalibrated moderate-to-severe risk
+#'     \item \code{predicted_exac_rate}               — corresponding rate (-log(1-p))
+#'     \item \code{predicted_severe_exac_probability} — recalibrated severe risk
+#'     \item \code{predicted_severe_exac_rate}        — corresponding rate
+#'   }
+#'   If \code{return_predictors = TRUE}, input columns are prepended.
+#'
+#' @details
+#' ## Recalibration formula
+#' For each outcome the recalibrated 1-year risk is:
+#' \deqn{\hat{p}_{UK} = 1 - \exp\!\Bigl(-H_0 \cdot \exp(\beta \cdot \log(-\log(1-\hat{p}_{2})))\Bigr)}
+#' where \eqn{\hat{p}_{2}} is the ACCEPT 2.0 predicted probability, and
+#' \eqn{H_0} and \eqn{\beta} are the optimism-corrected parameters from the
+#' CPRD Cox model (Table in manuscript):
+#' \itemize{
+#'   \item Moderate-to-severe: \eqn{H_0 = 0.676}, \eqn{\beta = 0.986}
+#'   \item Severe:             \eqn{H_0 = 1.124}, \eqn{\beta = 0.482}
+#' }
+#'
+#' ## Optional-predictor imputation
+#' Missing optional predictors are imputed sequentially (triangular matrix):
+#' LABA → oxygen → ICS → LAMA → statin → BMI → smoker.
+#' Each model uses mandatory predictors (age, male, mMRC, FEV1,
+#' LastYrSevExacCount, LastYrModExacCount) plus any previously imputed
+#' optional predictors. Binary variables are imputed with logistic regression
+#' (probability rounded to 0/1); BMI with linear regression.
+#'
+#' @examples
+#' results <- accept3_uk(samplePatients)
+#'
+#' @seealso \code{\link{accept}}, \code{\link{accept2}}, \code{\link{accept3}}
+#'
+#' @importFrom dplyr tibble mutate select starts_with
+#' @export
+accept3_uk <- function(patientData,
+                       prediction_interval = FALSE,
+                       return_predictors   = FALSE) {
+
+  if (!tibble::is_tibble(patientData)) {
+    stop("patientData must be a tibble. Use as_tibble() to convert.")
+  }
+
+  # ── 0. Convert mMRC → SGRQ if needed──────────────────
+  if (!"SGRQ" %in% colnames(patientData)) {
+    if ("CAT" %in% colnames(patientData)) {
+      warning("SGRQ not found. Using CAT score instead.")
+      patientData$SGRQ <- 18.87 + 1.53 * patientData$CAT
+    } else if ("mMRC" %in% colnames(patientData)) {
+      message("SGRQ not found. Using mMRC score instead.")
+      patientData$SGRQ <- 20.43 + 14.77 * patientData$mMRC
+    }
+  }
+
+  # ── 1. UK-specific optional-predictor imputation ───────────────
+  # Intercepts and coefficients from Table A3 of the ACCEPT 3.0-UK manuscript.
+  # Column order in each coef vector:
+  #   (Intercept), age, male, mMRC, FEV1, LastYrSevExacCount,
+  #   LastYrModExacCount [, LABA [, oxygen [, ICS [, LAMA [, statin [, BMI]]]]]]
+
+  uk_imp <- list(
+
+    LABA = list(
+      binary = TRUE,
+      coef   = c(0.418, -0.013, 0.009, 0.438, -0.004, 0.270, 0.333)
+    ),
+
+    oxygen = list(
+      binary = TRUE,
+      coef   = c(-7.600, 0.006, -0.197, 0.942, -0.005, 0.228, 0.040,
+                 0.556)                                     # +LABA
+    ),
+
+    ICS = list(
+      binary = TRUE,
+      coef   = c(-1.430, -0.004, -0.157, 0.085, -0.002, 0.138, 0.168,
+                 3.372, 0.409)                              # +LABA, oxygen
+    ),
+
+    LAMA = list(
+      binary = TRUE,
+      coef   = c(-0.586, -0.007, 0.089, 0.337, -0.003, 0.153, 0.153,
+                 1.545, 0.203, -0.632)                     # +LABA, oxygen, ICS
+    ),
+
+    statin = list(
+      binary = TRUE,
+      coef   = c(-2.711, 0.015, 0.200, -0.004, 0.001, -0.023, 0.009,
+                 0.180, -0.196, -0.259, 0.207)             # +LABA, oxygen, ICS, LAMA
+    ),
+
+    BMI = list(
+      binary    = FALSE,
+      clamp_low = 10,
+      clamp_hi  = 70,
+      coef      = c(28.944, -0.074, 0.195, 0.421, 0.027, -0.517, 0.010,
+                    0.451, -0.093, -0.051, -0.105, 1.629) # +LABA, oxygen, ICS, LAMA, statin
+    ),
+
+    smoker = list(
+      binary = TRUE,
+      coef   = c(5.449, -0.061, -0.099, 0.123, 0.000, 0.022, -0.017,
+                 -0.056, -0.648, -0.246, 0.069, 0.031, -0.058) # all optional
+    )
+  )
+
+  # Sequential imputation order matches the triangular matrix
+  optional_order <- c("LABA", "oxygen", "ICS", "LAMA", "statin", "BMI", "smoker")
+
+  # Rename LastYrModExacCount alias if only total count is present
+  if (!"LastYrModExacCount" %in% colnames(patientData) &&
+      "LastYrExacCount"    %in% colnames(patientData) &&
+      "LastYrSevExacCount" %in% colnames(patientData)) {
+    patientData$LastYrModExacCount <-
+      patientData$LastYrExacCount - patientData$LastYrSevExacCount
+  }
+
+  mandatory_preds <- c("age", "male", "mMRC", "FEV1",
+                       "LastYrSevExacCount", "LastYrModExacCount")
+
+  imputed_vars <- character(0)
+
+  for (vname in optional_order) {
+    if (!vname %in% colnames(patientData) ||
+        any(is.na(patientData[[vname]]))) {
+
+      spec        <- uk_imp[[vname]]
+      pred_cols   <- c(mandatory_preds, imputed_vars)
+
+      # mMRC proxy: use converted SGRQ back-transform if mMRC missing
+      if (!"mMRC" %in% colnames(patientData) && "SGRQ" %in% colnames(patientData)) {
+        patientData$mMRC <- (patientData$SGRQ - 20.43) / 14.77
+      }
+
+      X <- as.matrix(cbind(1, patientData[, pred_cols]))
+      lp <- as.vector(X %*% spec$coef)
+
+      if (spec$binary) {
+        pred_vals <- round(exp(lp) / (1 + exp(lp)))
+      } else {
+        pred_vals <- lp
+        if (!is.null(spec$clamp_low)) pred_vals <- pmax(pred_vals, spec$clamp_low)
+        if (!is.null(spec$clamp_hi))  pred_vals <- pmin(pred_vals, spec$clamp_hi)
+      }
+
+      if (!vname %in% colnames(patientData)) {
+        patientData[[vname]] <- pred_vals
+        message(paste0("accept3_uk: '", vname, "' not found — imputed using UK model."))
+      } else {
+        na_idx <- is.na(patientData[[vname]])
+        patientData[[vname]][na_idx] <- pred_vals[na_idx]
+        if (any(na_idx))
+          message(paste0("accept3_uk: ", sum(na_idx), " missing value(s) in '",
+                         vname, "' imputed using UK model."))
+      }
+      imputed_vars <- c(imputed_vars, vname)
+    }
+  }
+
+  # ── 2. Get ACCEPT 2.0 predictions ─────────────────────────────────────────
+  accept2_preds <- accept2(patientData = patientData)
+
+  p2_modsev <- accept2_preds$predicted_exac_probability
+  p2_sev    <- accept2_preds$predicted_severe_exac_probability
+
+  # ── 3. Apply UK recalibration (Table caption / Figure 2) ──────────────────
+  # Optimism-corrected parameters from CPRD bootstrap (200 resamples):
+  #   Moderate-to-severe: Baseline Hazard H0 = 0.676 (95% CI 0.671–0.681)
+  #                       Slope beta         = 0.986 (95% CI 0.977–0.995)
+  #   Severe:             Baseline Hazard H0 = 1.124 (95% CI 1.107–1.142)
+  #                       Slope beta         = 0.482 (95% CI 0.472–0.495)
+
+  H0_modsev   <- 0.676
+  beta_modsev <- 0.986
+
+  H0_sev      <- 0.482
+  beta_sev    <- 1.124
+
+  lp_modsev <- log(-log(1 - p2_modsev))
+  lp_sev    <- log(-log(1 - p2_sev))
+
+  uk_modsev <- 1 - exp(-H0_modsev * exp(beta_modsev * lp_modsev))
+  uk_sev    <- 1 - exp(-H0_sev    * exp(beta_sev    * lp_sev))
+
+  # ── 4. Assemble output ────────────────────────────────────────────────────
+  out <- dplyr::tibble(
+    predicted_exac_probability        = round(uk_modsev, 4),
+    predicted_exac_rate               = round(-log(1 - uk_modsev), 4),
+    predicted_severe_exac_probability = round(uk_sev, 4),
+    predicted_severe_exac_rate        = round(-log(1 - uk_sev), 4)
+  )
+
+  if (return_predictors) {
+    out <- dplyr::bind_cols(patientData, out)
+  } else {
+    out$ID <- patientData$ID
+    out    <- dplyr::select(out, ID, dplyr::everything())
+  }
+
+  return(out)
+}
