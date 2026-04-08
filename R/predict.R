@@ -1103,10 +1103,10 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #'   \code{LastYrSevExacCount}, and either \code{mMRC} or \code{SGRQ}.
 #'   Optional columns: \code{LABA}, \code{oxygen}, \code{ICS}, \code{LAMA},
 #'   \code{statin}, \code{BMI}, \code{smoker}.
-#' @param prediction_interval Logical. If \code{TRUE}, also returns lower/upper
-#'   80\% prediction intervals. Default \code{FALSE}.
 #' @param return_predictors Logical. If \code{TRUE}, the input predictors are
 #'   returned alongside predictions. Default \code{FALSE}.
+#'
+#'@param verbose Logical. If \code{FALSE}, suppresses imputation messages. Default \code{TRUE}.
 #'
 #' @return A tibble with columns:
 #'   \itemize{
@@ -1126,7 +1126,7 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' CPRD Cox model (Table in manuscript):
 #' \itemize{
 #'   \item Moderate-to-severe: \eqn{H_0 = 0.676}, \eqn{\beta = 0.986}
-#'   \item Severe:             \eqn{H_0 = 1.124}, \eqn{\beta = 0.482}
+#'   \item Severe:             \eqn{H_0 = 0.482}, \eqn{\beta = 1.124}
 #' }
 #'
 #' ## Optional-predictor imputation
@@ -1145,11 +1145,17 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' @importFrom dplyr tibble mutate select starts_with
 #' @export
 accept3_uk <- function(patientData,
-                       prediction_interval = FALSE,
-                       return_predictors   = FALSE) {
+                       return_predictors = FALSE,
+                       verbose = TRUE) {
 
   if (!tibble::is_tibble(patientData)) {
     stop("patientData must be a tibble. Use as_tibble() to convert.")
+  }
+  if (any(patientData$LastYrSevExacCount > patientData$LastYrExacCount)) {
+    invalid_ids <- patientData$ID[patientData$LastYrSevExacCount > patientData$LastYrExacCount]
+    stop(paste0("LastYrSevExacCount exceeds LastYrExacCount for patient(s): ",
+                paste(invalid_ids, collapse = ", "),
+                ". Severe count cannot exceed total count."))
   }
 
   # 1. Convert mMRC -> SGRQ if needed
@@ -1205,7 +1211,7 @@ accept3_uk <- function(patientData,
     BMI = list(
       binary    = FALSE,
       clamp_low = 10,
-      clamp_hi  = 70,
+      clamp_hi  = 60,
       coef      = c(28.944, -0.074, 0.195, 0.421, 0.027, -0.527, 0.010,
                     0.451, -0.093, -0.051, -0.105, 1.629) # +LABA, oxygen, ICS, LAMA, statin
     ),
@@ -1221,10 +1227,16 @@ accept3_uk <- function(patientData,
   optional_order <- c("LABA", "oxygen", "ICS", "LAMA", "statin", "BMI", "smoker")
 
   # Use mMRC if available, otherwise back-transform from SGRQ
-  if (!"mMRC" %in% colnames(patientData) && "SGRQ" %in% colnames(patientData)) {
-    patientData$mMRC <- (patientData$SGRQ - 20.43) / 14.77
+  if ("SGRQ" %in% colnames(patientData)) {
+    if (!"mMRC" %in% colnames(patientData)) {
+      patientData$mMRC <- (patientData$SGRQ - 20.43) / 14.77
+    } else {
+      na_idx <- is.na(patientData$mMRC)
+      if (any(na_idx)) {
+        patientData$mMRC[na_idx] <- (patientData$SGRQ[na_idx] - 20.43) / 14.77
+      }
+    }
   }
-
   mandatory_preds <- c("age", "male", "mMRC", "FEV1",
                        "LastYrSevExacCount", "LastYrExacCount")
   imputed_vars <- character(0)
@@ -1250,11 +1262,11 @@ accept3_uk <- function(patientData,
 
       if (!vname %in% colnames(patientData)) {
         patientData[[vname]] <- pred_vals
-        message(paste0("accept3_uk: '", vname, "' not found - imputed using UK model."))
+        if (verbose) message(paste0("accept3_uk: '", vname, "' not found - imputed using UK model."))
       } else {
         na_idx <- is.na(patientData[[vname]])
         patientData[[vname]][na_idx] <- pred_vals[na_idx]
-        if (any(na_idx))
+        if (any(na_idx) && verbose)
           message(paste0("accept3_uk: ", sum(na_idx), " missing value(s) in '",
                          vname, "' imputed using UK model."))
       }
