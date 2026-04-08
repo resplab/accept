@@ -1110,10 +1110,10 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #'
 #' @return A tibble with columns:
 #'   \itemize{
-#'     \item \code{predicted_exac_probability}        — recalibrated moderate-to-severe risk
-#'     \item \code{predicted_exac_rate}               — corresponding rate (-log(1-p))
-#'     \item \code{predicted_severe_exac_probability} — recalibrated severe risk
-#'     \item \code{predicted_severe_exac_rate}        — corresponding rate
+#'     \item \code{predicted_exac_probability}        - recalibrated moderate-to-severe risk
+#'     \item \code{predicted_exac_rate}               - corresponding rate (-log(1-p))
+#'     \item \code{predicted_severe_exac_probability} - recalibrated severe risk
+#'     \item \code{predicted_severe_exac_rate}        - corresponding rate
 #'   }
 #'   If \code{return_predictors = TRUE}, input columns are prepended.
 #'
@@ -1131,7 +1131,7 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #'
 #' ## Optional-predictor imputation
 #' Missing optional predictors are imputed sequentially (triangular matrix):
-#' LABA → oxygen → ICS → LAMA → statin → BMI → smoker.
+#' LABA -> oxygen -> ICS -> LAMA -> statin -> BMI -> smoker.
 #' Each model uses mandatory predictors (age, male, mMRC, FEV1,
 #' LastYrSevExacCount, LastYrModExacCount) plus any previously imputed
 #' optional predictors. Binary variables are imputed with logistic regression
@@ -1152,7 +1152,7 @@ accept3_uk <- function(patientData,
     stop("patientData must be a tibble. Use as_tibble() to convert.")
   }
 
-  # ── 0. Convert mMRC → SGRQ if needed──────────────────
+  # -- 0. Convert mMRC -> SGRQ if needed------------------
   if (!"SGRQ" %in% colnames(patientData)) {
     if ("CAT" %in% colnames(patientData)) {
       warning("SGRQ not found. Using CAT score instead.")
@@ -1160,10 +1160,12 @@ accept3_uk <- function(patientData,
     } else if ("mMRC" %in% colnames(patientData)) {
       message("SGRQ not found. Using mMRC score instead.")
       patientData$SGRQ <- 20.43 + 14.77 * patientData$mMRC
+    } else {
+      stop("Either mMRC, SGRQ, or CAT must be provided. None were found in patientData.")
     }
   }
 
-  # ── 1. UK-specific optional-predictor imputation ───────────────
+  # 1. UK-specific optional-predictor imputation
   # Intercepts and coefficients from Table A3 of the ACCEPT 3.0-UK manuscript.
   # Column order in each coef vector:
   #   (Intercept), age, male, mMRC, FEV1, LastYrSevExacCount,
@@ -1226,6 +1228,11 @@ accept3_uk <- function(patientData,
       patientData$LastYrExacCount - patientData$LastYrSevExacCount
   }
 
+  # Use mMRC if available, otherwise back-transform from SGRQ
+  if (!"mMRC" %in% colnames(patientData) && "SGRQ" %in% colnames(patientData)) {
+    patientData$mMRC <- (patientData$SGRQ - 20.43) / 14.77
+  }
+
   mandatory_preds <- c("age", "male", "mMRC", "FEV1",
                        "LastYrSevExacCount", "LastYrModExacCount")
 
@@ -1235,15 +1242,11 @@ accept3_uk <- function(patientData,
     if (!vname %in% colnames(patientData) ||
         any(is.na(patientData[[vname]]))) {
 
-      spec        <- uk_imp[[vname]]
-      pred_cols   <- c(mandatory_preds, imputed_vars)
-
-      # mMRC proxy: use converted SGRQ back-transform if mMRC missing
-      if (!"mMRC" %in% colnames(patientData) && "SGRQ" %in% colnames(patientData)) {
-        patientData$mMRC <- (patientData$SGRQ - 20.43) / 14.77
-      }
+      spec      <- uk_imp[[vname]]
+      pred_cols <- c(mandatory_preds, imputed_vars)
 
       X <- as.matrix(cbind(1, patientData[, pred_cols]))
+      X <- matrix(as.numeric(X), nrow = nrow(X), ncol = ncol(X))
       lp <- as.vector(X %*% spec$coef)
 
       if (spec$binary) {
@@ -1256,7 +1259,7 @@ accept3_uk <- function(patientData,
 
       if (!vname %in% colnames(patientData)) {
         patientData[[vname]] <- pred_vals
-        message(paste0("accept3_uk: '", vname, "' not found — imputed using UK model."))
+        message(paste0("accept3_uk: '", vname, "' not found - imputed using UK model."))
       } else {
         na_idx <- is.na(patientData[[vname]])
         patientData[[vname]][na_idx] <- pred_vals[na_idx]
@@ -1264,22 +1267,26 @@ accept3_uk <- function(patientData,
           message(paste0("accept3_uk: ", sum(na_idx), " missing value(s) in '",
                          vname, "' imputed using UK model."))
       }
+    }
+
+    # Always track available optional variables for subsequent models
+    if (vname %in% colnames(patientData)) {
       imputed_vars <- c(imputed_vars, vname)
     }
   }
 
-  # ── 2. Get ACCEPT 2.0 predictions ─────────────────────────────────────────
+  # 2. ACCEPT 2.0 predictions
   accept2_preds <- accept2(patientData = patientData)
 
   p2_modsev <- accept2_preds$predicted_exac_probability
   p2_sev    <- accept2_preds$predicted_severe_exac_probability
 
-  # ── 3. Apply UK recalibration (Table caption / Figure 2) ──────────────────
-  # Optimism-corrected parameters from CPRD bootstrap (200 resamples):
-  #   Moderate-to-severe: Baseline Hazard H0 = 0.676 (95% CI 0.671–0.681)
-  #                       Slope beta         = 0.986 (95% CI 0.977–0.995)
-  #   Severe:             Baseline Hazard H0 = 1.124 (95% CI 1.107–1.142)
-  #                       Slope beta         = 0.482 (95% CI 0.472–0.495)
+  # 3. UK recalibration
+  # Optimism-corrected parameters from CPRD bootstrap:
+  #   Moderate-to-severe: Baseline Hazard H0 = 0.676 (95% CI 0.671-0.681)
+  #                       Slope beta         = 0.986 (95% CI 0.977-0.995)
+  #   Severe:             Baseline Hazard H0 = 1.124 (95% CI 1.107-1.142)
+  #                       Slope beta         = 0.482 (95% CI 0.472-0.495)
 
   H0_modsev   <- 0.676
   beta_modsev <- 0.986
@@ -1293,7 +1300,7 @@ accept3_uk <- function(patientData,
   uk_modsev <- 1 - exp(-H0_modsev * exp(beta_modsev * lp_modsev))
   uk_sev    <- 1 - exp(-H0_sev    * exp(beta_sev    * lp_sev))
 
-  # ── 4. Assemble output ────────────────────────────────────────────────────
+  # 4. Assemble output
   out <- dplyr::tibble(
     predicted_exac_probability        = round(uk_modsev, 4),
     predicted_exac_rate               = round(-log(1 - uk_modsev), 4),
@@ -1305,7 +1312,7 @@ accept3_uk <- function(patientData,
     out <- dplyr::bind_cols(patientData, out)
   } else {
     out$ID <- patientData$ID
-    out    <- dplyr::select(out, ID, dplyr::everything())
+    out    <- dplyr::select(out, "ID", dplyr::everything())
   }
 
   return(out)
