@@ -1,3 +1,7 @@
+pexa_call<-(...){
+  
+}
+
 binorm_pdf <- function(x, sigma) {
   s1 <- sqrt(sigma[1, 1])
   s2 <- sqrt(sigma[2, 2])
