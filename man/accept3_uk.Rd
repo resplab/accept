@@ -4,7 +4,7 @@
 \alias{accept3_uk}
 \title{Predicts COPD exacerbation risk for UK patients using ACCEPT 3.0-UK}
 \usage{
-accept3_uk(patientData, return_predictors = FALSE)
+accept3_uk(patientData, return_predictors = FALSE, quiet = FALSE)
 }
 \arguments{
 \item{patientData}{A tibble of patients in the same format as
@@ -17,7 +17,7 @@ Optional columns: \code{LABA}, \code{oxygen}, \code{ICS}, \code{LAMA},
 \item{return_predictors}{Logical. If \code{TRUE}, the input predictors are
 returned alongside predictions. Default \code{FALSE}.}
 
-\item{verbose}{Logical. If \code{FALSE}, suppresses imputation messages. Default \code{TRUE}.}
+\item{quiet}{Logical. If \code{FALSE}, suppresses imputation messages. Default \code{TRUE}.}
 }
 \value{
 A tibble with columns:

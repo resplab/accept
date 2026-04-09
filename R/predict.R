@@ -1106,7 +1106,7 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' @param return_predictors Logical. If \code{TRUE}, the input predictors are
 #'   returned alongside predictions. Default \code{FALSE}.
 #'
-#'@param verbose Logical. If \code{FALSE}, suppresses imputation messages. Default \code{TRUE}.
+#'@param quiet Logical. If \code{FALSE}, suppresses imputation messages. Default \code{TRUE}.
 #'
 #' @return A tibble with columns:
 #'   \itemize{
@@ -1146,7 +1146,7 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' @export
 accept3_uk <- function(patientData,
                        return_predictors = FALSE,
-                       verbose = TRUE) {
+                       quiet = FALSE) {
 
   if (!tibble::is_tibble(patientData)) {
     stop("patientData must be a tibble. Use as_tibble() to convert.")
@@ -1262,11 +1262,11 @@ accept3_uk <- function(patientData,
 
       if (!vname %in% colnames(patientData)) {
         patientData[[vname]] <- pred_vals
-        if (verbose) message(paste0("accept3_uk: '", vname, "' not found - imputed using UK model."))
+        if (quiet) message(paste0("accept3_uk: '", vname, "' not found - imputed using UK model."))
       } else {
         na_idx <- is.na(patientData[[vname]])
         patientData[[vname]][na_idx] <- pred_vals[na_idx]
-        if (any(na_idx) && verbose)
+        if (any(na_idx) && quiet)
           message(paste0("accept3_uk: ", sum(na_idx), " missing value(s) in '",
                          vname, "' imputed using UK model."))
       }

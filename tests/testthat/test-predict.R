@@ -406,7 +406,7 @@ test_that("accept3_uk imputes missing optional predictors", {
   patients_no_optional$statin <- NULL
   patients_no_optional$BMI    <- NULL
   patients_no_optional$smoker <- NULL
-  results <- accept3_uk(patients_no_optional, verbose = FALSE)
+  results <- accept3_uk(patients_no_optional, quiet = TRUE)
   expect_equal(nrow(results), nrow(samplePatients))
   expect_true(all(results$predicted_exac_probability > 0 & results$predicted_exac_probability < 1))
 })
