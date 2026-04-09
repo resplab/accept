@@ -21,11 +21,11 @@ test_that("accept3 default prediction works", {
   expect_true("predicted_severe_exac_probability" %in% names(result))
   expect_true("predicted_severe_exac_rate" %in% names(result))
   expect_equal(nrow(result), 2)
-  
+
   # Verify rate calculation: rate = -log(1-p)
   expected_rate <- -log(1 - result$predicted_exac_probability)
   expect_equal(result$predicted_exac_rate, expected_rate, tolerance = 1e-6)
-  
+
   expected_sev_rate <- -log(1 - result$predicted_severe_exac_probability)
   expect_equal(result$predicted_severe_exac_rate, expected_sev_rate, tolerance = 1e-6)
 })
@@ -35,9 +35,9 @@ test_that("accept3 requires country parameter", {
 })
 
 test_that("accept1 and accept2 warn when country parameter is provided", {
-  expect_warning(accept(samplePatients[1,], version="accept1", country="CAN"), 
+  expect_warning(accept(samplePatients[1,], version="accept1", country="CAN"),
                  "not used by accept1.*ignored")
-  expect_warning(accept(samplePatients[1,], version="accept2", country="USA"), 
+  expect_warning(accept(samplePatients[1,], version="accept2", country="USA"),
                  "not used by accept2.*ignored")
 })
 
@@ -371,4 +371,52 @@ test_that("Different SGRQ values produce different results (no conversion)", {
 
   # Different SGRQ values should produce different results
   expect_false(isTRUE(all.equal(result_45$predicted_exac_probability, result_50$predicted_exac_probability)))
+})
+
+
+
+test_that("accept3_uk returns correct columns and shape", {
+  results <- accept3_uk(samplePatients)
+  expect_true(tibble::is_tibble(results))
+  expect_equal(nrow(results), nrow(samplePatients))
+  expect_true(all(c("ID", "predicted_exac_probability",
+                    "predicted_exac_rate",
+                    "predicted_severe_exac_probability",
+                    "predicted_severe_exac_rate") %in% colnames(results)))
+})
+
+test_that("accept3_uk predictions are between 0 and 1", {
+  results <- accept3_uk(samplePatients)
+  expect_true(all(results$predicted_exac_probability > 0 & results$predicted_exac_probability < 1))
+  expect_true(all(results$predicted_severe_exac_probability > 0 & results$predicted_severe_exac_probability < 1))
+})
+
+test_that("accept3_uk gives expected predictions on fixed input", {
+  results <- accept3_uk(samplePatients)
+  expect_equal(results$predicted_exac_probability[1], 0.6986, tolerance = 0.001)
+  expect_equal(results$predicted_severe_exac_probability[1], 0.356, tolerance = 0.001)
+})
+
+test_that("accept3_uk imputes missing optional predictors", {
+  patients_no_optional <- samplePatients
+  patients_no_optional$LABA   <- NULL
+  patients_no_optional$oxygen <- NULL
+  patients_no_optional$ICS    <- NULL
+  patients_no_optional$LAMA   <- NULL
+  patients_no_optional$statin <- NULL
+  patients_no_optional$BMI    <- NULL
+  patients_no_optional$smoker <- NULL
+  results <- accept3_uk(patients_no_optional, quiet = TRUE)
+  expect_equal(nrow(results), nrow(samplePatients))
+  expect_true(all(results$predicted_exac_probability > 0 & results$predicted_exac_probability < 1))
+})
+
+test_that("accept3_uk errors on non-tibble input", {
+  expect_error(accept3_uk(as.data.frame(samplePatients)))
+})
+
+test_that("accept3_uk errors when severe count exceeds total", {
+  patients_invalid <- samplePatients
+  patients_invalid$LastYrSevExacCount[1] <- 99
+  expect_error(accept3_uk(patients_invalid))
 })
