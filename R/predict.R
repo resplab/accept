@@ -1,6 +1,23 @@
-pexa_call<-(...){
+
+
+#FOR ONE SHOT JSON CALL!
+#' @export
+gateway<-function(...)
+{
+  arguments=list(...)
+  func<-arguments$func
+    
+  if(length(arguments)==0) {
+    out<-eval(parse(text=paste(func,"()")))
+    }
+  else {
+    out<-do.call(func, args = arguments)
+    }
   
+  return(jsonlite::toJSON(out))
 }
+
+
 
 binorm_pdf <- function(x, sigma) {
   s1 <- sqrt(sigma[1, 1])
