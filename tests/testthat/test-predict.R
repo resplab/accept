@@ -21,11 +21,11 @@ test_that("accept3 default prediction works", {
   expect_true("predicted_severe_exac_probability" %in% names(result))
   expect_true("predicted_severe_exac_rate" %in% names(result))
   expect_equal(nrow(result), 2)
-  
+
   # Verify rate calculation: rate = -log(1-p)
   expected_rate <- -log(1 - result$predicted_exac_probability)
   expect_equal(result$predicted_exac_rate, expected_rate, tolerance = 1e-6)
-  
+
   expected_sev_rate <- -log(1 - result$predicted_severe_exac_probability)
   expect_equal(result$predicted_severe_exac_rate, expected_sev_rate, tolerance = 1e-6)
 })
@@ -35,9 +35,9 @@ test_that("accept3 requires country parameter", {
 })
 
 test_that("accept1 and accept2 warn when country parameter is provided", {
-  expect_warning(accept(samplePatients[1,], version="accept1", country="CAN"), 
+  expect_warning(accept(samplePatients[1,], version="accept1", country="CAN"),
                  "not used by accept1.*ignored")
-  expect_warning(accept(samplePatients[1,], version="accept2", country="USA"), 
+  expect_warning(accept(samplePatients[1,], version="accept2", country="USA"),
                  "not used by accept2.*ignored")
 })
 
@@ -371,4 +371,95 @@ test_that("Different SGRQ values produce different results (no conversion)", {
 
   # Different SGRQ values should produce different results
   expect_false(isTRUE(all.equal(result_45$predicted_exac_probability, result_50$predicted_exac_probability)))
+})
+
+
+
+test_that("accept3_cprd returns correct columns and shape", {
+  results <- accept3_cprd(samplePatients)
+  expect_true(tibble::is_tibble(results))
+  expect_equal(nrow(results), nrow(samplePatients))
+  expect_true(all(c("ID", "predicted_exac_probability",
+                    "predicted_exac_rate",
+                    "predicted_severe_exac_probability",
+                    "predicted_severe_exac_rate") %in% colnames(results)))
+})
+
+test_that("accept3_cprd predictions are between 0 and 1", {
+  results <- accept3_cprd(samplePatients)
+  expect_true(all(results$predicted_exac_probability > 0 & results$predicted_exac_probability < 1))
+  expect_true(all(results$predicted_severe_exac_probability > 0 & results$predicted_severe_exac_probability < 1))
+})
+
+test_that("accept3_cprd gives expected predictions on fixed input", {
+  results <- accept3_cprd(samplePatients)
+  expect_equal(results$predicted_exac_probability[1], 0.6986, tolerance = 0.001)
+  expect_equal(results$predicted_severe_exac_probability[1], 0.356, tolerance = 0.001)
+})
+
+test_that("accept3_cprd imputes missing optional predictors", {
+  patients_no_optional <- samplePatients
+  patients_no_optional$LABA   <- NULL
+  patients_no_optional$oxygen <- NULL
+  patients_no_optional$ICS    <- NULL
+  patients_no_optional$LAMA   <- NULL
+  patients_no_optional$statin <- NULL
+  patients_no_optional$BMI    <- NULL
+  patients_no_optional$smoker <- NULL
+  results <- accept3_cprd(patients_no_optional, quiet = TRUE)
+  expect_equal(nrow(results), nrow(samplePatients))
+  expect_true(all(results$predicted_exac_probability > 0 & results$predicted_exac_probability < 1))
+})
+
+test_that("accept3_cprd errors on non-tibble input", {
+  expect_error(accept3_cprd(as.data.frame(samplePatients)))
+})
+
+test_that("accept3_cprd errors when severe count exceeds total", {
+  patients_invalid <- samplePatients
+  patients_invalid$LastYrSevExacCount[1] <- 99
+  expect_error(accept3_cprd(patients_invalid))
+})
+
+test_that("accept3_cprd errors when a mandatory predictor is NA", {
+  patients_na_mand <- samplePatients
+  patients_na_mand$FEV1[1] <- NA
+  expect_error(accept3_cprd(patients_na_mand), "mandatory predictor")
+})
+
+test_that("accept3_cprd back-fills NA mMRC from SGRQ", {
+  patients_mmrc_na <- samplePatients
+  patients_mmrc_na$mMRC    <- 2
+  patients_mmrc_na$mMRC[1] <- NA
+  patients_mmrc_na$SGRQ    <- 50
+  results <- accept3_cprd(patients_mmrc_na)
+  expect_equal(nrow(results), nrow(samplePatients))
+  expect_true(all(!is.na(results$predicted_exac_probability)))
+})
+
+test_that("accept(country = 'GBR-primary') routes to accept3_cprd", {
+  via_accept <- accept(samplePatients, country = "GBR-primary")
+  via_cprd   <- accept3_cprd(samplePatients)
+  expect_equal(via_accept$predicted_exac_probability,
+               via_cprd$predicted_exac_probability)
+  expect_equal(via_accept$predicted_severe_exac_probability,
+               via_cprd$predicted_severe_exac_probability)
+})
+
+test_that("accept(country = 'GBR-specialty') uses standard accept3 recalibration", {
+  specialty <- accept(samplePatients, country = "GBR-specialty")
+  primary   <- accept(samplePatients, country = "GBR-primary")
+  expect_true(tibble::is_tibble(specialty))
+  expect_equal(nrow(specialty), nrow(samplePatients))
+  # The two care settings use different recalibrations and should differ.
+  expect_false(isTRUE(all.equal(specialty$predicted_exac_probability,
+                                primary$predicted_exac_probability)))
+})
+
+test_that("accept(country = 'GBR') warns and defaults to specialty care", {
+  expect_warning(gbr <- accept(samplePatients, country = "GBR"),
+                 "ambiguous")
+  specialty <- accept(samplePatients, country = "GBR-specialty")
+  expect_equal(gbr$predicted_exac_probability,
+               specialty$predicted_exac_probability)
 })
