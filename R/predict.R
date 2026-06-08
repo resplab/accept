@@ -1126,7 +1126,8 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' @param return_predictors Logical. If \code{TRUE}, the input predictors are
 #'   returned alongside predictions. Default \code{FALSE}.
 #'
-#'@param quiet Logical. If \code{FALSE}, suppresses imputation messages. Default \code{TRUE}.
+#'@param quiet Logical. If \code{TRUE} (default), suppresses imputation messages.
+#'  Set to \code{FALSE} to report which predictors were imputed.
 #'
 #' @return A tibble with columns:
 #'   \itemize{
@@ -1166,7 +1167,7 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' @export
 accept3_cprd <- function(patientData,
                        return_predictors = FALSE,
-                       quiet = FALSE) {
+                       quiet = TRUE) {
 
   if (!tibble::is_tibble(patientData)) {
     stop("patientData must be a tibble. Use as_tibble() to convert.")
@@ -1259,6 +1260,22 @@ accept3_cprd <- function(patientData,
   }
   mandatory_preds <- c("age", "male", "mMRC", "FEV1",
                        "LastYrSevExacCount", "LastYrExacCount")
+
+  # Mandatory predictors drive both the optional-predictor imputation and the
+  # downstream accept2() call. Any remaining NA would silently propagate to NA
+  # predictions, so fail fast with a clear message.
+  missing_mandatory <- mandatory_preds[!mandatory_preds %in% colnames(patientData)]
+  if (length(missing_mandatory) > 0) {
+    stop(paste0("accept3_cprd: missing mandatory predictor column(s): ",
+                paste(missing_mandatory, collapse = ", "), "."))
+  }
+  na_mandatory <- vapply(mandatory_preds, function(v) any(is.na(patientData[[v]])), logical(1))
+  if (any(na_mandatory)) {
+    stop(paste0("accept3_cprd: mandatory predictor(s) contain missing values that could not be resolved: ",
+                paste(mandatory_preds[na_mandatory], collapse = ", "),
+                ". Provide complete values (mMRC can be supplied directly or via SGRQ)."))
+  }
+
   imputed_vars <- character(0)
 
   for (vname in optional_order) {
@@ -1282,11 +1299,11 @@ accept3_cprd <- function(patientData,
 
       if (!vname %in% colnames(patientData)) {
         patientData[[vname]] <- pred_vals
-        if (quiet) message(paste0("accept3_cprd: '", vname, "' not found - imputed using CPRD model."))
+        if (!quiet) message(paste0("accept3_cprd: '", vname, "' not found - imputed using CPRD model."))
       } else {
         na_idx <- is.na(patientData[[vname]])
         patientData[[vname]][na_idx] <- pred_vals[na_idx]
-        if (any(na_idx) && quiet)
+        if (any(na_idx) && !quiet)
           message(paste0("accept3_cprd: ", sum(na_idx), " missing value(s) in '",
                          vname, "' imputed using CPRD model."))
       }

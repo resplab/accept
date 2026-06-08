@@ -4,7 +4,7 @@
 \alias{accept3_cprd}
 \title{Predicts COPD exacerbation risk for UK primary-care patients using ACCEPT 3.0-CPRD}
 \usage{
-accept3_cprd(patientData, return_predictors = FALSE, quiet = FALSE)
+accept3_cprd(patientData, return_predictors = FALSE, quiet = TRUE)
 }
 \arguments{
 \item{patientData}{A tibble of patients in the same format as
@@ -17,7 +17,8 @@ Optional columns: \code{LABA}, \code{oxygen}, \code{ICS}, \code{LAMA},
 \item{return_predictors}{Logical. If \code{TRUE}, the input predictors are
 returned alongside predictions. Default \code{FALSE}.}
 
-\item{quiet}{Logical. If \code{FALSE}, suppresses imputation messages. Default \code{TRUE}.}
+\item{quiet}{Logical. If \code{TRUE} (default), suppresses imputation messages.
+Set to \code{FALSE} to report which predictors were imputed.}
 }
 \value{
 A tibble with columns:

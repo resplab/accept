@@ -421,6 +421,22 @@ test_that("accept3_cprd errors when severe count exceeds total", {
   expect_error(accept3_cprd(patients_invalid))
 })
 
+test_that("accept3_cprd errors when a mandatory predictor is NA", {
+  patients_na_mand <- samplePatients
+  patients_na_mand$FEV1[1] <- NA
+  expect_error(accept3_cprd(patients_na_mand), "mandatory predictor")
+})
+
+test_that("accept3_cprd back-fills NA mMRC from SGRQ", {
+  patients_mmrc_na <- samplePatients
+  patients_mmrc_na$mMRC    <- 2
+  patients_mmrc_na$mMRC[1] <- NA
+  patients_mmrc_na$SGRQ    <- 50
+  results <- accept3_cprd(patients_mmrc_na)
+  expect_equal(nrow(results), nrow(samplePatients))
+  expect_true(all(!is.na(results$predicted_exac_probability)))
+})
+
 test_that("accept(country = 'GBR-primary') routes to accept3_cprd", {
   via_accept <- accept(samplePatients, country = "GBR-primary")
   via_cprd   <- accept3_cprd(samplePatients)
