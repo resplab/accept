@@ -667,7 +667,7 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' @param version indicates which version of ACCEPT needs to be called. Options include "accept1", "accept2", "accept3" (default).
 #' @param prediction_interval default is FALSE. If set to TRUE, returns prediction intervals of the predictions.
 #' @param return_predictors default is FALSE. IF set to TRUE, returns the predictors along with prediction results.
-#' @param country Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For unsupported countries, provide obs_modsev_risk parameter or add it as a column in the data.
+#' @param country Required for accept3 version. Three-letter ISO country code (e.g., "CAN", "USA", "GBR"). Supported countries: ARG, AUS, BRA, CAN, COL, DEU, DNK, ESP, FRA, GBR, ITA, JPN, KOR, MEX, NLD, NOR, SWE, USA. For the UK, two care-setting-specific versions are available: "GBR-primary" (primary care, ACCEPT 3.0-CPRD) and "GBR-specialty" (specialty care). Bare "GBR" defaults to specialty care with a warning. For unsupported countries, provide obs_modsev_risk parameter or add it as a column in the data.
 #' @param obs_modsev_risk Observed moderate-to-severe exacerbation risk for unsupported countries. Can be provided as a parameter or as a column in newdata.
 #' @param ... for other versions of accept.
 #' @return patientData with prediction.
@@ -746,6 +746,26 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
 
     # Validate and normalize country code
     country <- toupper(country)
+
+    # GBR has two care-setting-specific versions:
+    #   "GBR-PRIMARY"   -> primary care, ACCEPT 3.0-CPRD (accept3_cprd)
+    #   "GBR-SPECIALTY" -> specialty care, standard accept3 GBR recalibration
+    # Bare "GBR" is ambiguous and defaults to specialty care with a warning.
+    if (country %in% c("GBR", "GBR-PRIMARY", "GBR-SPECIALTY", "GBR-SPECIALITY")) {
+      if (country == "GBR") {
+        warning("country = 'GBR' is ambiguous: defaulting to specialty care. Use 'GBR-primary' for primary care (ACCEPT 3.0-CPRD) or 'GBR-specialty' for specialty care.")
+        country <- "GBR-SPECIALTY"
+      }
+
+      if (country == "GBR-PRIMARY") {
+        # Primary care: route to the CPRD-recalibrated model.
+        return(accept3_cprd(patientData = newdata, return_predictors = return_predictors))
+      }
+
+      # Specialty care: use the standard accept3 GBR recalibration below.
+      country <- "GBR"
+    }
+
     supported_countries <- c("ARG", "AUS", "BRA", "CAN", "COL", "DEU", "DNK", "ESP", "FRA", "GBR", "ITA", "JPN", "KOR", "MEX", "NLD", "NOR", "SWE", "USA")
 
     if (!country %in% supported_countries && country != "XXX") {
@@ -1084,17 +1104,17 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 
 
 
-#' Predicts COPD exacerbation risk for UK patients using ACCEPT 3.0-UK
+#' Predicts COPD exacerbation risk for UK primary-care patients using ACCEPT 3.0-CPRD
 #'
 #' @description
-#' ACCEPT 3.0-UK is a UK-specific recalibration of ACCEPT 2.0 derived from the
-#' CPRD (Clinical Practice Research Datalink) primary-care dataset. It applies
+#' ACCEPT 3.0-CPRD is a UK primary-care recalibration of ACCEPT 2.0 derived from
+#' the CPRD (Clinical Practice Research Datalink) primary-care dataset. It applies
 #' two Cox-model recalibration parameters: an optimism-corrected baseline
 #' hazard (H0) and slope (beta), separately for moderate-to-severe and severe
 #' exacerbations.
 #'
 #' When optional predictors (LABA, oxygen, ICS, LAMA, statin/CVD, BMI, smoker)
-#' are missing, a UK-specific sequential triangular regression imputation model
+#' are missing, a CPRD-specific sequential triangular regression imputation model
 #' fills them in before prediction.
 #'
 #' @param patientData A tibble of patients in the same format as
@@ -1138,13 +1158,13 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #' (probability rounded to 0/1); BMI with linear regression.
 #'
 #' @examples
-#' results <- accept3_uk(samplePatients)
+#' results <- accept3_cprd(samplePatients)
 #'
 #' @seealso \code{\link{accept}}, \code{\link{accept2}}, \code{\link{accept3}}
 #'
 #' @importFrom dplyr tibble mutate select starts_with
 #' @export
-accept3_uk <- function(patientData,
+accept3_cprd <- function(patientData,
                        return_predictors = FALSE,
                        quiet = FALSE) {
 
@@ -1171,13 +1191,13 @@ accept3_uk <- function(patientData,
     }
   }
 
-  # 2. UK-specific optional-predictor imputation
-  # Intercepts and coefficients from Table A3 of the ACCEPT 3.0-UK manuscript.
+  # 2. CPRD-specific optional-predictor imputation
+  # Intercepts and coefficients from Table A3 of the ACCEPT 3.0-CPRD manuscript.
   # Column order in each coef vector:
   #   (Intercept), age, male, mMRC, FEV1, LastYrSevExacCount,
   #   LastYrExacCount [, LABA [, oxygen [, ICS [, LAMA [, statin [, BMI]]]]]]
 
-  uk_imp <- list(
+  cprd_imp <- list(
 
     LABA = list(
       binary = TRUE,
@@ -1245,7 +1265,7 @@ accept3_uk <- function(patientData,
     if (!vname %in% colnames(patientData) ||
         any(is.na(patientData[[vname]]))) {
 
-      spec      <- uk_imp[[vname]]
+      spec      <- cprd_imp[[vname]]
       pred_cols <- c(mandatory_preds, imputed_vars)
 
       X  <- as.matrix(cbind(1, patientData[, pred_cols]))
@@ -1262,13 +1282,13 @@ accept3_uk <- function(patientData,
 
       if (!vname %in% colnames(patientData)) {
         patientData[[vname]] <- pred_vals
-        if (quiet) message(paste0("accept3_uk: '", vname, "' not found - imputed using UK model."))
+        if (quiet) message(paste0("accept3_cprd: '", vname, "' not found - imputed using CPRD model."))
       } else {
         na_idx <- is.na(patientData[[vname]])
         patientData[[vname]][na_idx] <- pred_vals[na_idx]
         if (any(na_idx) && quiet)
-          message(paste0("accept3_uk: ", sum(na_idx), " missing value(s) in '",
-                         vname, "' imputed using UK model."))
+          message(paste0("accept3_cprd: ", sum(na_idx), " missing value(s) in '",
+                         vname, "' imputed using CPRD model."))
       }
     }
 
@@ -1284,7 +1304,7 @@ accept3_uk <- function(patientData,
   p2_modsev <- accept2_preds$predicted_exac_probability
   p2_sev    <- accept2_preds$predicted_severe_exac_probability
 
-  # 4. UK recalibration
+  # 4. CPRD recalibration
   # Optimism-corrected parameters from CPRD bootstrap:
   #   Moderate-to-severe: Baseline Hazard H0 = 0.676 (95% CI 0.671-0.681)
   #                       Slope beta         = 0.986 (95% CI 0.977-0.995)
@@ -1300,15 +1320,15 @@ accept3_uk <- function(patientData,
   lp_modsev <- log(-log(1 - p2_modsev))
   lp_sev    <- log(-log(1 - p2_sev))
 
-  uk_modsev <- 1 - exp(-H0_modsev * exp(beta_modsev * lp_modsev))
-  uk_sev    <- 1 - exp(-H0_sev    * exp(beta_sev    * lp_sev))
+  cprd_modsev <- 1 - exp(-H0_modsev * exp(beta_modsev * lp_modsev))
+  cprd_sev    <- 1 - exp(-H0_sev    * exp(beta_sev    * lp_sev))
 
   # 4. Assemble output
   out <- dplyr::tibble(
-    predicted_exac_probability        = round(uk_modsev, 4),
-    predicted_exac_rate               = round(-log(1 - uk_modsev), 4),
-    predicted_severe_exac_probability = round(uk_sev, 4),
-    predicted_severe_exac_rate        = round(-log(1 - uk_sev), 4)
+    predicted_exac_probability        = round(cprd_modsev, 4),
+    predicted_exac_rate               = round(-log(1 - cprd_modsev), 4),
+    predicted_severe_exac_probability = round(cprd_sev, 4),
+    predicted_severe_exac_rate        = round(-log(1 - cprd_sev), 4)
   )
 
   if (return_predictors) {
