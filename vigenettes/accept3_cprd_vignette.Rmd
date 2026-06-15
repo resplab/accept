@@ -2,9 +2,12 @@
 title: "ACCEPT 3.0-CPRD: Predicting COPD Exacerbation Risk in UK Primary Care"
 output: rmarkdown::html_vignette
 vignette: >
+  %\VignetteEncoding{UTF-8}
   %\VignetteIndexEntry{ACCEPT 3.0-CPRD: Predicting COPD Exacerbation Risk in UK Primary Care}
   %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+editor_options: 
+  markdown: 
+    wrap: 72
 ---
 
 ```{r setup, include = FALSE}
@@ -17,53 +20,55 @@ library(accept)
 
 ## Overview
 
-`accept3_cprd()` implements ACCEPT 3.0-CPRD, a recalibration of the ACCEPT 2.0
-model specifically for UK primary-care patients. It was derived from the
-**Clinical Practice Research Datalink (CPRD)**, a large UK primary-care database,
-and is designed to produce well-calibrated 1-year exacerbation risk predictions
-in this setting.
+`accept3_cprd()` implements ACCEPT 3.0-CPRD, a recalibration of the
+ACCEPT 2.0 model specifically for UK primary-care patients. It was
+derived from the **Clinical Practice Research Datalink (CPRD)**, a large
+UK primary-care database, and is designed to produce well-calibrated
+1-year exacerbation risk predictions in this setting.
 
 The function predicts two outcomes:
 
-- **Moderate-to-severe exacerbation** probability and rate
-- **Severe exacerbation** probability and rate
+-   **Moderate-to-severe exacerbation** probability and rate
+-   **Severe exacerbation** probability and rate
 
 It can also be called via the unified `accept()` interface using
 `country = "GBR-primary"`.
 
----
+------------------------------------------------------------------------
 
 ## When to Use ACCEPT 3.0-CPRD
 
 | Model | Population | Setting |
-|-------|-----------|---------|
+|-------------------|-----------------------------|------------------------|
 | `accept2()` | Canadian/international | Hospital or specialist |
-| `accept3()` / `accept3_gbr()` | UK | Secondary care (spirometry clinic) |
+| `accept3()` / `accept3_gbr()` | UK | Secondary care |
 | **`accept3_cprd()`** | **UK** | **Primary care (GP)** |
 
-Use `accept3_cprd()` when your patients are from a **UK general practice** setting,
-where disease severity tends to be milder and fewer specialist measurements are
-routinely available.
+Use `accept3_cprd()` when your patients are from a **UK general
+practice** setting, where disease severity tends to be milder and fewer
+specialist measurements are routinely available.
 
----
+------------------------------------------------------------------------
 
 ## Required Identifier
 
-The following column is required but is **not** a predictor — it is used solely
-to label rows in the output so predictions can be matched back to patients:
+The following column is required but is **not** a predictor — it is used
+solely to label rows in the output so predictions can be matched back to
+patients:
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `ID` | character/numeric | Unique patient identifier |
+| Column | Type              | Description               |
+|--------|-------------------|---------------------------|
+| `ID`   | character/numeric | Unique patient identifier |
 
----
+------------------------------------------------------------------------
 
 ## Required Predictors
 
-The following columns are the actual **model inputs** and must be present in your data:
+The following columns are the actual **model inputs** and must be
+present in your data:
 
 | Column | Type | Description |
-|--------|------|-------------|
+|---------------------|------------------|----------------------------------|
 | `age` | numeric | Age in years |
 | `male` | integer (0/1) | Sex (1 = male) |
 | `FEV1` | numeric | FEV1 % predicted |
@@ -71,31 +76,32 @@ The following columns are the actual **model inputs** and must be present in you
 | `LastYrSevExacCount` | integer | Severe (hospitalised) exacerbations in the past year |
 | `mMRC` **or** `SGRQ` | numeric | Dyspnoea score (mMRC 0–4) or SGRQ total score |
 
-> **Note:** `LastYrSevExacCount` must not exceed `LastYrExacCount`. At least one
-> of `mMRC` or `SGRQ` must be provided; if only `SGRQ` is available it is
-> converted to `mMRC` internally.
+> **Note:** `LastYrSevExacCount` must not exceed `LastYrExacCount`. At
+> least one of `mMRC` or `SGRQ` must be provided; if only `SGRQ` is
+> available it is converted to `mMRC` internally.
 
----
+------------------------------------------------------------------------
 
 ## Optional Predictors
 
-These columns are used if available; if missing they are **automatically imputed**
-using a CPRD-specific sequential triangular regression model:
+These columns are used if available; if missing they are **automatically
+imputed** using a CPRD-specific sequential triangular regression model:
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `LABA` | integer (0/1) | Long-acting beta-agonist use |
-| `oxygen` | integer (0/1) | Long-term oxygen therapy |
-| `ICS` | integer (0/1) | Inhaled corticosteroid use |
-| `LAMA` | integer (0/1) | Long-acting muscarinic antagonist use |
-| `statin` | integer (0/1) | Statin or CVD medication use |
-| `BMI` | numeric | Body mass index (clamped to 10–60) |
-| `smoker` | integer (0/1) | Current smoker |
+| Column   | Type          | Description                           |
+|----------|---------------|---------------------------------------|
+| `LABA`   | integer (0/1) | Long-acting beta-agonist use          |
+| `oxygen` | integer (0/1) | Long-term oxygen therapy              |
+| `ICS`    | integer (0/1) | Inhaled corticosteroid use            |
+| `LAMA`   | integer (0/1) | Long-acting muscarinic antagonist use |
+| `statin` | integer (0/1) | Statin or CVD medication use          |
+| `BMI`    | numeric       | Body mass index (clamped to 10–60)    |
+| `smoker` | integer (0/1) | Current smoker                        |
 
-Imputation proceeds in the order above. Each variable is predicted from the
-mandatory predictors plus any previously imputed optional predictors.
+Imputation proceeds in the order above. Each variable is predicted from
+the mandatory predictors plus any previously imputed optional
+predictors.
 
----
+------------------------------------------------------------------------
 
 ## Basic Usage
 
@@ -118,7 +124,7 @@ cat(
 ...")
 ```
 
----
+------------------------------------------------------------------------
 
 ## Accessing Results via `accept()`
 
@@ -132,24 +138,24 @@ results <- accept(
 )
 ```
 
----
+------------------------------------------------------------------------
 
 ## Including Predictors in the Output
 
-Set `return_predictors = TRUE` to include the input columns alongside predictions.
-This is useful for checking which values were imputed:
+Set `return_predictors = TRUE` to include the input columns alongside
+predictions. This is useful for checking which values were imputed:
 
 ```{r return_preds, eval = FALSE}
 results_full <- accept3_cprd(samplePatients, return_predictors = TRUE)
 names(results_full)
 ```
 
----
+------------------------------------------------------------------------
 
 ## Imputation Messages
 
-By default, imputation is silent. Set `quiet = FALSE` to see which predictors
-were imputed for each patient:
+By default, imputation is silent. Set `quiet = FALSE` to see which
+predictors were imputed for each patient:
 
 ```{r quiet, eval = FALSE}
 results <- accept3_cprd(samplePatients, quiet = FALSE)
@@ -157,13 +163,14 @@ results <- accept3_cprd(samplePatients, quiet = FALSE)
 # Patient 3: imputed LABA, BMI, smoker
 ```
 
----
+------------------------------------------------------------------------
 
 ## Handling Missing mMRC / SGRQ
 
-The function requires either `mMRC` (0–4) or `SGRQ` (0–100). If only `SGRQ`
-is provided, it is converted to `mMRC` using the published conversion formula
-before prediction. If neither is available, an error is raised.
+The function requires either `mMRC` (0–4) or `SGRQ` (0–100). If only
+`SGRQ` is provided, it is converted to `mMRC` using the published
+conversion formula before prediction. If neither is available, an error
+is raised.
 
 ```{r sgrq, eval = FALSE}
 # Data with SGRQ instead of mMRC
@@ -174,24 +181,25 @@ patients_sgrq$SGRQ <- c(45, 30, 60, 20, 55, 10)  # add SGRQ
 results <- accept3_cprd(patients_sgrq)
 ```
 
----
+------------------------------------------------------------------------
 
 ## Recalibration Method
 
-ACCEPT 3.0-CPRD applies a Cox-model recalibration to ACCEPT 2.0 predictions:
+ACCEPT 3.0-CPRD applies a Cox-model recalibration to ACCEPT 2.0
+predictions:
 
 $$\hat{p}_{UK} = 1 - \exp\!\left(-H_0 \cdot \exp\!\left(\beta \cdot \log(-\log(1-\hat{p}_{2}))\right)\right)$$
 
-where $\hat{p}_{2}$ is the ACCEPT 2.0 predicted probability, and $H_0$ and
-$\beta$ are optimism-corrected parameters estimated via 200-resample bootstrap
-from the CPRD dataset:
+where $\hat{p}_{2}$ is the ACCEPT 2.0 predicted probability, and $H_0$
+and $\beta$ are optimism-corrected parameters estimated via 200-resample
+bootstrap from the CPRD dataset:
 
-| Outcome | $H_0$ | $\beta$ |
-|---------|-------|---------|
-| Moderate-to-severe | 0.676 | 0.986 |
-| Severe | 0.482 | 1.124 |
+| Outcome            | $H_0$ | $\beta$ |
+|--------------------|-------|---------|
+| Moderate-to-severe | 0.676 | 0.986   |
+| Severe             | 0.482 | 1.124   |
 
----
+------------------------------------------------------------------------
 
 ## Comparing Models
 
@@ -213,20 +221,20 @@ comparison <- bind_cols(
 print(comparison)
 ```
 
-Predictions from ACCEPT 3.0-CPRD are generally **lower** than ACCEPT 2.0 for
-moderate-to-severe exacerbations, reflecting the milder disease burden typically
-seen in UK primary care compared with specialist settings.
+Predictions from ACCEPT 3.0-CPRD are generally **lower** than ACCEPT 2.0
+for moderate-to-severe exacerbations, reflecting the milder disease
+burden typically seen in UK primary care compared with specialist
+settings.
 
----
+------------------------------------------------------------------------
 
 ## See Also
 
-- `accept()` — unified interface for all ACCEPT model versions
-- `accept3()` / `accept3_gbr()` — ACCEPT 3.0 UK secondary-care version
-- `samplePatients` — example dataset
+-   `accept()` — unified interface for all ACCEPT model versions
+-   `accept3()` / `accept3_gbr()` — ACCEPT 3.0 UK secondary-care version
+-   `samplePatients` — example dataset
 
-
----
+------------------------------------------------------------------------
 
 ## Session Info
 
