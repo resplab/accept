@@ -23,9 +23,12 @@ Imports:
     vetiver (>= 0.2.1)
 Suggests:
     jsonlite,
+    knitr,
     plotly,
+    rmarkdown,
     spelling,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr
 RoxygenNote: 7.3.3
 Language: en-US
 Config/testthat/edition: 3
