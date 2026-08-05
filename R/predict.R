@@ -2,41 +2,134 @@ binorm_pdf <- function(x, sigma) {
   s1 <- sqrt(sigma[1, 1])
   s2 <- sqrt(sigma[2, 2])
   rho <- sigma[1, 2] / (s1 * s2)
-  Z <- x[1] ^ 2 / sigma[1, 1] - 2 * rho * x[1] * x[2] / (s1 * s2) + x[2] ^ 2 / sigma[2, 2]
-  densRes <- 1 / (2 * pi * s1 * s2 * sqrt(1 - rho ^ 2)) * exp(- Z / (2 * (1 - rho ^ 2)))
+  Z <- x[1]^2 /
+    sigma[1, 1] -
+    2 * rho * x[1] * x[2] / (s1 * s2) +
+    x[2]^2 / sigma[2, 2]
+  densRes <- 1 /
+    (2 * pi * s1 * s2 * sqrt(1 - rho^2)) *
+    exp(-Z / (2 * (1 - rho^2)))
   return(densRes)
 }
 
 Sp_Manual_Pred <- function(Predictor, CoefEst, knots, Boundary_knots) {
   ns_obj <- ns(Predictor, knots = knots, Boundary.knots = Boundary_knots)
-  if (length(Predictor) == 1) BasisFuncs <- t(c(1, as.numeric(ns_obj)))
-  else BasisFuncs <- as.matrix(cbind(1, ns_obj), ncol = 4)
+  if (length(Predictor) == 1) {
+    BasisFuncs <- t(c(1, as.numeric(ns_obj)))
+  } else {
+    BasisFuncs <- as.matrix(cbind(1, ns_obj), ncol = 4)
+  }
   Preds <- as.vector(BasisFuncs %*% matrix(CoefEst, ncol = 1))
   return(Preds)
 }
 
-Sp_Manual_Vec <- function(data, CoefEst, CoefEst_sev, knots, knots_sev,
-                          Boundary_knots, Boundary_knots_sev) {
-
-  data$predicted_exac_rate <- ifelse(Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots) < 0, 0,
-                                     Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots))
-  data$predicted_exac_rate_lower_PI <- ifelse(Sp_Manual_Pred(data$predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots) < 0, 0,
-                                              Sp_Manual_Pred(data$predicted_exac_rate_lower_PI, CoefEst, knots, Boundary_knots))
-  data$predicted_exac_rate_upper_PI <- ifelse(Sp_Manual_Pred(data$predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots) < 0, 0,
-                                              Sp_Manual_Pred(data$predicted_exac_rate_upper_PI, CoefEst, knots, Boundary_knots))
-  data$predicted_severe_exac_rate <- ifelse(Sp_Manual_Pred(data$predicted_severe_exac_rate, CoefEst_sev, knots_sev, Boundary_knots_sev) < 0, 0,
-                                            Sp_Manual_Pred(data$predicted_severe_exac_rate, CoefEst_sev, knots_sev, Boundary_knots_sev))
-  data$predicted_severe_exac_rate_lower_PI <- ifelse(Sp_Manual_Pred(data$predicted_severe_exac_rate_lower_PI, CoefEst_sev, knots_sev, Boundary_knots_sev) < 0, 0,
-                                                     Sp_Manual_Pred(data$predicted_severe_exac_rate_lower_PI, CoefEst_sev, knots_sev, Boundary_knots_sev))
-  data$predicted_severe_exac_rate_upper_PI <- ifelse(Sp_Manual_Pred(data$predicted_severe_exac_rate_upper_PI, CoefEst_sev, knots_sev, Boundary_knots_sev) < 0, 0,
-                                                     Sp_Manual_Pred(data$predicted_severe_exac_rate_upper_PI, CoefEst_sev, knots_sev, Boundary_knots_sev))
+Sp_Manual_Vec <- function(
+  data,
+  CoefEst,
+  CoefEst_sev,
+  knots,
+  knots_sev,
+  Boundary_knots,
+  Boundary_knots_sev
+) {
+  data$predicted_exac_rate <- ifelse(
+    Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots) <
+      0,
+    0,
+    Sp_Manual_Pred(data$predicted_exac_rate, CoefEst, knots, Boundary_knots)
+  )
+  data$predicted_exac_rate_lower_PI <- ifelse(
+    Sp_Manual_Pred(
+      data$predicted_exac_rate_lower_PI,
+      CoefEst,
+      knots,
+      Boundary_knots
+    ) <
+      0,
+    0,
+    Sp_Manual_Pred(
+      data$predicted_exac_rate_lower_PI,
+      CoefEst,
+      knots,
+      Boundary_knots
+    )
+  )
+  data$predicted_exac_rate_upper_PI <- ifelse(
+    Sp_Manual_Pred(
+      data$predicted_exac_rate_upper_PI,
+      CoefEst,
+      knots,
+      Boundary_knots
+    ) <
+      0,
+    0,
+    Sp_Manual_Pred(
+      data$predicted_exac_rate_upper_PI,
+      CoefEst,
+      knots,
+      Boundary_knots
+    )
+  )
+  data$predicted_severe_exac_rate <- ifelse(
+    Sp_Manual_Pred(
+      data$predicted_severe_exac_rate,
+      CoefEst_sev,
+      knots_sev,
+      Boundary_knots_sev
+    ) <
+      0,
+    0,
+    Sp_Manual_Pred(
+      data$predicted_severe_exac_rate,
+      CoefEst_sev,
+      knots_sev,
+      Boundary_knots_sev
+    )
+  )
+  data$predicted_severe_exac_rate_lower_PI <- ifelse(
+    Sp_Manual_Pred(
+      data$predicted_severe_exac_rate_lower_PI,
+      CoefEst_sev,
+      knots_sev,
+      Boundary_knots_sev
+    ) <
+      0,
+    0,
+    Sp_Manual_Pred(
+      data$predicted_severe_exac_rate_lower_PI,
+      CoefEst_sev,
+      knots_sev,
+      Boundary_knots_sev
+    )
+  )
+  data$predicted_severe_exac_rate_upper_PI <- ifelse(
+    Sp_Manual_Pred(
+      data$predicted_severe_exac_rate_upper_PI,
+      CoefEst_sev,
+      knots_sev,
+      Boundary_knots_sev
+    ) <
+      0,
+    0,
+    Sp_Manual_Pred(
+      data$predicted_severe_exac_rate_upper_PI,
+      CoefEst_sev,
+      knots_sev,
+      Boundary_knots_sev
+    )
+  )
 
   data$predicted_exac_probability <- 1 - exp(-data$predicted_exac_rate)
-  data$predicted_exac_probability_lower_PI <- 1 - exp(-data$predicted_exac_rate_lower_PI)
-  data$predicted_exac_probability_upper_PI <- 1 - exp(-data$predicted_exac_rate_upper_PI)
-  data$predicted_severe_exac_probability <- 1 - exp(-data$predicted_severe_exac_rate)
-  data$predicted_severe_exac_probability_lower_PI <- 1 - exp(-data$predicted_severe_exac_rate_lower_PI)
-  data$predicted_severe_exac_probability_upper_PI <- 1 - exp(-data$predicted_severe_exac_rate_upper_PI)
+  data$predicted_exac_probability_lower_PI <- 1 -
+    exp(-data$predicted_exac_rate_lower_PI)
+  data$predicted_exac_probability_upper_PI <- 1 -
+    exp(-data$predicted_exac_rate_upper_PI)
+  data$predicted_severe_exac_probability <- 1 -
+    exp(-data$predicted_severe_exac_rate)
+  data$predicted_severe_exac_probability_lower_PI <- 1 -
+    exp(-data$predicted_severe_exac_rate_lower_PI)
+  data$predicted_severe_exac_probability_upper_PI <- 1 -
+    exp(-data$predicted_severe_exac_rate_upper_PI)
 
   # For azithromycin
   # data$azithromycin_predicted_exac_rate <-                ifelse(Sp_Manual_Pred(data$azithromycin_predicted_exac_rate, CoefEst, knots, Boundary_knots) < 0, 0,
@@ -123,59 +216,64 @@ Sp_Manual_Vec <- function(data, CoefEst, CoefEst_sev, knots, knots_sev,
 # betas$c_randomized_azithromycin <- 	log(0.93)
 #
 # results <- acceptEngine(samplePatients, betas=betas)
-acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="LastYrExacCount",
-                          lastYrSevExacCol="LastYrSevExacCount", betas = NULL, KeepSGRQ = TRUE, KeepMeds = TRUE){
-
-  gamma	                    <- betas$gamma
-  b0	                      <- betas$b0
-  b_male	                  <- betas$b_male
-  b_age10	                  <- betas$b_age10
-  b_nowsmk	                <- betas$b_nowsmk
-  b_oxygen	                <- betas$b_oxygen
-  b_fev1pp100	              <- betas$b_fev1pp100
-  b_sgrq10                  <- KeepSGRQ*betas$b_sgrq10
-  b_cardiovascular	        <- betas$b_cardiovascular
+acceptEngine <- function(
+  patientData,
+  random_sampling_N = 1e2,
+  lastYrExacCol = "LastYrExacCount",
+  lastYrSevExacCol = "LastYrSevExacCount",
+  betas = NULL,
+  KeepSGRQ = TRUE,
+  KeepMeds = TRUE
+) {
+  gamma <- betas$gamma
+  b0 <- betas$b0
+  b_male <- betas$b_male
+  b_age10 <- betas$b_age10
+  b_nowsmk <- betas$b_nowsmk
+  b_oxygen <- betas$b_oxygen
+  b_fev1pp100 <- betas$b_fev1pp100
+  b_sgrq10 <- KeepSGRQ * betas$b_sgrq10
+  b_cardiovascular <- betas$b_cardiovascular
   b_randomized_azithromycin <- betas$b_randomized_azithromycin
-  b_LAMA	                  <- KeepMeds*betas$b_LAMA
-  b_LABA	                  <- KeepMeds*betas$b_LABA
-  b_ICS	                    <- KeepMeds*betas$b_ICS
-  b_randomized_LAMA	        <- betas$b_randomized_LAMA
-  b_randomized_LABA	        <- betas$b_randomized_LABA
-  b_randomized_ICS	        <- betas$b_randomized_ICS
-  b_randomized_statin	      <- betas$b_randomized_statin
-  b_BMI10                   <- betas$b_BMI10
-  c0	                      <- betas$c0
-  c_male	                  <- betas$c_male
-  c_age10	                  <- betas$c_age10
-  c_nowsmk                  <- betas$c_nowsmk
-  c_oxygen                  <- betas$c_oxygen
-  c_fev1pp100	              <- betas$c_fev1pp100
-  c_sgrq10                  <- KeepSGRQ*betas$c_sgrq10
-  c_cardiovascular	        <- betas$c_cardiovascular
+  b_LAMA <- KeepMeds * betas$b_LAMA
+  b_LABA <- KeepMeds * betas$b_LABA
+  b_ICS <- KeepMeds * betas$b_ICS
+  b_randomized_LAMA <- betas$b_randomized_LAMA
+  b_randomized_LABA <- betas$b_randomized_LABA
+  b_randomized_ICS <- betas$b_randomized_ICS
+  b_randomized_statin <- betas$b_randomized_statin
+  b_BMI10 <- betas$b_BMI10
+  c0 <- betas$c0
+  c_male <- betas$c_male
+  c_age10 <- betas$c_age10
+  c_nowsmk <- betas$c_nowsmk
+  c_oxygen <- betas$c_oxygen
+  c_fev1pp100 <- betas$c_fev1pp100
+  c_sgrq10 <- KeepSGRQ * betas$c_sgrq10
+  c_cardiovascular <- betas$c_cardiovascular
   c_randomized_azithromycin <- betas$c_randomized_azithromycin
-  c_LAMA	                  <- KeepMeds*betas$c_LAMA
-  c_LABA            	      <- KeepMeds*betas$c_LABA
-  c_ICS	                    <- KeepMeds*betas$c_ICS
-  c_randomized_LAMA	        <- betas$c_randomized_LAMA
-  c_randomized_LABA	        <- betas$c_randomized_LABA
-  c_randomized_ICS	        <- betas$c_randomized_ICS
-  c_randomized_statin	      <- betas$c_randomized_statin
-  c_BMI10           	      <- betas$c_BMI10
+  c_LAMA <- KeepMeds * betas$c_LAMA
+  c_LABA <- KeepMeds * betas$c_LABA
+  c_ICS <- KeepMeds * betas$c_ICS
+  c_randomized_LAMA <- betas$c_randomized_LAMA
+  c_randomized_LABA <- betas$c_randomized_LABA
+  c_randomized_ICS <- betas$c_randomized_ICS
+  c_randomized_statin <- betas$c_randomized_statin
+  c_BMI10 <- betas$c_BMI10
 
-  v1                       	<- betas$v1
-  v2	                      <- betas$v2
-  cov                      	<- betas$cov
+  v1 <- betas$v1
+  v2 <- betas$v2
+  cov <- betas$cov
 
-  b_age <- b_age10/10
-  b_SGRQ <- b_sgrq10/10
-  b_BMI <- b_BMI10/10
-  b_fev1 <- b_fev1pp100/100
+  b_age <- b_age10 / 10
+  b_SGRQ <- b_sgrq10 / 10
+  b_BMI <- b_BMI10 / 10
+  b_fev1 <- b_fev1pp100 / 100
 
-  c_age <- c_age10/10
-  c_SGRQ <- c_sgrq10/10
-  c_BMI <- c_BMI10/10
-  c_fev1 <- c_fev1pp100/100
-
+  c_age <- c_age10 / 10
+  c_SGRQ <- c_sgrq10 / 10
+  c_BMI <- c_BMI10 / 10
+  c_fev1 <- c_fev1pp100 / 100
 
   covMat <- matrix(
     c(v1, cov, cov, v2),
@@ -190,79 +288,156 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
   patientData <- rbind(patientData, patientData_temp)
   rm(patientData_temp)
 
-  patientData <- patientData %>% mutate (log_alpha = b0 +
-                                           b_male                    * .data$male   +
-                                           b_age                     * .data$age    +
-                                           b_nowsmk                  * .data$smoker +
-                                           b_oxygen                  * .data$oxygen +
-                                           b_fev1                    * .data$FEV1   +
-                                           b_SGRQ                    * .data$SGRQ   +
-                                           b_cardiovascular          * .data$statin +
-                                           b_LAMA                    * .data$LAMA   +
-                                           b_LABA                    * .data$LABA   +
-                                           b_ICS                     * .data$ICS    +
-                                           b_BMI                     * .data$BMI    +
-                                           b_randomized_azithromycin * .data$azithromycin_ind)       %>%
-    mutate (c_lin = c0 +
-              c_male                    * .data$male   +
-              c_age                     * .data$age    +
-              c_nowsmk                  * .data$smoker +
-              c_oxygen                  * .data$oxygen +
-              c_fev1                    * .data$FEV1   +
-              c_SGRQ                    * .data$SGRQ   +
-              c_cardiovascular          * .data$statin +
-              c_LAMA                    * .data$LAMA   +
-              c_LABA                    * .data$LABA   +
-              c_ICS                     * .data$ICS    +
-              c_BMI                     * .data$BMI +
-              b_randomized_azithromycin * .data$azithromycin_ind)
+  patientData <- patientData %>%
+    mutate(
+      log_alpha = b0 +
+        b_male * .data$male +
+        b_age * .data$age +
+        b_nowsmk * .data$smoker +
+        b_oxygen * .data$oxygen +
+        b_fev1 * .data$FEV1 +
+        b_SGRQ * .data$SGRQ +
+        b_cardiovascular * .data$statin +
+        b_LAMA * .data$LAMA +
+        b_LABA * .data$LABA +
+        b_ICS * .data$ICS +
+        b_BMI * .data$BMI +
+        b_randomized_azithromycin * .data$azithromycin_ind
+    ) %>%
+    mutate(
+      c_lin = c0 +
+        c_male * .data$male +
+        c_age * .data$age +
+        c_nowsmk * .data$smoker +
+        c_oxygen * .data$oxygen +
+        c_fev1 * .data$FEV1 +
+        c_SGRQ * .data$SGRQ +
+        c_cardiovascular * .data$statin +
+        c_LAMA * .data$LAMA +
+        c_LABA * .data$LABA +
+        c_ICS * .data$ICS +
+        c_BMI * .data$BMI +
+        b_randomized_azithromycin * .data$azithromycin_ind
+    )
 
+  RE_seq_1 = seq(
+    from = -2 * covMat[1, 1],
+    to = 2 * covMat[1, 1],
+    length.out = random_sampling_N
+  )
+  RE_seq_2 = seq(
+    from = -2 * covMat[2, 2],
+    to = 2 * covMat[2, 2],
+    length.out = random_sampling_N
+  )
+  RE_W_mat <- outer(
+    X = RE_seq_1,
+    Y = RE_seq_2,
+    FUN = Vectorize(function(x, y) binorm_pdf(c(x, y), sigma = covMat))
+  )
 
-  RE_seq_1 = seq(from = -2 * covMat[1, 1], to = 2 * covMat[1, 1], length.out = random_sampling_N)
-  RE_seq_2 = seq(from = -2 * covMat[2, 2], to = 2 * covMat[2, 2], length.out = random_sampling_N)
-  RE_W_mat <- outer(X = RE_seq_1, Y = RE_seq_2, FUN = Vectorize(function(x, y) binorm_pdf(c(x, y), sigma = covMat)))
-
-  Lambda  <- (exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*% matrix(exp(RE_seq_1), nrow = 1)) ^ gamma
-  ProbSev <- exp(as.matrix(patientData[ , "c_lin"], ncol = 1)) %*% matrix(exp(RE_seq_2), nrow = 1)
+  Lambda <- (exp(as.matrix(patientData[, "log_alpha"], ncol = 1)) %*%
+    matrix(exp(RE_seq_1), nrow = 1))^gamma
+  ProbSev <- exp(as.matrix(patientData[, "c_lin"], ncol = 1)) %*%
+    matrix(exp(RE_seq_2), nrow = 1)
   ProbSev <- ProbSev / (1 + ProbSev)
 
-  Lambda_Sev <- lapply(c(1 : nrow(patientData)), function(x) matrix(Lambda[x, ], ncol = 1) %*% matrix(ProbSev[x, ], nrow = 1))
-  Lambda_non_Sev <- lapply(c(1 : nrow(patientData)), function(x) matrix(Lambda[x, ], ncol = 1) %*% matrix(1 - ProbSev[x, ], nrow = 1))
+  Lambda_Sev <- lapply(c(1:nrow(patientData)), function(x) {
+    matrix(Lambda[x, ], ncol = 1) %*% matrix(ProbSev[x, ], nrow = 1)
+  })
+  Lambda_non_Sev <- lapply(c(1:nrow(patientData)), function(x) {
+    matrix(Lambda[x, ], ncol = 1) %*% matrix(1 - ProbSev[x, ], nrow = 1)
+  })
 
   Posterior_Sev_W <-
-    lapply(c(1 : nrow(patientData)), function(x) {
-      t(apply(Lambda_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrSevExacCol]), lambda = y))) * RE_W_mat
+    lapply(c(1:nrow(patientData)), function(x) {
+      t(apply(Lambda_Sev[[x]], 1, function(y) {
+        dpois(x = as.numeric(patientData[x, lastYrSevExacCol]), lambda = y)
+      })) *
+        RE_W_mat
     })
 
   Posterior_non_Sev_W <-
-    lapply(c(1 : nrow(patientData)), function(x) {
-      t(apply(Lambda_non_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrExacCol] - patientData[x , lastYrSevExacCol]), lambda = y))) * RE_W_mat
+    lapply(c(1:nrow(patientData)), function(x) {
+      t(apply(Lambda_non_Sev[[x]], 1, function(y) {
+        dpois(
+          x = as.numeric(
+            patientData[x, lastYrExacCol] - patientData[x, lastYrSevExacCol]
+          ),
+          lambda = y
+        )
+      })) *
+        RE_W_mat
     })
 
   Posterior_all_W <-
-    lapply(c(1 : nrow(patientData)), function(x) {
-      t(apply(Lambda_non_Sev[[x]]+Lambda_Sev[[x]], 1, function(y) dpois(x = as.numeric(patientData[x, lastYrExacCol]), lambda = y))) * RE_W_mat
+    lapply(c(1:nrow(patientData)), function(x) {
+      t(apply(Lambda_non_Sev[[x]] + Lambda_Sev[[x]], 1, function(y) {
+        dpois(x = as.numeric(patientData[x, lastYrExacCol]), lambda = y)
+      })) *
+        RE_W_mat
     })
 
-  Rate_Sev_Adj <- sapply(c(1 : nrow(patientData)), function(x) weighted.mean(x = Lambda_Sev[[x]], w = Posterior_Sev_W[[x]]))
-  Rate_Sev_Adj_lower_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_Sev[[x]]), weight = Posterior_Sev_W[[x]], q = 0.025))
-  Rate_Sev_Adj_upper_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_Sev[[x]]), weight = Posterior_Sev_W[[x]], q = 0.975))
+  Rate_Sev_Adj <- sapply(c(1:nrow(patientData)), function(x) {
+    weighted.mean(x = Lambda_Sev[[x]], w = Posterior_Sev_W[[x]])
+  })
+  Rate_Sev_Adj_lower_PI <- sapply(c(1:nrow(patientData)), function(x) {
+    reldist::wtd.quantile(
+      x = as.vector(Lambda_Sev[[x]]),
+      weight = Posterior_Sev_W[[x]],
+      q = 0.025
+    )
+  })
+  Rate_Sev_Adj_upper_PI <- sapply(c(1:nrow(patientData)), function(x) {
+    reldist::wtd.quantile(
+      x = as.vector(Lambda_Sev[[x]]),
+      weight = Posterior_Sev_W[[x]],
+      q = 0.975
+    )
+  })
 
+  Rate_non_Sev_Adj <- sapply(c(1:nrow(patientData)), function(x) {
+    weighted.mean(x = Lambda_non_Sev[[x]], w = Posterior_non_Sev_W[[x]])
+  })
+  Rate_non_Sev_Adj_lower_PI <- sapply(c(1:nrow(patientData)), function(x) {
+    reldist::wtd.quantile(
+      x = as.vector(Lambda_non_Sev[[x]]),
+      weight = Posterior_non_Sev_W[[x]],
+      q = 0.025
+    )
+  })
+  Rate_non_Sev_Adj_upper_PI <- sapply(c(1:nrow(patientData)), function(x) {
+    reldist::wtd.quantile(
+      x = as.vector(Lambda_non_Sev[[x]]),
+      weight = Posterior_non_Sev_W[[x]],
+      q = 0.975
+    )
+  })
 
-  Rate_non_Sev_Adj <- sapply(c(1 : nrow(patientData)), function(x) weighted.mean(x = Lambda_non_Sev[[x]], w = Posterior_non_Sev_W[[x]]))
-  Rate_non_Sev_Adj_lower_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]), weight = Posterior_non_Sev_W[[x]], q = 0.025))
-  Rate_non_Sev_Adj_upper_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]), weight = Posterior_non_Sev_W[[x]], q = 0.975))
-
-
-  Rate_Sev_SD_Adj <- sqrt(Rate_Sev_Adj + Rate_Sev_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
-  Rate_non_Sev_SD_Adj <- sqrt(Rate_non_Sev_Adj + Rate_non_Sev_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
+  Rate_Sev_SD_Adj <- sqrt(
+    Rate_Sev_Adj + Rate_Sev_Adj^2 * (exp(0.97 * covMat[1, 1]) - 1)
+  )
+  Rate_non_Sev_SD_Adj <- sqrt(
+    Rate_non_Sev_Adj + Rate_non_Sev_Adj^2 * (exp(0.97 * covMat[1, 1]) - 1)
+  )
 
   Rate_Adj <- Rate_Sev_Adj + Rate_non_Sev_Adj
-  Rate_Adj_lower_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]+Lambda_Sev[[x]]), weight = Posterior_all_W[[x]], q = 0.025))
-  Rate_Adj_upper_PI <- sapply(c(1 : nrow(patientData)), function(x) reldist::wtd.quantile(x = as.vector(Lambda_non_Sev[[x]]+Lambda_Sev[[x]]), weight = Posterior_all_W[[x]], q = 0.975))
+  Rate_Adj_lower_PI <- sapply(c(1:nrow(patientData)), function(x) {
+    reldist::wtd.quantile(
+      x = as.vector(Lambda_non_Sev[[x]] + Lambda_Sev[[x]]),
+      weight = Posterior_all_W[[x]],
+      q = 0.025
+    )
+  })
+  Rate_Adj_upper_PI <- sapply(c(1:nrow(patientData)), function(x) {
+    reldist::wtd.quantile(
+      x = as.vector(Lambda_non_Sev[[x]] + Lambda_Sev[[x]]),
+      weight = Posterior_all_W[[x]],
+      q = 0.975
+    )
+  })
 
-
-  Rate_SD_Adj <- sqrt(Rate_Adj + Rate_Adj ^ 2 * (exp(0.97 * covMat[1, 1]) - 1))
+  Rate_SD_Adj <- sqrt(Rate_Adj + Rate_Adj^2 * (exp(0.97 * covMat[1, 1]) - 1))
 
   risk_at_least_one_exac <- 1 - exp(-Rate_Adj)
   risk_at_least_one_exac_lower_PI <- 1 - exp(-Rate_Adj_lower_PI)
@@ -272,55 +447,72 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
   risk_at_least_one_Sev_exac_lower_PI <- 1 - exp(-Rate_Sev_Adj_lower_PI)
   risk_at_least_one_Sev_exac_upper_PI <- 1 - exp(-Rate_Sev_Adj_upper_PI)
 
-
   patientData <- patientData %>%
     select(-"log_alpha", -"c_lin") %>%
-    mutate(predicted_exac_probability                 = risk_at_least_one_exac,
-           predicted_exac_probability_lower_PI        = risk_at_least_one_exac_lower_PI,
-           predicted_exac_probability_upper_PI        = risk_at_least_one_exac_upper_PI,
-           # predicted_exac_probability_lower_CI        = risk_at_least_one_exac_lower_CI,
-           # predicted_exac_probability_upper_CI        = risk_at_least_one_exac_upper_CI,
+    mutate(
+      predicted_exac_probability = risk_at_least_one_exac,
+      predicted_exac_probability_lower_PI = risk_at_least_one_exac_lower_PI,
+      predicted_exac_probability_upper_PI = risk_at_least_one_exac_upper_PI,
+      # predicted_exac_probability_lower_CI        = risk_at_least_one_exac_lower_CI,
+      # predicted_exac_probability_upper_CI        = risk_at_least_one_exac_upper_CI,
 
-           predicted_exac_rate                        = Rate_Adj,
-           predicted_exac_rate_lower_PI               = Rate_Adj_lower_PI,
-           predicted_exac_rate_upper_PI               = Rate_Adj_upper_PI,
-           # predicted_exac_rate_lower_CI               = Rate_Adj_lower_CI,
-           # predicted_exac_rate_upper_CI               = Rate_Adj_upper_CI,
+      predicted_exac_rate = Rate_Adj,
+      predicted_exac_rate_lower_PI = Rate_Adj_lower_PI,
+      predicted_exac_rate_upper_PI = Rate_Adj_upper_PI,
+      # predicted_exac_rate_lower_CI               = Rate_Adj_lower_CI,
+      # predicted_exac_rate_upper_CI               = Rate_Adj_upper_CI,
 
-           predicted_severe_exac_probability          = risk_at_least_one_Sev_exac,
-           predicted_severe_exac_probability_lower_PI = risk_at_least_one_Sev_exac_lower_PI,
-           predicted_severe_exac_probability_upper_PI = risk_at_least_one_Sev_exac_upper_PI,
-           # predicted_severe_exac_probability_lower_CI = risk_at_least_one_Sev_exac_lower_CI,
-           # predicted_severe_exac_probability_upper_CI = risk_at_least_one_Sev_exac_upper_CI,
+      predicted_severe_exac_probability = risk_at_least_one_Sev_exac,
+      predicted_severe_exac_probability_lower_PI = risk_at_least_one_Sev_exac_lower_PI,
+      predicted_severe_exac_probability_upper_PI = risk_at_least_one_Sev_exac_upper_PI,
+      # predicted_severe_exac_probability_lower_CI = risk_at_least_one_Sev_exac_lower_CI,
+      # predicted_severe_exac_probability_upper_CI = risk_at_least_one_Sev_exac_upper_CI,
 
-           predicted_severe_exac_rate                 = Rate_Sev_Adj,
-           predicted_severe_exac_rate_lower_PI        = Rate_Sev_Adj_lower_PI,
-           predicted_severe_exac_rate_upper_PI        = Rate_Sev_Adj_upper_PI
-           # predicted_severe_exac_rate_lower_CI        = Rate_Sev_Adj_lower_CI,
-           # predicted_severe_exac_rate_upper_CI        = Rate_Sev_Adj_upper_CI,
+      predicted_severe_exac_rate = Rate_Sev_Adj,
+      predicted_severe_exac_rate_lower_PI = Rate_Sev_Adj_lower_PI,
+      predicted_severe_exac_rate_upper_PI = Rate_Sev_Adj_upper_PI
+      # predicted_severe_exac_rate_lower_CI        = Rate_Sev_Adj_lower_CI,
+      # predicted_severe_exac_rate_upper_CI        = Rate_Sev_Adj_upper_CI,
     )
 
   patientData <-
-    reshape(as.data.frame(patientData),
-            timevar = "azithromycin_ind", idvar = "ID", direction = "wide",
-            v.names = c("predicted_exac_probability", "predicted_exac_probability_lower_PI",
-                        "predicted_exac_probability_upper_PI", "predicted_exac_rate",
-                        "predicted_exac_rate_lower_PI", "predicted_exac_rate_upper_PI",
-                        "predicted_severe_exac_probability", "predicted_severe_exac_probability_lower_PI",
-                        "predicted_severe_exac_probability_upper_PI", "predicted_severe_exac_rate",
-                        "predicted_severe_exac_rate_lower_PI", "predicted_severe_exac_rate_upper_PI"))
+    reshape(
+      as.data.frame(patientData),
+      timevar = "azithromycin_ind",
+      idvar = "ID",
+      direction = "wide",
+      v.names = c(
+        "predicted_exac_probability",
+        "predicted_exac_probability_lower_PI",
+        "predicted_exac_probability_upper_PI",
+        "predicted_exac_rate",
+        "predicted_exac_rate_lower_PI",
+        "predicted_exac_rate_upper_PI",
+        "predicted_severe_exac_probability",
+        "predicted_severe_exac_probability_lower_PI",
+        "predicted_severe_exac_probability_upper_PI",
+        "predicted_severe_exac_rate",
+        "predicted_severe_exac_rate_lower_PI",
+        "predicted_severe_exac_rate_upper_PI"
+      )
+    )
 
   colnames(patientData)[grep(".0", colnames(patientData), fixed = T)] <-
-    unlist(strsplit(colnames(patientData)[grep(".0", colnames(patientData), fixed = T)], ".0"))
+    unlist(strsplit(
+      colnames(patientData)[grep(".0", colnames(patientData), fixed = T)],
+      ".0"
+    ))
   colnames(patientData)[grep(".1", colnames(patientData), fixed = T)] <-
-    paste0("azithromycin_",
-           unlist(strsplit(colnames(patientData)[grep(".1", colnames(patientData), fixed = T)], ".1")))
+    paste0(
+      "azithromycin_",
+      unlist(strsplit(
+        colnames(patientData)[grep(".1", colnames(patientData), fixed = T)],
+        ".1"
+      ))
+    )
 
   return(patientData)
-
 }
-
-
 
 
 #' Predicts COPD exacerbation rate by severity level based on Acute COPD Exacerbation Tool (ACCEPT)
@@ -333,54 +525,58 @@ acceptEngine <- function (patientData, random_sampling_N = 1e2,lastYrExacCol="La
 #' @examples
 #' results <- accept1(samplePatients)
 #' @export
-accept1 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYrExacCount",
-                     lastYrSevExacCol="LastYrSevExacCount", ...){
-
+accept1 <- function(
+  patientData,
+  random_sampling_N = 1e2,
+  lastYrExacCol = "LastYrExacCount",
+  lastYrSevExacCol = "LastYrSevExacCount",
+  ...
+) {
   betas <- list()
-  betas$gamma	                    <- 0.9706
-  betas$b0	                      <- -0.2014
-  betas$b_male	                  <- -0.1855
-  betas$b_age10	                  <- -0.00823
-  betas$b_nowsmk	                <- -0.1867
-  betas$b_oxygen	                <- 0.1209
-  betas$b_fev1pp100	              <- -0.5584
-  betas$b_sgrq10                  <- 0.1064
-  betas$b_cardiovascular	        <- 0.1359
+  betas$gamma <- 0.9706
+  betas$b0 <- -0.2014
+  betas$b_male <- -0.1855
+  betas$b_age10 <- -0.00823
+  betas$b_nowsmk <- -0.1867
+  betas$b_oxygen <- 0.1209
+  betas$b_fev1pp100 <- -0.5584
+  betas$b_sgrq10 <- 0.1064
+  betas$b_cardiovascular <- 0.1359
   betas$b_randomized_azithromycin <- -0.1287
-  betas$b_LAMA	                  <- 0.1678
-  betas$b_LABA	                  <- 0.1137
-  betas$b_ICS	                    <- 0.279
-  betas$b_randomized_LAMA	        <- 0.2202
-  betas$b_randomized_LABA	        <- 0.1321
-  betas$b_randomized_ICS	        <- -0.2359
-  betas$b_randomized_statin	      <- -0.1573
-  betas$b_BMI10                   <- -0.1333
+  betas$b_LAMA <- 0.1678
+  betas$b_LABA <- 0.1137
+  betas$b_ICS <- 0.279
+  betas$b_randomized_LAMA <- 0.2202
+  betas$b_randomized_LABA <- 0.1321
+  betas$b_randomized_ICS <- -0.2359
+  betas$b_randomized_statin <- -0.1573
+  betas$b_BMI10 <- -0.1333
 
-  betas$c0	                      <- -3.6901
-  betas$c_male	                  <- 0.4255
-  betas$c_age10	                  <- 0.09545
-  betas$c_nowsmk                  <- 0.4211
-  betas$c_oxygen                  <- 0.546
-  betas$c_fev1pp100	              <- -0.8095
-  betas$c_sgrq10                  <- 0.1781
-  betas$c_cardiovascular	        <- 0.2326
+  betas$c0 <- -3.6901
+  betas$c_male <- 0.4255
+  betas$c_age10 <- 0.09545
+  betas$c_nowsmk <- 0.4211
+  betas$c_oxygen <- 0.546
+  betas$c_fev1pp100 <- -0.8095
+  betas$c_sgrq10 <- 0.1781
+  betas$c_cardiovascular <- 0.2326
   betas$c_randomized_azithromycin <- -0.1305
-  betas$c_LAMA	                  <- -0.1638
-  betas$c_LABA            	      <- 0.05466
-  betas$c_ICS	                    <- 0.2677
-  betas$c_randomized_LAMA	        <- 0.2193
-  betas$c_randomized_LABA	        <- -0.4085
-  betas$c_randomized_ICS	        <- -0.1755
-  betas$c_randomized_statin	      <- 0.2169
-  betas$c_BMI10           	      <- -0.09666
+  betas$c_LAMA <- -0.1638
+  betas$c_LABA <- 0.05466
+  betas$c_ICS <- 0.2677
+  betas$c_randomized_LAMA <- 0.2193
+  betas$c_randomized_LABA <- -0.4085
+  betas$c_randomized_ICS <- -0.1755
+  betas$c_randomized_statin <- 0.2169
+  betas$c_BMI10 <- -0.09666
 
-  betas$v1 	<- 0.6855
-  betas$v2	<- 2.2494
-  betas$cov	<- 0.08772
+  betas$v1 <- 0.6855
+  betas$v2 <- 2.2494
+  betas$cov <- 0.08772
 
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-  betas$b_randomized_azithromycin <- 	 log(1/1.30)
-  betas$c_randomized_azithromycin <- 	 log(0.93)
+  betas$b_randomized_azithromycin <- log(1 / 1.30)
+  betas$c_randomized_azithromycin <- log(0.93)
 
   results <- acceptEngine(patientData = patientData, betas = betas)
 
@@ -403,53 +599,59 @@ accept1 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol="LastYr
 #' @examples
 #' results <- accept2(samplePatients)
 #' @export
-accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "LastYrExacCount",
-                     lastYrSevExacCol = "LastYrSevExacCount", KeepSGRQ = TRUE, KeepMeds = TRUE, ...){
-
+accept2 <- function(
+  patientData,
+  random_sampling_N = 1e2,
+  lastYrExacCol = "LastYrExacCount",
+  lastYrSevExacCol = "LastYrSevExacCount",
+  KeepSGRQ = TRUE,
+  KeepMeds = TRUE,
+  ...
+) {
   betas <- list()
 
-  if (KeepSGRQ & KeepMeds){
+  if (KeepSGRQ & KeepMeds) {
     # model coefficients
-    betas$gamma	                    <- 0.9706
-    betas$b0	                      <- -0.2014
-    betas$b_male	                  <- -0.1855
-    betas$b_age10	                  <- -0.00823
-    betas$b_nowsmk	                <- -0.1867
-    betas$b_oxygen	                <- 0.1209
-    betas$b_fev1pp100	              <- -0.5584
-    betas$b_sgrq10                  <- 0.1064
-    betas$b_cardiovascular	        <- 0.1359
+    betas$gamma <- 0.9706
+    betas$b0 <- -0.2014
+    betas$b_male <- -0.1855
+    betas$b_age10 <- -0.00823
+    betas$b_nowsmk <- -0.1867
+    betas$b_oxygen <- 0.1209
+    betas$b_fev1pp100 <- -0.5584
+    betas$b_sgrq10 <- 0.1064
+    betas$b_cardiovascular <- 0.1359
     betas$b_randomized_azithromycin <- -0.1287
-    betas$b_LAMA	                  <- 0.1678
-    betas$b_LABA	                  <- 0.1137
-    betas$b_ICS	                    <- 0.279
-    betas$b_randomized_LAMA	        <- 0.2202
-    betas$b_randomized_LABA	        <- 0.1321
-    betas$b_randomized_ICS	        <- -0.2359
-    betas$b_randomized_statin	      <- -0.1573
-    betas$b_BMI10                   <- -0.1333
+    betas$b_LAMA <- 0.1678
+    betas$b_LABA <- 0.1137
+    betas$b_ICS <- 0.279
+    betas$b_randomized_LAMA <- 0.2202
+    betas$b_randomized_LABA <- 0.1321
+    betas$b_randomized_ICS <- -0.2359
+    betas$b_randomized_statin <- -0.1573
+    betas$b_BMI10 <- -0.1333
 
-    betas$c0	                      <- -3.6901
-    betas$c_male	                  <- 0.4255
-    betas$c_age10	                  <- 0.09545
-    betas$c_nowsmk                  <- 0.4211
-    betas$c_oxygen                  <- 0.546
-    betas$c_fev1pp100	              <- -0.8095
-    betas$c_sgrq10                  <- 0.1781
-    betas$c_cardiovascular	        <- 0.2326
+    betas$c0 <- -3.6901
+    betas$c_male <- 0.4255
+    betas$c_age10 <- 0.09545
+    betas$c_nowsmk <- 0.4211
+    betas$c_oxygen <- 0.546
+    betas$c_fev1pp100 <- -0.8095
+    betas$c_sgrq10 <- 0.1781
+    betas$c_cardiovascular <- 0.2326
     betas$c_randomized_azithromycin <- -0.1305
-    betas$c_LAMA	                  <- -0.1638
-    betas$c_LABA            	      <- 0.05466
-    betas$c_ICS	                    <- 0.2677
-    betas$c_randomized_LAMA	        <- 0.2193
-    betas$c_randomized_LABA	        <- -0.4085
-    betas$c_randomized_ICS	        <- -0.1755
-    betas$c_randomized_statin	      <- 0.2169
-    betas$c_BMI10           	      <- -0.09666
+    betas$c_LAMA <- -0.1638
+    betas$c_LABA <- 0.05466
+    betas$c_ICS <- 0.2677
+    betas$c_randomized_LAMA <- 0.2193
+    betas$c_randomized_LABA <- -0.4085
+    betas$c_randomized_ICS <- -0.1755
+    betas$c_randomized_statin <- 0.2169
+    betas$c_BMI10 <- -0.09666
 
-    betas$v1 	<- 0.6855
-    betas$v2	<- 2.2494
-    betas$cov	<- 0.08772
+    betas$v1 <- 0.6855
+    betas$v2 <- 2.2494
+    betas$cov <- 0.08772
 
     # Spline coefficients: Rates
     rate_knots = c(0.7145958, 0.9912697, 1.4652412)
@@ -459,51 +661,51 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 
     rate_coeff <- c(0.06518199, 0.90307795, 2.31804966, 4.23148175, 5.03274433)
     sev_coeff <- c(0.05010488, 0.10449992, 0.82837734, 1.76211800, 2.45999937)
-
-  } else if (!KeepMeds & KeepSGRQ)
-  {
-    message ("Warning: You are using a simplified version of the model that does not include medications. See the manuscript for more details.")
+  } else if (!KeepMeds & KeepSGRQ) {
+    message(
+      "Warning: You are using a simplified version of the model that does not include medications. See the manuscript for more details."
+    )
     # model coefficients
-    betas$gamma	                    <- 0.9707
-    betas$b0	                      <- 0.1371
-    betas$b_male	                  <- -0.1841
-    betas$b_age10	                  <- -0.00501
-    betas$b_nowsmk	                <- -0.2136
-    betas$b_oxygen	                <- 0.1381
-    betas$b_fev1pp100	              <- -0.6955
-    betas$b_sgrq10                  <- 0.1111
-    betas$b_cardiovascular	        <- 0.1835
+    betas$gamma <- 0.9707
+    betas$b0 <- 0.1371
+    betas$b_male <- -0.1841
+    betas$b_age10 <- -0.00501
+    betas$b_nowsmk <- -0.2136
+    betas$b_oxygen <- 0.1381
+    betas$b_fev1pp100 <- -0.6955
+    betas$b_sgrq10 <- 0.1111
+    betas$b_cardiovascular <- 0.1835
     betas$b_randomized_azithromycin <- -0.06597
-    betas$b_LAMA	                  <- 0
-    betas$b_LABA	                  <- 0
-    betas$b_ICS	                    <- 0
-    betas$b_randomized_LAMA	        <- 0.2385
-    betas$b_randomized_LABA	        <- 0.1318
-    betas$b_randomized_ICS	        <- -0.2669
-    betas$b_randomized_statin	      <- -0.2646
-    betas$b_BMI10                   <- -0.1352
+    betas$b_LAMA <- 0
+    betas$b_LABA <- 0
+    betas$b_ICS <- 0
+    betas$b_randomized_LAMA <- 0.2385
+    betas$b_randomized_LABA <- 0.1318
+    betas$b_randomized_ICS <- -0.2669
+    betas$b_randomized_statin <- -0.2646
+    betas$b_BMI10 <- -0.1352
 
-    betas$c0	                      <- -3.6522
-    betas$c_male	                  <- 0.4285
-    betas$c_age10	                  <- 0.09704
-    betas$c_nowsmk                  <- 0.4338
-    betas$c_oxygen                  <- 0.539
-    betas$c_fev1pp100	              <- -0.7998
-    betas$c_sgrq10                  <- 0.1778
-    betas$c_cardiovascular	        <- 0.2554
+    betas$c0 <- -3.6522
+    betas$c_male <- 0.4285
+    betas$c_age10 <- 0.09704
+    betas$c_nowsmk <- 0.4338
+    betas$c_oxygen <- 0.539
+    betas$c_fev1pp100 <- -0.7998
+    betas$c_sgrq10 <- 0.1778
+    betas$c_cardiovascular <- 0.2554
     betas$c_randomized_azithromycin <- -0.09003
-    betas$c_LAMA	                  <- 0
-    betas$c_LABA	                  <- 0
-    betas$c_ICS	                    <- 0
-    betas$c_randomized_LAMA	        <- 0.2093
-    betas$c_randomized_LABA	        <- -0.4087
-    betas$c_randomized_ICS	        <- -0.1739
-    betas$c_randomized_statin	      <- 0.08586
-    betas$c_BMI10           	      <- -0.08287
+    betas$c_LAMA <- 0
+    betas$c_LABA <- 0
+    betas$c_ICS <- 0
+    betas$c_randomized_LAMA <- 0.2093
+    betas$c_randomized_LABA <- -0.4087
+    betas$c_randomized_ICS <- -0.1739
+    betas$c_randomized_statin <- 0.08586
+    betas$c_BMI10 <- -0.08287
 
-    betas$v1 	<- 0.7083
-    betas$v2	<- 2.2753
-    betas$cov	<- 0.09212
+    betas$v1 <- 0.7083
+    betas$v2 <- 2.2753
+    betas$cov <- 0.09212
 
     # Spline coefficients: Rates
     rate_knots = c(0.1018911, 0.1420318, 0.2163109)
@@ -518,51 +720,51 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
     patientData$LAMA <- 0
     patientData$LABA <- 0
     patientData$ICS <- 0
-
-  } else if (KeepMeds & !KeepSGRQ)
-  {
-    message ("Warning: You are using a simplified version of the model that does not include St. George Respiratory Questionnaire. See the manuscript for more details.")
+  } else if (KeepMeds & !KeepSGRQ) {
+    message(
+      "Warning: You are using a simplified version of the model that does not include St. George Respiratory Questionnaire. See the manuscript for more details."
+    )
     # model coefficients
-    betas$gamma	                    <- 0.97
-    betas$b0	                      <- 0.5072
-    betas$b_male	                  <- -0.1791
-    betas$b_age10	                  <- -0.040983
-    betas$b_nowsmk	                <- -0.1353
-    betas$b_oxygen	                <- 0.1561
-    betas$b_fev1pp100	              <- -0.7846
-    betas$b_sgrq10                  <- 0
-    betas$b_cardiovascular	        <- 0.1642
+    betas$gamma <- 0.97
+    betas$b0 <- 0.5072
+    betas$b_male <- -0.1791
+    betas$b_age10 <- -0.040983
+    betas$b_nowsmk <- -0.1353
+    betas$b_oxygen <- 0.1561
+    betas$b_fev1pp100 <- -0.7846
+    betas$b_sgrq10 <- 0
+    betas$b_cardiovascular <- 0.1642
     betas$b_randomized_azithromycin <- -0.1259
-    betas$b_LAMA	                  <- 0.1808
-    betas$b_LABA	                  <- 0.0933
-    betas$b_ICS	                    <- 0.3052
-    betas$b_randomized_LAMA	        <- 0.2451
-    betas$b_randomized_LABA	        <- 0.1034
-    betas$b_randomized_ICS	        <- -0.2339
-    betas$b_randomized_statin	      <- -0.1575
-    betas$b_BMI10                   <- -0.1088
+    betas$b_LAMA <- 0.1808
+    betas$b_LABA <- 0.0933
+    betas$b_ICS <- 0.3052
+    betas$b_randomized_LAMA <- 0.2451
+    betas$b_randomized_LABA <- 0.1034
+    betas$b_randomized_ICS <- -0.2339
+    betas$b_randomized_statin <- -0.1575
+    betas$b_BMI10 <- -0.1088
 
-    betas$c0	                      <- -2.4146
-    betas$c_male	                  <- 0.4525
-    betas$c_age10	                  <- 0.03839
-    betas$c_nowsmk                  <- 0.51
-    betas$c_oxygen                  <- 0.6046
-    betas$c_fev1pp100	              <- -1.2895
-    betas$c_sgrq10                  <- 0
-    betas$c_cardiovascular	        <- 0.2882
+    betas$c0 <- -2.4146
+    betas$c_male <- 0.4525
+    betas$c_age10 <- 0.03839
+    betas$c_nowsmk <- 0.51
+    betas$c_oxygen <- 0.6046
+    betas$c_fev1pp100 <- -1.2895
+    betas$c_sgrq10 <- 0
+    betas$c_cardiovascular <- 0.2882
     betas$c_randomized_azithromycin <- -0.1343
-    betas$c_LAMA	                  <- -0.1531
-    betas$c_LABA            	      <- 0.01885
-    betas$c_ICS	                    <- 0.3003
-    betas$c_randomized_LAMA	        <- 0.2378
-    betas$c_randomized_LABA	        <- -0.4569
-    betas$c_randomized_ICS	        <- -0.171
-    betas$c_randomized_statin	      <- 0.1928
-    betas$c_BMI10           	      <- -0.06825
+    betas$c_LAMA <- -0.1531
+    betas$c_LABA <- 0.01885
+    betas$c_ICS <- 0.3003
+    betas$c_randomized_LAMA <- 0.2378
+    betas$c_randomized_LABA <- -0.4569
+    betas$c_randomized_ICS <- -0.171
+    betas$c_randomized_statin <- 0.1928
+    betas$c_BMI10 <- -0.06825
 
-    betas$v1 	<- 0.7161
-    betas$v2	<- 2.3299
-    betas$cov	<- 0.1465
+    betas$v1 <- 0.7161
+    betas$v2 <- 2.3299
+    betas$cov <- 0.1465
 
     # Spline coefficients: Rates
     rate_knots = c(0.7456274, 0.9866093, 1.4210972)
@@ -575,51 +777,51 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 
     # set excluded covariates to zero
     patientData$SGRQ <- 0
-
-  } else if (!KeepMeds & !KeepSGRQ)
-  {
-    message ("Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details.")
+  } else if (!KeepMeds & !KeepSGRQ) {
+    message(
+      "Warning: You are using a simplified version of the model that does includes neither medications nor St. George Respiratory Questionnaire. See the manuscript for more details."
+    )
     # model coefficients
-    betas$gamma	                    <- 0.9701
-    betas$b0	                      <- 0.8911
-    betas$b_male	                  <- -0.1791
-    betas$b_age10	                  <- -0.0397
-    betas$b_nowsmk	                <- -0.1616
-    betas$b_oxygen	                <- 0.1777
-    betas$b_fev1pp100	              <- -0.9282
-    betas$b_sgrq10                  <- 0
-    betas$b_cardiovascular	        <- 0.216
+    betas$gamma <- 0.9701
+    betas$b0 <- 0.8911
+    betas$b_male <- -0.1791
+    betas$b_age10 <- -0.0397
+    betas$b_nowsmk <- -0.1616
+    betas$b_oxygen <- 0.1777
+    betas$b_fev1pp100 <- -0.9282
+    betas$b_sgrq10 <- 0
+    betas$b_cardiovascular <- 0.216
     betas$b_randomized_azithromycin <- -0.05931
-    betas$b_LAMA	                  <- 0
-    betas$b_LABA	                  <- 0
-    betas$b_ICS	                    <- 0
-    betas$b_randomized_LAMA	        <- 0.2871
-    betas$b_randomized_LABA	        <- 0.09825
-    betas$b_randomized_ICS	        <- -0.2612
-    betas$b_randomized_statin	      <- -0.2646
-    betas$b_BMI10                   <- -0.1112
+    betas$b_LAMA <- 0
+    betas$b_LABA <- 0
+    betas$b_ICS <- 0
+    betas$b_randomized_LAMA <- 0.2871
+    betas$b_randomized_LABA <- 0.09825
+    betas$b_randomized_ICS <- -0.2612
+    betas$b_randomized_statin <- -0.2646
+    betas$b_BMI10 <- -0.1112
 
-    betas$c0	                      <- -2.3819
-    betas$c_male	                  <- 0.45
-    betas$c_age10	                  <- 0.0423
-    betas$c_nowsmk                  <- 0.5255
-    betas$c_oxygen                  <- 0.6051
-    betas$c_fev1pp100	              <- -1.3091
-    betas$c_sgrq10                  <- 0
-    betas$c_cardiovascular	        <- 0.3234
+    betas$c0 <- -2.3819
+    betas$c_male <- 0.45
+    betas$c_age10 <- 0.0423
+    betas$c_nowsmk <- 0.5255
+    betas$c_oxygen <- 0.6051
+    betas$c_fev1pp100 <- -1.3091
+    betas$c_sgrq10 <- 0
+    betas$c_cardiovascular <- 0.3234
     betas$c_randomized_azithromycin <- -0.08298
-    betas$c_LAMA	                  <- 0
-    betas$c_LABA	                  <- 0
-    betas$c_ICS	                    <- 0
-    betas$c_randomized_LAMA	        <- 0.2853
-    betas$c_randomized_LABA	        <- -0.475
-    betas$c_randomized_ICS	        <- -0.1957
-    betas$c_randomized_statin	      <- 0.07671
-    betas$c_BMI10           	      <- -0.06022
+    betas$c_LAMA <- 0
+    betas$c_LABA <- 0
+    betas$c_ICS <- 0
+    betas$c_randomized_LAMA <- 0.2853
+    betas$c_randomized_LABA <- -0.475
+    betas$c_randomized_ICS <- -0.1957
+    betas$c_randomized_statin <- 0.07671
+    betas$c_BMI10 <- -0.06022
 
-    betas$v1 	<- 0.7424
-    betas$v2	<- 2.3784
-    betas$cov	<- 0.1564
+    betas$v1 <- 0.7424
+    betas$v2 <- 2.3784
+    betas$cov <- 0.1564
 
     # Spline coefficients: Rates
     rate_knots = c(0.7028951, 0.9131159, 1.3158333)
@@ -637,19 +839,30 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
     patientData$SGRQ <- 0
   }
   # More accurate azithromycin therapy estimates from AJE paper (https://doi.org/10.1093/aje/kww085), Table 2
-  betas$b_randomized_azithromycin <- 	 log(1/1.30)
-  betas$c_randomized_azithromycin <- 	 log(0.93)
+  betas$b_randomized_azithromycin <- log(1 / 1.30)
+  betas$c_randomized_azithromycin <- log(0.93)
 
-  results_before_adj <- acceptEngine(patientData = patientData, betas = betas, KeepMeds = KeepMeds, KeepSGRQ = KeepSGRQ)
+  results_before_adj <- acceptEngine(
+    patientData = patientData,
+    betas = betas,
+    KeepMeds = KeepMeds,
+    KeepSGRQ = KeepSGRQ
+  )
 
-  results_after_adj <- Sp_Manual_Vec(data = results_before_adj,
-                                     CoefEst = rate_coeff, CoefEst_sev = sev_coeff,
-                                     knots = rate_knots, knots_sev = sev_knots,
-                                     Boundary_knots = rate_boundary_knots,
-                                     Boundary_knots_sev = sev_boundary_knots)
+  results_after_adj <- Sp_Manual_Vec(
+    data = results_before_adj,
+    CoefEst = rate_coeff,
+    CoefEst_sev = sev_coeff,
+    knots = rate_knots,
+    knots_sev = sev_knots,
+    Boundary_knots = rate_boundary_knots,
+    Boundary_knots_sev = sev_boundary_knots
+  )
 
-  if (! KeepSGRQ) results_after_adj$SGRQ <- NULL
-  if (! KeepMeds) {
+  if (!KeepSGRQ) {
+    results_after_adj$SGRQ <- NULL
+  }
+  if (!KeepMeds) {
     results_after_adj$ICS <- NULL
     results_after_adj$LAMA <- NULL
     results_after_adj$LABA <- NULL
@@ -657,7 +870,6 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 
   return(results_after_adj)
 }
-
 
 
 #' A flexible version of ACCEPT 2.0 model, which imputes predictors using MICE approach.
@@ -681,38 +893,65 @@ accept2 <- function (patientData, random_sampling_N = 1e2, lastYrExacCol = "Last
 #' # For unsupported country with obs_modsev_risk parameter
 #' results_custom <- accept(newdata = samplePatients, country = "XXX", obs_modsev_risk = 0.2)
 #' @export
-accept <- function(newdata, format="tibble", version = "accept3", prediction_interval = FALSE, return_predictors = FALSE, country = NULL, obs_modsev_risk = NULL, ...) {
-
-  if (format=="json") {
+accept <- function(
+  newdata,
+  format = "tibble",
+  version = "accept3",
+  prediction_interval = FALSE,
+  return_predictors = FALSE,
+  country = NULL,
+  obs_modsev_risk = NULL,
+  ...
+) {
+  if (format == "json") {
     if (!requireNamespace("jsonlite", quietly = TRUE)) {
-      stop("Package \"jsonlite\" needed for this function to work. Please install it.",
-           call. = FALSE)
+      stop(
+        "Package \"jsonlite\" needed for this function to work. Please install it.",
+        call. = FALSE
+      )
     }
-    newdata<-as_tibble(jsonlite::fromJSON(newdata))
+    newdata <- as_tibble(jsonlite::fromJSON(newdata))
   }
 
-  if (!is_tibble(newdata)) {stop("Wrong input format. Only `tibble` and `json` formats are supported. Make sure format is set to 'json' if the input data is in json.")}
-  if (any(newdata$FEV1>=120) || any(newdata$FEV1<10)) warning("Unusually high or low FEV1 values detected. Ensure you are passing percent predicted values between 10 to 110 ")
+  if (!is_tibble(newdata)) {
+    stop(
+      "Wrong input format. Only `tibble` and `json` formats are supported. Make sure format is set to 'json' if the input data is in json."
+    )
+  }
+  if (any(newdata$FEV1 >= 120) || any(newdata$FEV1 < 10)) {
+    warning(
+      "Unusually high or low FEV1 values detected. Ensure you are passing percent predicted values between 10 to 110 "
+    )
+  }
 
   # Validate that severe exacerbation count does not exceed total exacerbation count
-  if ("LastYrExacCount" %in% colnames(newdata) && "LastYrSevExacCount" %in% colnames(newdata)) {
+  if (
+    "LastYrExacCount" %in%
+      colnames(newdata) &&
+      "LastYrSevExacCount" %in% colnames(newdata)
+  ) {
     invalid_rows <- which(newdata$LastYrSevExacCount > newdata$LastYrExacCount)
     if (length(invalid_rows) > 0) {
-      invalid_ids <- if ("ID" %in% colnames(newdata)) newdata$ID[invalid_rows] else invalid_rows
-      stop(paste0("LastYrSevExacCount exceeds LastYrExacCount for patient(s) with ID(s): ",
-                  paste(invalid_ids, collapse = ", "),
-                  ". Severe exacerbation count cannot be greater than total exacerbation count."))
+      invalid_ids <- if ("ID" %in% colnames(newdata)) {
+        newdata$ID[invalid_rows]
+      } else {
+        invalid_rows
+      }
+      stop(paste0(
+        "LastYrSevExacCount exceeds LastYrExacCount for patient(s) with ID(s): ",
+        paste(invalid_ids, collapse = ", "),
+        ". Severe exacerbation count cannot be greater than total exacerbation count."
+      ))
     }
   }
 
   # Convert CAT or mMRC to SGRQ if SGRQ is not provided (applies to all versions)
-  if (! "SGRQ" %in% colnames(newdata)) {
+  if (!"SGRQ" %in% colnames(newdata)) {
     if ("CAT" %in% colnames(newdata)) {
       warning("SGRQ score not found. Using CAT score instead of SGRQ")
       newdata$SGRQ <- 18.87 + 1.53 * newdata$CAT
-    }
-    else {
-      if("mMRC" %in% colnames(newdata)) {
+    } else {
+      if ("mMRC" %in% colnames(newdata)) {
         message("SGRQ score not found. Using mMRC score instead of SGRQ")
         newdata$SGRQ <- 20.43 + 14.77 * newdata$mMRC
       }
@@ -721,13 +960,17 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
 
   if (version == "accept1") {
     if (!is.null(country)) {
-      warning("The 'country' parameter is not used by accept1 and will be ignored. Country-specific recalibration is only available in accept3.")
+      warning(
+        "The 'country' parameter is not used by accept1 and will be ignored. Country-specific recalibration is only available in accept3."
+      )
     }
     return(accept1(newdata, ...))
   }
   if (version == "accept2") {
     if (!is.null(country)) {
-      warning("The 'country' parameter is not used by accept2 and will be ignored. Country-specific recalibration is only available in accept3.")
+      warning(
+        "The 'country' parameter is not used by accept2 and will be ignored. Country-specific recalibration is only available in accept3."
+      )
     }
     return(accept2(newdata, ...))
   }
@@ -735,13 +978,22 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
     message("ACCEPT v3 is recalibrated using a Cox model")
 
     # Validate that country is provided
-    if (is.null(country) && is.null(obs_modsev_risk) && !"obs_modsev_risk" %in% colnames(newdata)) {
-      stop("The 'country' parameter is required for accept3. Please provide a three-letter ISO country code (e.g., 'CAN', 'USA', 'GBR') or provide 'obs_modsev_risk' as a parameter or column in your data for unsupported countries.")
+    if (
+      is.null(country) &&
+        is.null(obs_modsev_risk) &&
+        !"obs_modsev_risk" %in% colnames(newdata)
+    ) {
+      stop(
+        "The 'country' parameter is required for accept3. Please provide a three-letter ISO country code (e.g., 'CAN', 'USA', 'GBR') or provide 'obs_modsev_risk' as a parameter or column in your data for unsupported countries."
+      )
     }
 
     # If country is not provided but obs_modsev_risk is, use a placeholder country
-    if (is.null(country) && (!is.null(obs_modsev_risk) || "obs_modsev_risk" %in% colnames(newdata))) {
-      country <- "XXX"  # Placeholder for unsupported country
+    if (
+      is.null(country) &&
+        (!is.null(obs_modsev_risk) || "obs_modsev_risk" %in% colnames(newdata))
+    ) {
+      country <- "XXX" # Placeholder for unsupported country
     }
 
     # Validate and normalize country code
@@ -751,25 +1003,54 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
     #   "GBR-PRIMARY"   -> primary care, ACCEPT 3.0-CPRD (accept3_cprd)
     #   "GBR-SPECIALTY" -> specialty care, standard accept3 GBR recalibration
     # Bare "GBR" is ambiguous and defaults to specialty care with a warning.
-    if (country %in% c("GBR", "GBR-PRIMARY", "GBR-SPECIALTY", "GBR-SPECIALITY")) {
+    if (
+      country %in% c("GBR", "GBR-PRIMARY", "GBR-SPECIALTY", "GBR-SPECIALITY")
+    ) {
       if (country == "GBR") {
-        warning("country = 'GBR' is ambiguous: defaulting to specialty care. Use 'GBR-primary' for primary care (ACCEPT 3.0-CPRD) or 'GBR-specialty' for specialty care.")
+        warning(
+          "country = 'GBR' is ambiguous: defaulting to specialty care. Use 'GBR-primary' for primary care (ACCEPT 3.0-CPRD) or 'GBR-specialty' for specialty care."
+        )
         country <- "GBR-SPECIALTY"
       }
 
       if (country == "GBR-PRIMARY") {
         # Primary care: route to the CPRD-recalibrated model.
-        return(accept3_cprd(patientData = newdata, return_predictors = return_predictors))
+        return(accept3_cprd(
+          patientData = newdata,
+          return_predictors = return_predictors
+        ))
       }
 
       # Specialty care: use the standard accept3 GBR recalibration below.
       country <- "GBR"
     }
 
-    supported_countries <- c("ARG", "AUS", "BRA", "CAN", "COL", "DEU", "DNK", "ESP", "FRA", "GBR", "ITA", "JPN", "KOR", "MEX", "NLD", "NOR", "SWE", "USA")
+    supported_countries <- c(
+      "ARG",
+      "AUS",
+      "BRA",
+      "CAN",
+      "COL",
+      "DEU",
+      "DNK",
+      "ESP",
+      "FRA",
+      "GBR",
+      "ITA",
+      "JPN",
+      "KOR",
+      "MEX",
+      "NLD",
+      "NOR",
+      "SWE",
+      "USA"
+    )
 
     if (!country %in% supported_countries && country != "XXX") {
-      message(paste0("Note: Country not in supported list. Using provided obs_modsev_risk for recalibration. Supported countries: ", paste(supported_countries, collapse = ", ")))
+      message(paste0(
+        "Note: Country not in supported list. Using provided obs_modsev_risk for recalibration. Supported countries: ",
+        paste(supported_countries, collapse = ", ")
+      ))
     }
 
     # Check that either mMRC or SGRQ is provided
@@ -778,18 +1059,23 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
     }
 
     # Add obs_modsev_risk column if provided as parameter
-    if (!is.null(obs_modsev_risk) && !"obs_modsev_risk" %in% colnames(newdata)) {
+    if (
+      !is.null(obs_modsev_risk) && !"obs_modsev_risk" %in% colnames(newdata)
+    ) {
       newdata$obs_modsev_risk <- obs_modsev_risk
     }
 
     # Add obs_modsev_risk if not present and not in supported countries
-    if (!"obs_modsev_risk" %in% colnames(newdata) && !all(country %in% supported_countries)) {
+    if (
+      !"obs_modsev_risk" %in% colnames(newdata) &&
+        !all(country %in% supported_countries)
+    ) {
       newdata$obs_modsev_risk <- NA
     }
 
     # Convert newdata to accept3 format and call accept3 for each row
     result <- lapply(seq_len(nrow(newdata)), function(i) {
-      row <- newdata[i,]
+      row <- newdata[i, ]
       accept3(
         country = country,
         ID = row$ID,
@@ -797,7 +1083,7 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
         male = row$male,
         BMI = row$BMI,
         smoker = row$smoker,
-        mMRC = if("mMRC" %in% colnames(row)) row$mMRC else NA,
+        mMRC = if ("mMRC" %in% colnames(row)) row$mMRC else NA,
         CVD = row$statin, # Using statin as proxy for CVD
         ICS = row$ICS,
         LABA = row$LABA,
@@ -806,8 +1092,12 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
         LastYrSevExacCount = row$LastYrSevExacCount,
         FEV1 = row$FEV1,
         oxygen = row$oxygen,
-        obs_modsev_risk = if("obs_modsev_risk" %in% colnames(row)) row$obs_modsev_risk else NA,
-        SGRQ = if("SGRQ" %in% colnames(row)) row$SGRQ else NA
+        obs_modsev_risk = if ("obs_modsev_risk" %in% colnames(row)) {
+          row$obs_modsev_risk
+        } else {
+          NA
+        },
+        SGRQ = if ("SGRQ" %in% colnames(row)) row$SGRQ else NA
       )
     })
 
@@ -833,8 +1123,15 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
 
     # Add predictor columns if requested
     if (return_predictors) {
-      result_df <- cbind(newdata, result_df[, c("predicted_exac_probability", "predicted_exac_rate",
-                                                "predicted_severe_exac_probability", "predicted_severe_exac_rate")])
+      result_df <- cbind(
+        newdata,
+        result_df[, c(
+          "predicted_exac_probability",
+          "predicted_exac_rate",
+          "predicted_severe_exac_probability",
+          "predicted_severe_exac_rate"
+        )]
+      )
     }
 
     return(as_tibble(result_df))
@@ -842,31 +1139,46 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
 
   # Handle flexccept version (flexible accept with imputation) - used internally by accept3
   if (version == "flexccept") {
-    version <- "accept2"  # flexccept uses accept2 with imputation
+    version <- "accept2" # flexccept uses accept2 with imputation
     # Continue to the imputation logic below
   }
 
-  samplePatients_colNames <- c("ID", "male", "age", "smoker", "oxygen",
-                               "statin", "LAMA", "LABA", "ICS", "FEV1",
-                               "BMI", "SGRQ", "LastYrExacCount",
-                               "LastYrSevExacCount")
+  samplePatients_colNames <- c(
+    "ID",
+    "male",
+    "age",
+    "smoker",
+    "oxygen",
+    "statin",
+    "LAMA",
+    "LABA",
+    "ICS",
+    "FEV1",
+    "BMI",
+    "SGRQ",
+    "LastYrExacCount",
+    "LastYrSevExacCount"
+  )
 
-  samplePatients_colNames <- samplePatients_colNames[! grepl("randomized_|Last", samplePatients_colNames)]
+  samplePatients_colNames <- samplePatients_colNames[
+    !grepl("randomized_|Last", samplePatients_colNames)
+  ]
 
-  if (! "SGRQ" %in% colnames(newdata)) {
+  if (!"SGRQ" %in% colnames(newdata)) {
     if ("CAT" %in% colnames(newdata)) {
       warning("SGRQ score not found. Using CAT score instead of SGRQ")
       newdata$SGRQ <- 18.87 + 1.53 * newdata$CAT
-    }
-    else {
-      if("mMRC" %in% colnames(newdata)) {
+    } else {
+      if ("mMRC" %in% colnames(newdata)) {
         message("SGRQ score not found. Using mMRC score instead of SGRQ")
         newdata$SGRQ <- 20.43 + 14.77 * newdata$mMRC
       }
     }
   }
-  if (all(! is.na(newdata$SGRQ))) {
-    if (! all(c("CAT", "mMRC") %in% colnames(newdata))) newdata$CAT <- newdata$SGRQ / 1.53 - 18.87 / 1.53
+  if (all(!is.na(newdata$SGRQ))) {
+    if (!all(c("CAT", "mMRC") %in% colnames(newdata))) {
+      newdata$CAT <- newdata$SGRQ / 1.53 - 18.87 / 1.53
+    }
   }
 
   newdata_temp <- newdata[samplePatients_colNames]
@@ -874,75 +1186,113 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
   newdata_colNames <- colnames(newdata)
   KeepSGRQ_flag <- TRUE
   KeepMeds_flag <- TRUE
-  if (any(is.na(newdata[ , c("LAMA", "LABA", "ICS")]))) {
+  if (any(is.na(newdata[, c("LAMA", "LABA", "ICS")]))) {
     KeepMeds_flag <- FALSE
-    newdata_colNames <- newdata_colNames[! newdata_colNames %in% c("LAMA", "LABA", "ICS")]
+    newdata_colNames <- newdata_colNames[
+      !newdata_colNames %in% c("LAMA", "LABA", "ICS")
+    ]
   }
   if (any(is.na(newdata$SGRQ))) {
     KeepSGRQ_flag <- FALSE
     newdata_colNames <- newdata_colNames[newdata_colNames != "SGRQ"]
   }
 
-
-  colNames_missing <- sort(colnames(newdata_temp)[apply(newdata_temp, 2, function(x) any(is.na(x)))])
-  colNames_complete <- sort(samplePatients_colNames[! samplePatients_colNames %in% c("ID", colNames_missing)])
+  colNames_missing <- sort(colnames(newdata_temp)[apply(
+    newdata_temp,
+    2,
+    function(x) any(is.na(x))
+  )])
+  colNames_complete <- sort(samplePatients_colNames[
+    !samplePatients_colNames %in% c("ID", colNames_missing)
+  ])
   if (any(c("LAMA", "LABA", "ICS", "SGRQ") %in% colNames_missing)) {
-    colNames_missing <- colNames_missing[! colNames_missing %in% c("LAMA", "LABA", "ICS", "SGRQ")]
+    colNames_missing <- colNames_missing[
+      !colNames_missing %in% c("LAMA", "LABA", "ICS", "SGRQ")
+    ]
   }
 
   if (length(colNames_missing) > 0) {
     for (i in seq_along(colNames_missing)) {
       res_temp <- colNames_missing[i]
       model_temp <-
-        model_list[model_list$response == res_temp &
-                     model_list$predictors == paste(colNames_complete, collapse = ",") , ]
+        model_list[
+          model_list$response == res_temp &
+            model_list$predictors == paste(colNames_complete, collapse = ","),
+        ]
       if (res_temp %in% c("male", "smoker", "oxygen", "statin")) {
         pred_temp <-
-          cbind(1, as.matrix(data.frame(newdata_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          cbind(
+            1,
+            as.matrix(data.frame(newdata_temp[, unlist(strsplit(
+              model_temp$predictors,
+              split = ","
+            ))]))
+          ) %*%
           matrix(unlist(model_temp$coef), ncol = 1)
         pred_temp <- as.vector(round(exp(pred_temp) / (1 + exp(pred_temp))))
-      }
-      else {
+      } else {
         pred_temp <-
-          cbind(1, as.matrix(data.frame(newdata_temp[ , unlist(strsplit(model_temp$predictors, split = ","))]))) %*%
+          cbind(
+            1,
+            as.matrix(data.frame(newdata_temp[, unlist(strsplit(
+              model_temp$predictors,
+              split = ","
+            ))]))
+          ) %*%
           matrix(unlist(model_temp$coef), ncol = 1)
         pred_temp <- as.vector(pred_temp)
       }
-      newdata_temp[ , res_temp] <- pred_temp
+      newdata_temp[, res_temp] <- pred_temp
       colNames_complete <- sort(c(colNames_complete, res_temp))
     }
   }
 
   ## Obtain ACCEPT 2 predictions for each set of imputed dataset
   if (any(colnames(newdata) %in% colNames_missing)) {
-    acceptPreds <- newdata[ , ! (colnames(newdata) %in% colNames_missing)]
-  }
-  else {
+    acceptPreds <- newdata[, !(colnames(newdata) %in% colNames_missing)]
+  } else {
     acceptPreds <- newdata
   }
   if (length(colNames_missing) > 0) {
-    warning(paste0("Missing column(s) detected. Imputing the following columns: ", colNames_missing))
-    acceptPreds <- merge(acceptPreds, newdata_temp[ , c("ID", colNames_missing)],
-                         by = "ID")
+    warning(paste0(
+      "Missing column(s) detected. Imputing the following columns: ",
+      colNames_missing
+    ))
+    acceptPreds <- merge(
+      acceptPreds,
+      newdata_temp[, c("ID", colNames_missing)],
+      by = "ID"
+    )
   }
-  acceptPreds <- accept2(patientData = acceptPreds,
-                         KeepSGRQ = KeepSGRQ_flag,
-                         KeepMeds = KeepMeds_flag)
+  acceptPreds <- accept2(
+    patientData = acceptPreds,
+    KeepSGRQ = KeepSGRQ_flag,
+    KeepMeds = KeepMeds_flag
+  )
   if (prediction_interval) {
-    acceptPreds <- acceptPreds[ , c(newdata_colNames,
-                                    "predicted_exac_probability",
-                                    "predicted_exac_probability_lower_PI", "predicted_exac_probability_upper_PI",
-                                    "predicted_exac_rate",
-                                    "predicted_exac_rate_lower_PI", "predicted_exac_rate_upper_PI",
-                                    "predicted_severe_exac_probability",
-                                    "predicted_severe_exac_probability_lower_PI", "predicted_severe_exac_probability_upper_PI",
-                                    "predicted_severe_exac_rate",
-                                    "predicted_severe_exac_rate_lower_PI", "predicted_severe_exac_rate_upper_PI")]
-  }
-  else {
-    acceptPreds <- acceptPreds[ , c(newdata_colNames,
-                                    "predicted_exac_probability", "predicted_exac_rate",
-                                    "predicted_severe_exac_probability", "predicted_severe_exac_rate")]
+    acceptPreds <- acceptPreds[, c(
+      newdata_colNames,
+      "predicted_exac_probability",
+      "predicted_exac_probability_lower_PI",
+      "predicted_exac_probability_upper_PI",
+      "predicted_exac_rate",
+      "predicted_exac_rate_lower_PI",
+      "predicted_exac_rate_upper_PI",
+      "predicted_severe_exac_probability",
+      "predicted_severe_exac_probability_lower_PI",
+      "predicted_severe_exac_probability_upper_PI",
+      "predicted_severe_exac_rate",
+      "predicted_severe_exac_rate_lower_PI",
+      "predicted_severe_exac_rate_upper_PI"
+    )]
+  } else {
+    acceptPreds <- acceptPreds[, c(
+      newdata_colNames,
+      "predicted_exac_probability",
+      "predicted_exac_rate",
+      "predicted_severe_exac_probability",
+      "predicted_severe_exac_rate"
+    )]
   }
 
   if (!return_predictors) {
@@ -951,7 +1301,6 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
 
   return(acceptPreds)
 }
-
 
 
 #' Predicts probability of observing n exacerbations in the next year
@@ -964,38 +1313,52 @@ accept <- function(newdata, format="tibble", version = "accept3", prediction_int
 #' results <- accept2(samplePatients[1,])
 #' predictCountProb (results)
 #' @export
-predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
-  results <- matrix (0, nrow = n, ncol = n)
-  rowNames = 0:(n-1)
+predictCountProb <- function(patientResults, n = 10, shortened = TRUE) {
+  results <- matrix(0, nrow = n, ncol = n)
+  rowNames = 0:(n - 1)
   rowNames = paste0(rowNames, " exacerbation(s)")
-  colNames = 0:(n-1)
+  colNames = 0:(n - 1)
   colNames = paste0(colNames, " severe")
   colnames(results) = colNames
   rownames(results) = rowNames
   # i is all exacs, j of them severe
   for (i in 1:n) {
     for (j in 1:n) {
-      if (i>=j) {
-        results [i, j] <- dpois(i-1, patientResults$predicted_exac_rate) *
-          dbinom(x= j-1, size = (i-1), prob = patientResults$predicted_severe_exac_probability)
+      if (i >= j) {
+        results[i, j] <- dpois(i - 1, patientResults$predicted_exac_rate) *
+          dbinom(
+            x = j - 1,
+            size = (i - 1),
+            prob = patientResults$predicted_severe_exac_probability
+          )
         # factorial(i-1) / (factorial(j-1) * factorial (i-j))  *
         # patientResults$predicted_severe_exac_probability ^ (j-1) *
         # (1 - patientResults$predicted_severe_exac_probability) ^ (i-j)
-      }}
+      }
+    }
   }
   if (shortened) {
     shortResults <- results
-    shortResults[,4] <- rowSums(results[, 4:10])
-    shortResults[4,] <- colSums(results[4:10, ])
+    shortResults[, 4] <- rowSums(results[, 4:10])
+    shortResults[4, ] <- colSums(results[4:10, ])
     shortResults <- shortResults[1:4, 1:4]
-    colnames(shortResults) <- c("none severe", "1 severe", "2 severe", "3 or more severe")
-    rownames(shortResults) <- c("no exacerbations", "1 exacerbation", "2 exacerbations", "3 or more exacerbations")
+    colnames(shortResults) <- c(
+      "none severe",
+      "1 severe",
+      "2 severe",
+      "3 or more severe"
+    )
+    rownames(shortResults) <- c(
+      "no exacerbations",
+      "1 exacerbation",
+      "2 exacerbations",
+      "3 or more exacerbations"
+    )
 
     results <- shortResults
   }
   return(results)
 }
-
 
 
 #' Predicts country-specific COPD exacerbation risk based on ACCEPT 3.0 model with external recalibration
@@ -1067,11 +1430,43 @@ predictCountProb <- function (patientResults, n = 10, shortened = TRUE){
 #' @seealso \code{\link{accept}}, \code{\link{accept2}}, \code{\link{accept1}}
 #'
 #' @export
-accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LABA, LAMA, LastYrExacCount,  LastYrSevExacCount, FEV1, SGRQ = NA, oxygen, obs_modsev_risk) {
+accept3 <- function(
+  country,
+  ID,
+  age,
+  male,
+  BMI,
+  smoker,
+  mMRC = NA,
+  CVD,
+  ICS,
+  LABA,
+  LAMA,
+  LastYrExacCount,
+  LastYrSevExacCount,
+  FEV1,
+  SGRQ = NA,
+  oxygen,
+  obs_modsev_risk
+) {
   # Create base tibble
-  df <- tibble(country = country, ID = ID, age = age, male = male, BMI = BMI, smoker = smoker, statin = CVD,
-               ICS = ICS, LABA = LABA, LAMA = LAMA, LastYrExacCount = LastYrExacCount, LastYrSevExacCount = LastYrSevExacCount,
-               FEV1 = FEV1, oxygen = oxygen, obs_modsev_risk = obs_modsev_risk)
+  df <- tibble(
+    country = country,
+    ID = ID,
+    age = age,
+    male = male,
+    BMI = BMI,
+    smoker = smoker,
+    statin = CVD,
+    ICS = ICS,
+    LABA = LABA,
+    LAMA = LAMA,
+    LastYrExacCount = LastYrExacCount,
+    LastYrSevExacCount = LastYrSevExacCount,
+    FEV1 = FEV1,
+    oxygen = oxygen,
+    obs_modsev_risk = obs_modsev_risk
+  )
 
   # Add SGRQ or mMRC depending on what's available
   if (!is.na(SGRQ)) {
@@ -1080,18 +1475,83 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
     df$mMRC <- mMRC
   }
 
-  model_accept2 <- accept(newdata=df, version="flexccept", format = "tibble")
+  model_accept2 <- accept(
+    newdata = df,
+    version = "flexccept",
+    format = "tibble"
+  )
   df$predicted_exac_rate <- model_accept2$predicted_exac_rate
   df$predicted_severe_exac_rate <- model_accept2$predicted_severe_exac_rate
-  re_novelty <- data.frame(country = c("ARG", "AUS", "BRA", "CAN", "COL", "DEU", "DNK", "ESP", "FRA", "GBR", "ITA", "JPN", "KOR", "MEX", "NLD", "NOR", "SWE", "USA"),
-                           int = c(-0.1207, -0.1188, -0.3257, -0.0283, -0.1147, -0.4771, 0.0452, 0.2979, -0.1866, 0.5661, 0.3174, -0.4145, -0.5843, -0.2905, 0.4627, 0.3340, -0.0385, -0.2902))
+  re_novelty <- data.frame(
+    country = c(
+      "ARG",
+      "AUS",
+      "BRA",
+      "CAN",
+      "COL",
+      "DEU",
+      "DNK",
+      "ESP",
+      "FRA",
+      "GBR",
+      "ITA",
+      "JPN",
+      "KOR",
+      "MEX",
+      "NLD",
+      "NOR",
+      "SWE",
+      "USA"
+    ),
+    int = c(
+      -0.1184,
+      -0.1200,
+      -0.3274,
+      -0.0337,
+      -0.1165,
+      -0.4735,
+      0.0409,
+      0.3034,
+      -0.1859,
+      0.5697,
+      0.3114,
+      -0.4069,
+      -0.5942,
+      -0.2885,
+      0.4651,
+      0.3277,
+      -0.0326,
+      -0.2881
+    )
+  )
 
-  df$re <- ifelse(df$country %in% re_novelty$country, re_novelty[re_novelty$country==df$country,]$int, 3.106*df$obs_modsev_risk - 0.868)
-  slope_modsev <- 0.9120058
-  slope_sev <- 0.963143
-  df$recal_modsev_risk <- round(1-exp(-exp(-0.8107 + df$re + slope_modsev*log(model_accept2$predicted_exac_rate))), 4)
-  df$recal_sev_risk <- round(1-exp(-exp(-0.8304 + df$re + slope_sev*log(model_accept2$predicted_severe_exac_rate))), 4)
-
+  df$re <- ifelse(
+    df$country %in% re_novelty$country,
+    re_novelty[re_novelty$country == df$country, ]$int,
+    3.102 * df$obs_modsev_risk - 0.867
+  )
+  slope_modsev <- 0.9120
+  slope_sev <- 0.9631
+  df$recal_modsev_risk <- round(
+    1 -
+      exp(
+        -exp(
+          -0.8107 + df$re + slope_modsev * log(model_accept2$predicted_exac_rate)
+        )
+      ),
+    4
+  )
+  df$recal_sev_risk <- round(
+    1 -
+      exp(
+        -exp(
+          -0.8304 +
+            df$re +
+            slope_sev * log(model_accept2$predicted_severe_exac_rate)
+        )
+      ),
+    4
+  )
 
   # Return a list with the ID and risk values
   return(list(
@@ -1100,8 +1560,6 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
     predicted_severe_exac_probability = df$recal_sev_risk
   ))
 }
-
-
 
 
 #' Predicts COPD exacerbation risk for UK primary-care patients using ACCEPT 3.0-CPRD
@@ -1165,18 +1623,19 @@ accept3 <- function(country, ID, age, male, BMI, smoker, mMRC = NA, CVD, ICS, LA
 #'
 #' @importFrom dplyr tibble mutate select starts_with
 #' @export
-accept3_cprd <- function(patientData,
-                       return_predictors = FALSE,
-                       quiet = TRUE) {
-
+accept3_cprd <- function(patientData, return_predictors = FALSE, quiet = TRUE) {
   if (!tibble::is_tibble(patientData)) {
     stop("patientData must be a tibble. Use as_tibble() to convert.")
   }
   if (any(patientData$LastYrSevExacCount > patientData$LastYrExacCount)) {
-    invalid_ids <- patientData$ID[patientData$LastYrSevExacCount > patientData$LastYrExacCount]
-    stop(paste0("LastYrSevExacCount exceeds LastYrExacCount for patient(s): ",
-                paste(invalid_ids, collapse = ", "),
-                ". Severe count cannot exceed total count."))
+    invalid_ids <- patientData$ID[
+      patientData$LastYrSevExacCount > patientData$LastYrExacCount
+    ]
+    stop(paste0(
+      "LastYrSevExacCount exceeds LastYrExacCount for patient(s): ",
+      paste(invalid_ids, collapse = ", "),
+      ". Severe count cannot exceed total count."
+    ))
   }
 
   # 1. Convert mMRC -> SGRQ if needed
@@ -1188,7 +1647,9 @@ accept3_cprd <- function(patientData,
       message("SGRQ not found. Using mMRC score instead.")
       patientData$SGRQ <- 20.43 + 14.77 * patientData$mMRC
     } else {
-      stop("Either mMRC, SGRQ, or CAT must be provided. None were found in patientData.")
+      stop(
+        "Either mMRC, SGRQ, or CAT must be provided. None were found in patientData."
+      )
     }
   }
 
@@ -1199,53 +1660,114 @@ accept3_cprd <- function(patientData,
   #   LastYrExacCount [, LABA [, oxygen [, ICS [, LAMA [, statin [, BMI]]]]]]
 
   cprd_imp <- list(
-
     LABA = list(
       binary = TRUE,
-      coef   = c(0.418, -0.013, 0.009, 0.438, -0.004, -0.063, 0.333)
+      coef = c(0.418, -0.013, 0.009, 0.438, -0.004, -0.063, 0.333)
     ),
 
     oxygen = list(
       binary = TRUE,
-      coef   = c(-7.600, 0.006, -0.197, 0.942, -0.005, 0.188, 0.040,
-                 0.556)                                     # +LABA
+      coef = c(-7.600, 0.006, -0.197, 0.942, -0.005, 0.188, 0.040, 0.556) # +LABA
     ),
 
     ICS = list(
       binary = TRUE,
-      coef   = c(-1.430, -0.004, -0.157, 0.085, -0.002, -0.030, 0.168,
-                 3.372, 0.409)                              # +LABA, oxygen
+      coef = c(
+        -1.430,
+        -0.004,
+        -0.157,
+        0.085,
+        -0.002,
+        -0.030,
+        0.168,
+        3.372,
+        0.409
+      ) # +LABA, oxygen
     ),
 
     LAMA = list(
       binary = TRUE,
-      coef   = c(-0.586, -0.007, 0.089, 0.337, -0.003, 0.000, 0.153,
-                 1.545, 0.203, -0.632)                     # +LABA, oxygen, ICS
+      coef = c(
+        -0.586,
+        -0.007,
+        0.089,
+        0.337,
+        -0.003,
+        0.000,
+        0.153,
+        1.545,
+        0.203,
+        -0.632
+      ) # +LABA, oxygen, ICS
     ),
 
     statin = list(
       binary = TRUE,
-      coef   = c(-2.711, 0.015, 0.200, -0.004, 0.001, -0.032, 0.009,
-                 0.180, -0.196, -0.259, 0.207)             # +LABA, oxygen, ICS, LAMA
+      coef = c(
+        -2.711,
+        0.015,
+        0.200,
+        -0.004,
+        0.001,
+        -0.032,
+        0.009,
+        0.180,
+        -0.196,
+        -0.259,
+        0.207
+      ) # +LABA, oxygen, ICS, LAMA
     ),
 
     BMI = list(
-      binary    = FALSE,
+      binary = FALSE,
       clamp_low = 10,
-      clamp_hi  = 60,
-      coef      = c(28.944, -0.074, 0.195, 0.421, 0.027, -0.527, 0.010,
-                    0.451, -0.093, -0.051, -0.105, 1.629) # +LABA, oxygen, ICS, LAMA, statin
+      clamp_hi = 60,
+      coef = c(
+        28.944,
+        -0.074,
+        0.195,
+        0.421,
+        0.027,
+        -0.527,
+        0.010,
+        0.451,
+        -0.093,
+        -0.051,
+        -0.105,
+        1.629
+      ) # +LABA, oxygen, ICS, LAMA, statin
     ),
 
     smoker = list(
       binary = TRUE,
-      coef   = c(5.449, -0.061, -0.099, 0.123, 0.000, 0.039, -0.017,
-                 -0.056, -0.648, -0.246, 0.069, 0.031, -0.058) # all optional
+      coef = c(
+        5.449,
+        -0.061,
+        -0.099,
+        0.123,
+        0.000,
+        0.039,
+        -0.017,
+        -0.056,
+        -0.648,
+        -0.246,
+        0.069,
+        0.031,
+        -0.058
+      ) # all optional
     )
   )
 
   # Sequential imputation order matches the triangular matrix
-  optional_order <- c("LABA", "oxygen", "ICS", "LAMA", "statin", "BMI", "smoker")
+  optional_order <- c(
+    "LABA",
+    "oxygen",
+    "ICS",
+    "LAMA",
+    "statin",
+    "BMI",
+    "smoker"
+  )
 
   # Use mMRC if available, otherwise back-transform from SGRQ
   if ("SGRQ" %in% colnames(patientData)) {
@@ -1258,54 +1780,86 @@ accept3_cprd <- function(patientData,
       }
     }
   }
-  mandatory_preds <- c("age", "male", "mMRC", "FEV1",
-                       "LastYrSevExacCount", "LastYrExacCount")
+  mandatory_preds <- c(
+    "age",
+    "male",
+    "mMRC",
+    "FEV1",
+    "LastYrSevExacCount",
+    "LastYrExacCount"
+  )
 
   # Mandatory predictors drive both the optional-predictor imputation and the
   # downstream accept2() call. Any remaining NA would silently propagate to NA
   # predictions, so fail fast with a clear message.
-  missing_mandatory <- mandatory_preds[!mandatory_preds %in% colnames(patientData)]
+  missing_mandatory <- mandatory_preds[
+    !mandatory_preds %in% colnames(patientData)
+  ]
   if (length(missing_mandatory) > 0) {
-    stop(paste0("accept3_cprd: missing mandatory predictor column(s): ",
-                paste(missing_mandatory, collapse = ", "), "."))
+    stop(paste0(
+      "accept3_cprd: missing mandatory predictor column(s): ",
+      paste(missing_mandatory, collapse = ", "),
+      "."
+    ))
   }
-  na_mandatory <- vapply(mandatory_preds, function(v) any(is.na(patientData[[v]])), logical(1))
+  na_mandatory <- vapply(
+    mandatory_preds,
+    function(v) any(is.na(patientData[[v]])),
+    logical(1)
+  )
   if (any(na_mandatory)) {
-    stop(paste0("accept3_cprd: mandatory predictor(s) contain missing values that could not be resolved: ",
-                paste(mandatory_preds[na_mandatory], collapse = ", "),
-                ". Provide complete values (mMRC can be supplied directly or via SGRQ)."))
+    stop(paste0(
+      "accept3_cprd: mandatory predictor(s) contain missing values that could not be resolved: ",
+      paste(mandatory_preds[na_mandatory], collapse = ", "),
+      ". Provide complete values (mMRC can be supplied directly or via SGRQ)."
+    ))
   }
 
   imputed_vars <- character(0)
 
   for (vname in optional_order) {
-    if (!vname %in% colnames(patientData) ||
-        any(is.na(patientData[[vname]]))) {
-
-      spec      <- cprd_imp[[vname]]
+    if (
+      !vname %in% colnames(patientData) ||
+        any(is.na(patientData[[vname]]))
+    ) {
+      spec <- cprd_imp[[vname]]
       pred_cols <- c(mandatory_preds, imputed_vars)
 
-      X  <- as.matrix(cbind(1, patientData[, pred_cols]))
-      X  <- matrix(as.numeric(X), nrow = nrow(X), ncol = ncol(X))
+      X <- as.matrix(cbind(1, patientData[, pred_cols]))
+      X <- matrix(as.numeric(X), nrow = nrow(X), ncol = ncol(X))
       lp <- as.vector(X %*% spec$coef)
 
       if (spec$binary) {
         pred_vals <- round(exp(lp) / (1 + exp(lp)))
       } else {
         pred_vals <- lp
-        if (!is.null(spec$clamp_low)) pred_vals <- pmax(pred_vals, spec$clamp_low)
-        if (!is.null(spec$clamp_hi))  pred_vals <- pmin(pred_vals, spec$clamp_hi)
+        if (!is.null(spec$clamp_low)) {
+          pred_vals <- pmax(pred_vals, spec$clamp_low)
+        }
+        if (!is.null(spec$clamp_hi)) pred_vals <- pmin(pred_vals, spec$clamp_hi)
       }
 
       if (!vname %in% colnames(patientData)) {
         patientData[[vname]] <- pred_vals
-        if (!quiet) message(paste0("accept3_cprd: '", vname, "' not found - imputed using CPRD model."))
+        if (!quiet) {
+          message(paste0(
+            "accept3_cprd: '",
+            vname,
+            "' not found - imputed using CPRD model."
+          ))
+        }
       } else {
         na_idx <- is.na(patientData[[vname]])
         patientData[[vname]][na_idx] <- pred_vals[na_idx]
-        if (any(na_idx) && !quiet)
-          message(paste0("accept3_cprd: ", sum(na_idx), " missing value(s) in '",
-                         vname, "' imputed using CPRD model."))
+        if (any(na_idx) && !quiet) {
+          message(paste0(
+            "accept3_cprd: ",
+            sum(na_idx),
+            " missing value(s) in '",
+            vname,
+            "' imputed using CPRD model."
+          ))
+        }
       }
     }
 
@@ -1319,7 +1873,7 @@ accept3_cprd <- function(patientData,
   accept2_preds <- accept2(patientData = patientData)
 
   p2_modsev <- accept2_preds$predicted_exac_probability
-  p2_sev    <- accept2_preds$predicted_severe_exac_probability
+  p2_sev <- accept2_preds$predicted_severe_exac_probability
 
   # 4. CPRD recalibration
   # Optimism-corrected parameters from CPRD bootstrap:
@@ -1328,31 +1882,31 @@ accept3_cprd <- function(patientData,
   #   Severe:             Baseline Hazard H0 = 0.482 (95% CI 0.472-0.495)
   #                       Slope beta         = 1.124 (95% CI 1.107-1.142)
 
-  H0_modsev   <- 0.676
+  H0_modsev <- 0.676
   beta_modsev <- 0.986
 
-  H0_sev      <- 0.482
-  beta_sev    <- 1.124
+  H0_sev <- 0.482
+  beta_sev <- 1.124
 
   lp_modsev <- log(-log(1 - p2_modsev))
-  lp_sev    <- log(-log(1 - p2_sev))
+  lp_sev <- log(-log(1 - p2_sev))
 
   cprd_modsev <- 1 - exp(-H0_modsev * exp(beta_modsev * lp_modsev))
-  cprd_sev    <- 1 - exp(-H0_sev    * exp(beta_sev    * lp_sev))
+  cprd_sev <- 1 - exp(-H0_sev * exp(beta_sev * lp_sev))
 
   # 4. Assemble output
   out <- dplyr::tibble(
-    predicted_exac_probability        = round(cprd_modsev, 4),
-    predicted_exac_rate               = round(-log(1 - cprd_modsev), 4),
+    predicted_exac_probability = round(cprd_modsev, 4),
+    predicted_exac_rate = round(-log(1 - cprd_modsev), 4),
     predicted_severe_exac_probability = round(cprd_sev, 4),
-    predicted_severe_exac_rate        = round(-log(1 - cprd_sev), 4)
+    predicted_severe_exac_rate = round(-log(1 - cprd_sev), 4)
   )
 
   if (return_predictors) {
     out <- dplyr::bind_cols(patientData, out)
   } else {
     out$ID <- patientData$ID
-    out    <- dplyr::select(out, "ID", dplyr::everything())
+    out <- dplyr::select(out, "ID", dplyr::everything())
   }
 
   return(out)
