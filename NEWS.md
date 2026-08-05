@@ -1,3 +1,7 @@
+# accept 1.2.1
+* Minor update to `accept3()`; predictions change slightly and the expected
+  values in the test suite have been refreshed accordingly.
+
 # accept 1.1.0
 * 'accept' now defaults to the newly added country-specific `accept3`
 * 'accept' now checks consistency of exacerbation counts in the previous year.

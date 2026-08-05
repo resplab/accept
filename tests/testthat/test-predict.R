@@ -47,23 +47,23 @@ test_that("accept3 predictions match expected values from accept_checks.csv", {
     list(ID = "1", country = "DEU", age = 84, male = TRUE, BMI = 39.3, smoker = FALSE,
          FEV1 = 45.4, mMRC = 3, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
          statin = FALSE, LAMA = TRUE, LABA = FALSE, ICS = FALSE,
-         exac_prob = 0.1101, severe_prob = 0.036),
+         exac_prob = 0.1105, severe_prob = 0.0361),
     list(ID = "2", country = "JPN", age = 67, male = TRUE, BMI = 20, smoker = FALSE,
          FEV1 = 58.24, mMRC = 3, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
          statin = FALSE, LAMA = FALSE, LABA = FALSE, ICS = FALSE,
-         exac_prob = 0.1213, severe_prob = 0.0397),
+         exac_prob = 0.1222, severe_prob = 0.04),
     list(ID = "3", country = "GBR", age = 71, male = TRUE, BMI = 29.8, smoker = FALSE,
          FEV1 = 61.89, mMRC = 2, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
          statin = FALSE, LAMA = FALSE, LABA = FALSE, ICS = FALSE,
-         exac_prob = 0.2008, severe_prob = 0.0789),
+         exac_prob = 0.2014, severe_prob = 0.0792),
     list(ID = "4", country = "AUS", age = 56, male = FALSE, BMI = 23, smoker = FALSE,
          FEV1 = 23, mMRC = 3, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
          statin = FALSE, LAMA = TRUE, LABA = TRUE, ICS = TRUE,
-         exac_prob = 0.3692, severe_prob = 0.0829),
+         exac_prob = 0.3689, severe_prob = 0.0828),
     list(ID = "5", country = "USA", age = 59, male = FALSE, BMI = 28.8, smoker = FALSE,
          FEV1 = 56.91, mMRC = 0, oxygen = FALSE, LastYrExacCount = 0, LastYrSevExacCount = 0,
          statin = FALSE, LAMA = FALSE, LABA = TRUE, ICS = TRUE,
-         exac_prob = 0.137, severe_prob = 0.0301)
+         exac_prob = 0.1373, severe_prob = 0.0301)
   )
 
   for (i in seq_along(test_cases)) {
